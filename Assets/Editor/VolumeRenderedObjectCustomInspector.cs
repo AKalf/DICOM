@@ -22,6 +22,8 @@ namespace UnityVolumeRendering {
 
             // Visibility window
             Vector2 visibilityWindow = volrendObj.GetVisibilityWindow();
+            float oldX = visibilityWindow.x;
+            float oldY = visibilityWindow.y;
             EditorGUILayout.MinMaxSlider("Visible value range", ref visibilityWindow.x, ref visibilityWindow.y, 0.0f, 1.0f);
             EditorGUILayout.Space();
             volrendObj.SetVisibilityWindow(visibilityWindow);

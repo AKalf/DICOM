@@ -8,10 +8,11 @@
         _TFTex("Transfer Function Texture (Generated)", 2D) = "" {}
         _MinVal("Min val", Range(0.0, 1.0)) = 0.0
         _MaxVal("Max val", Range(0.0, 1.0)) = 1.0
-        _Density("Density", Range(256, 20000)) = 512
+        _Density("Density", Range(256, 10000)) = 512
         _LightIntensity("Light Intensity", Range(0.0, 5)) = 0.2
         _Opacity("Opactiy", Range(0.00, 1.50)) = 1.0
-        _MaxDepth("Max Depth", float) = 100
+        _MaxDepth("Max Depth", Range(0.0, 1.0)) = 1
+        _MinDepth("Min Depth", Range(-1.0, 1.0)) = 1
     }
     SubShader
     {
@@ -25,6 +26,7 @@
         Pass
         {
             CGPROGRAM
+
             #pragma multi_compile MODE_DVR MODE_MIP MODE_SURF
             #pragma multi_compile __ TF2D_ON
             #pragma multi_compile __ CUTOUT_PLANE CUTOUT_BOX_INCL CUTOUT_BOX_EXCL
@@ -59,6 +61,7 @@
             int _Density;
             float _LightIntensity;
             float _Opacity;
+            float _MinDepth;
             float _MaxDepth;
 
 #if CUTOUT_ON
@@ -238,7 +241,7 @@
 
                     // Get the dansity/sample value of the current position
                     const float density = getDensity(currPos);
-
+                    
                     // Apply visibility window
                     if (density < _MinVal || density > _MaxVal) continue;
 
@@ -337,7 +340,6 @@
             }
 /****************************************************************************************************************************************************************************/
 
-
             // Surface rendering mode
             // Draws the first point (closest to camera) with a density within the user-defined thresholds.
             frag_out frag_surf(frag_in i)
@@ -347,26 +349,27 @@
                 RaymarchInfo raymarchInfo = initRaymarch(ray, _Density);
 
                 // Create a small random offset in order to remove artifacts
-                ray.startPos = ray.startPos + (2.0f * ray.direction * raymarchInfo.stepSize) * tex2D(_NoiseTex, float2(i.uv.x, i.uv.y)).r;
+                ray.startPos = ray.startPos + (2.0 * ray.direction * raymarchInfo.stepSize); //* tex2D(_NoiseTex, float2(i.uv.x, i.uv.y)).r;
 
                 float4 col = float4(0,0,0,0);
+
                 for (int iStep = 0; iStep < raymarchInfo.numSteps; iStep++)
                 {
                     const float t = iStep * raymarchInfo.numStepsRecip;
                     const float3 currPos = lerp(ray.startPos, ray.endPos, t);
-                    
+
 #ifdef CUTOUT_ON
                     if (IsCutout(currPos))
                         continue;
 #endif
 
                     const float density = getDensity(currPos);
-                    if (density > _MinVal && density < _MaxVal)
+                    if (density > _MinVal && density < _MaxVal && currPos.y < _MaxDepth && currPos.y > _MinDepth)
                     {
                         float3 normal = normalize(getGradient(currPos));
-                        col = getTF1DColour(density);
-                        col.rgb = calculateLighting(col.rgb, normal, -ray.direction, -ray.direction, 0.15);
-                        col.a = 1.0f * _Opacity;
+                        col = getTF2DColour(density, normal);                         
+                        col.rgb = calculateLighting(col.rgb, normal, -ray.direction, -ray.direction, 0.25);
+                        col.a = _Opacity; 
                         break;
                     }
                 }
@@ -377,7 +380,7 @@
 #if DEPTHWRITE_ON
                 
                 const float tDepth = iStep * raymarchInfo.numStepsRecip + (step(col.a, 0.0) * 1000.0); // Write large depth if no hit
-                output.depth = localToDepth(lerp(ray.startPos, ray.endPos, tDepth) - float3(0.5f, 0.5f, 0.5f));
+                output.depth = localToDepth(lerp(ray.startPos, ray.endPos, tDepth) + float3(0.5f, 0.5f, 0.5f));
 #endif
                 return output;
             }

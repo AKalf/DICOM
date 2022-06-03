@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -18,6 +20,7 @@ public class ShaderOptionsController : MonoBehaviour {
     [SerializeField] Slider DensitySlider, LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax, ZoomSlider, RotationX, RotationY, RotationZ;
     [SerializeField] Toggle EnableLightingToggle, EnableBack2FrontRaycasting;
     [SerializeField] InputField DensityInputField, LightIntensityInputField, OpacityInputField, MaxDepthInputField, MinVisibilityInputField, MaxVisibilityInputField, RotationXInputField, RotationYInputField, RotationZInputField;
+    [SerializeField] Button importRawButton = null, importPARCHG = null, importDICOM = null;
     [SerializeField] Dropdown transferFunctionTypeDropdown;
 
 
@@ -31,9 +34,13 @@ public class ShaderOptionsController : MonoBehaviour {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
         DensitySlider.wholeNumbers = true;
+        importRawButton.onClick.AddListener(() => RuntimeFileBrowser.ShowOpenFileDialog(OnOpenRAWDatasetResult, "DataFiles"));
+        importPARCHG.onClick.AddListener(() => RuntimeFileBrowser.ShowOpenFileDialog(OnOpenPARDatasetResult, "DataFiles"));
+        importDICOM.onClick.AddListener(() => RuntimeFileBrowser.ShowOpenDirectoryDialog(OnOpenDICOMDatasetResult));
     }
     private void Start() {
-        OnSelectVolume();
+        if (currentVolume != null)
+            OnSelectVolume(currentVolume);
     }
     private void SetUpSlider(Slider slider, InputField inputField, string propertyName, out int propertyIndex, out int nameID, bool onlyIntValues = false) {
         propertyIndex = volumeMaterial.shader.FindPropertyIndex(propertyName);
@@ -114,7 +121,6 @@ public class ShaderOptionsController : MonoBehaviour {
 
     }
 
-
     private void Initialise() {
         SetUpSlider(DensitySlider, DensityInputField, "_Density", out densityPropertyIndex, out densityPropertyNameID, true);
         SetUpSlider(LightingIntensitySlider, LightIntensityInputField, "_LightIntensity", out lightIntensityPropertyIndex, out lightIntensityPropertyNameID);
@@ -125,8 +131,7 @@ public class ShaderOptionsController : MonoBehaviour {
         maxDepthPropertyNameID = volumeMaterial.shader.GetPropertyNameId(maxDepthPropertyIndex);
         MaxDepthInputField.onEndEdit.AddListener(value => {
             float newValue = 0.0f;
-            if (float.TryParse(value, out newValue))
-                volumeMaterial.SetFloat(maxDepthPropertyNameID, newValue);
+            if (float.TryParse(value, out newValue)) volumeMaterial.SetFloat(maxDepthPropertyNameID, newValue);
         });
 
 
@@ -137,9 +142,7 @@ public class ShaderOptionsController : MonoBehaviour {
         });
 
 
-        EnableBack2FrontRaycasting.onValueChanged.AddListener(value => {
-            currentVolume.SetDVRBackwardEnabled(value);
-        });
+        EnableBack2FrontRaycasting.onValueChanged.AddListener(value => currentVolume.SetDVRBackwardEnabled(value));
 
         Vector3 currPos = targetVolumeTransform.position;
         ZoomSlider.minValue = currPos.z - 3;
@@ -180,7 +183,9 @@ public class ShaderOptionsController : MonoBehaviour {
 
     }
 
-    private void OnSelectVolume() {
+    private void OnSelectVolume(VolumeRenderedObject obj) {
+
+        currentVolume = obj;
         volumeMaterial = currentVolume.GetComponentInChildren<Renderer>().material;
         targetVolumeTransform = currentVolume.transform.GetChild(0).transform;
         if (!hasInitialised) Initialise();
@@ -192,4 +197,74 @@ public class ShaderOptionsController : MonoBehaviour {
         MaxDepthInputField.SetTextWithoutNotify(volumeMaterial.GetFloat(maxDepthPropertyNameID).ToString());
 
     }
+
+    private void OnOpenPARDatasetResult(RuntimeFileBrowser.DialogResult result) {
+        if (!result.cancelled) {
+            DespawnAllDatasets();
+            string filePath = result.path;
+            IImageFileImporter parimporter = ImporterFactory.CreateImageFileImporter(ImageFileFormat.VASP);
+            VolumeDataset dataset = parimporter.Import(filePath);
+            if (dataset != null) OnSelectVolume(VolumeObjectFactory.CreateObject(dataset));
+        }
+    }
+
+    private void OnOpenRAWDatasetResult(RuntimeFileBrowser.DialogResult result) {
+        if (!result.cancelled) {
+
+            // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
+            DespawnAllDatasets();
+
+            // Did the user try to import an .ini-file? Open the corresponding .raw file instead
+            string filePath = result.path;
+            if (System.IO.Path.GetExtension(filePath) == ".ini")
+                filePath = filePath.Replace(".ini", ".raw");
+
+            // Parse .ini file
+            DatasetIniData initData = DatasetIniReader.ParseIniFile(filePath + ".ini");
+            if (initData != null) {
+                // Import the dataset
+                RawDatasetImporter importer = new RawDatasetImporter(filePath, initData.dimX, initData.dimY, initData.dimZ, initData.format, initData.endianness, initData.bytesToSkip);
+                VolumeDataset dataset = importer.Import();
+                // Spawn the object
+                if (dataset != null) OnSelectVolume(VolumeObjectFactory.CreateObject(dataset));
+
+            }
+        }
+    }
+
+    private void OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
+        if (!result.cancelled) {
+            // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
+            DespawnAllDatasets();
+
+            bool recursive = true;
+
+            // Read all files
+            IEnumerable<string> fileCandidates = Directory.EnumerateFiles(result.path, "*.*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                .Where(p => p.EndsWith(".dcm", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicom", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicm", StringComparison.InvariantCultureIgnoreCase));
+
+            // Import the dataset
+            IImageSequenceImporter importer = ImporterFactory.CreateImageSequenceImporter(ImageSequenceFormat.DICOM);
+            IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
+            float numVolumesCreated = 0;
+            foreach (IImageSequenceSeries series in seriesList) {
+                VolumeDataset dataset = importer.ImportSeries(series);
+                // Spawn the object
+                if (dataset != null) {
+                    VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
+                    obj.transform.position = new Vector3(numVolumesCreated, 0, 0);
+                    numVolumesCreated++;
+                    OnSelectVolume(obj);
+                }
+            }
+        }
+    }
+
+    private void DespawnAllDatasets() {
+        VolumeRenderedObject[] volobjs = GameObject.FindObjectsOfType<VolumeRenderedObject>();
+        foreach (VolumeRenderedObject volobj in volobjs) {
+            GameObject.Destroy(volobj.gameObject);
+        }
+    }
+
 }
