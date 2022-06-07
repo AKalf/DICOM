@@ -12,7 +12,8 @@
         _LightIntensity("Light Intensity", Range(0.0, 5)) = 0.2
         _Opacity("Opactiy", Range(0.00, 1.50)) = 1.0
         _MaxDepth("Max Depth", Range(0.0, 1.0)) = 1
-        _MinDepth("Min Depth", Range(-1.0, 1.0)) = 1
+        _MinDepth("Min Depth", Range(-1.0, 1.0)) = 0
+        _DecreaseOpacityBasedOnDepth("OpacityBasedOnDepth", int) = 0
     }
     SubShader
     {
@@ -40,7 +41,7 @@
             #include "UnityCG.cginc"
 
             #define CUTOUT_ON CUTOUT_PLANE || CUTOUT_BOX_INCL || CUTOUT_BOX_EXCL
-
+            
             struct vert_in { float4 vertex : POSITION; float4 normal : NORMAL;  float2 uv : TEXCOORD0; };
 
             struct frag_in  {  float4 vertex : SV_POSITION; float2 uv : TEXCOORD0; float3 vertexLocal : TEXCOORD1; float3 normal : NORMAL; };
@@ -63,6 +64,7 @@
             float _Opacity;
             float _MinDepth;
             float _MaxDepth;
+            int _DecreaseOpacityBasedOnDepth;
 
 #if CUTOUT_ON
             float4x4 _CrossSectionMatrix;
@@ -243,7 +245,7 @@
                     const float density = getDensity(currPos);
                     
                     // Apply visibility window
-                    if (density < _MinVal || density > _MaxVal) continue;
+                    if (density < _MinVal || density > _MaxVal || currPos.y > _MaxDepth || currPos.y < _MinDepth) continue;
 
                     // Calculate gradient (needed for lighting and 2D transfer functions)
 #if defined(TF2D_ON) || defined(LIGHTING_ON)
@@ -268,7 +270,7 @@
 #ifdef DVR_BACKWARD_ON
                     col.rgb = src.a * src.rgb + (1.0f - src.a) * col.rgb;
                     col.a = src.a + (1.0f - src.a) * col.a;
-
+                    
                     // Optimisation: A branchless version of: if (src.a > 0.15f) tDepth = t;
                     tDepth = max(tDepth, t * step(0.15, src.a));
 #else
@@ -286,9 +288,12 @@
                         break;
                     }
 #endif
+                  if (_DecreaseOpacityBasedOnDepth == 1) col.a = (1 - currPos.y ) * _Opacity;
+                  else col.a *= _Opacity; // - ALEX
                 }
 
-                 col.a *= _Opacity; // - ALEX
+                 
+
 
                 // Write fragment output
                 frag_out output;
@@ -349,7 +354,7 @@
                 RaymarchInfo raymarchInfo = initRaymarch(ray, _Density);
 
                 // Create a small random offset in order to remove artifacts
-                ray.startPos = ray.startPos + (2.0 * ray.direction * raymarchInfo.stepSize); //* tex2D(_NoiseTex, float2(i.uv.x, i.uv.y)).r;
+                ray.startPos = ray.startPos + (2.0 * ray.direction * raymarchInfo.stepSize) * tex2D(_NoiseTex, float2(i.uv.x, i.uv.y)).r;
 
                 float4 col = float4(0,0,0,0);
 
@@ -367,9 +372,13 @@
                     if (density > _MinVal && density < _MaxVal && currPos.y < _MaxDepth && currPos.y > _MinDepth)
                     {
                         float3 normal = normalize(getGradient(currPos));
+      
                         col = getTF2DColour(density, normal);                         
                         col.rgb = calculateLighting(col.rgb, normal, -ray.direction, -ray.direction, 0.25);
-                        col.a = _Opacity; 
+                      
+                        // 1.732f  
+                        if (_DecreaseOpacityBasedOnDepth == 1) col.a = (1 - currPos.y - density) * _Opacity;
+                        else col.a = _Opacity;
                         break;
                     }
                 }

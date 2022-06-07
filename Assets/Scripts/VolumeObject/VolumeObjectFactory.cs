@@ -45,7 +45,7 @@ namespace UnityVolumeRendering {
             return volObj;
         }
 
-        public static void SpawnCrossSectionPlane(VolumeRenderedObject volobj) {
+        public static CrossSectionPlane SpawnCrossSectionPlane(VolumeRenderedObject volobj) {
             GameObject quad = GameObject.Instantiate((GameObject)Resources.Load("CrossSectionPlane"));
             quad.transform.rotation = Quaternion.Euler(270.0f, 0.0f, 0.0f);
             CrossSectionPlane csplane = quad.gameObject.GetComponent<CrossSectionPlane>();
@@ -55,9 +55,10 @@ namespace UnityVolumeRendering {
 #if UNITY_EDITOR
             UnityEditor.Selection.objects = new UnityEngine.Object[] { quad };
 #endif
+            return csplane;
         }
 
-        public static void SpawnCutoutBox(VolumeRenderedObject volobj) {
+        public static CutoutBox SpawnCutoutBox(VolumeRenderedObject volobj) {
             GameObject obj = GameObject.Instantiate((GameObject)Resources.Load("CutoutBox"));
             obj.transform.rotation = Quaternion.Euler(270.0f, 0.0f, 0.0f);
             CutoutBox cbox = obj.gameObject.GetComponent<CutoutBox>();
@@ -67,6 +68,7 @@ namespace UnityVolumeRendering {
 #if UNITY_EDITOR
             UnityEditor.Selection.objects = new UnityEngine.Object[] { obj };
 #endif
+            return cbox;
         }
     }
 }
