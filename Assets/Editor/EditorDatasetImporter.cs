@@ -1,21 +1,16 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnityVolumeRendering
-{
-    public class EditorDatasetImporter
-    {
-        public static void ImportDataset(string filePath)
-        {
+namespace UnityVolumeRendering {
+    public class EditorDatasetImporter {
+        public static void ImportDataset(string filePath) {
             DatasetType datasetType = DatasetImporterUtility.GetDatasetType(filePath);
-            switch (datasetType)
-            {
-                case DatasetType.Raw:
-                    {
+            switch (datasetType) {
+                case DatasetType.Raw: {
                         RAWDatasetImporterEditorWindow wnd = (RAWDatasetImporterEditorWindow)EditorWindow.GetWindow(typeof(RAWDatasetImporterEditorWindow));
                         if (wnd != null)
                             wnd.Close();
@@ -25,8 +20,7 @@ namespace UnityVolumeRendering
                         break;
                     }
                 case DatasetType.DICOM:
-                case DatasetType.ImageSequence:
-                    {
+                case DatasetType.ImageSequence: {
                         ImageSequenceFormat imgSeqFormat;
                         if (datasetType == DatasetType.DICOM)
                             imgSeqFormat = ImageSequenceFormat.DICOM;
@@ -38,21 +32,19 @@ namespace UnityVolumeRendering
                         string directoryPath = new FileInfo(filePath).Directory.FullName;
 
                         // Find all DICOM files in directory
-                        IEnumerable<string> fileCandidates = Directory.EnumerateFiles(directoryPath, "*.*", SearchOption.TopDirectoryOnly)
+                        System.Collections.Generic.IEnumerable<string> fileCandidates = Directory.EnumerateFiles(directoryPath, "*.*", SearchOption.TopDirectoryOnly)
                             .Where(p => p.EndsWith(".dcm", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicom", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicm", StringComparison.InvariantCultureIgnoreCase));
 
                         IImageSequenceImporter importer = ImporterFactory.CreateImageSequenceImporter(imgSeqFormat);
 
-                        IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
-                        foreach (IImageSequenceSeries series in seriesList)
-                        {
+                        System.Collections.Generic.IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
+                        foreach (IImageSequenceSeries series in seriesList) {
                             // Only import the series that contains the selected file
-                            if(series.GetFiles().Any(f => Path.GetFileName(f.GetFilePath()) == Path.GetFileName(filePath)))
-                            {
-                                VolumeDataset dataset = importer.ImportSeries(series);
+                            if (series.GetFiles().Any(f => Path.GetFileName(f.GetFilePath()) == Path.GetFileName(filePath))) {
+                                VolumeDataset dataset = null;
+                                //importer.ImportSeries(series);
 
-                                if (dataset != null)
-                                {
+                                if (dataset != null) {
                                     VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
                                 }
                             }
@@ -61,8 +53,7 @@ namespace UnityVolumeRendering
                     }
                 case DatasetType.PARCHG:
                 case DatasetType.NRRD:
-                case DatasetType.NIFTI:
-                    {
+                case DatasetType.NIFTI: {
                         ImageFileFormat imgFileFormat;
                         if (datasetType == DatasetType.PARCHG)
                             imgFileFormat = ImageFileFormat.VASP;
@@ -76,12 +67,10 @@ namespace UnityVolumeRendering
                         IImageFileImporter importer = ImporterFactory.CreateImageFileImporter(imgFileFormat);
                         VolumeDataset dataset = importer.Import(filePath);
 
-                        if (dataset != null)
-                        {
+                        if (dataset != null) {
                             VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
                         }
-                        else
-                        {
+                        else {
                             Debug.LogError("Failed to import datset");
                         }
                         break;

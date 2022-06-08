@@ -153,6 +153,7 @@ public class ShaderUIOptionsController : MonoBehaviour {
         SetUpSlider(OpacitySlider, OpacityInputField, "_Opacity", out opacityPropertyIndex, out opacityPropertyNameID);
         opacityBasedOnDepthPropertyIndex = AppManager.Instance.SelectedVolumeMaterial.shader.FindPropertyIndex("_DecreaseOpacityBasedOnDepth");
         opacityBasedOnDepthPropertyNameID = AppManager.Instance.SelectedVolumeMaterial.shader.GetPropertyNameId(opacityBasedOnDepthPropertyIndex);
+        EnableOpacityBasedOnDepth.isOn = AppManager.Instance.SelectedVolumeMaterial.GetInt(opacityBasedOnDepthPropertyNameID) == 1 ? true : false;
         EnableOpacityBasedOnDepth.onValueChanged.AddListener(value => {
             if (value) AppManager.Instance.SelectedVolumeMaterial.SetInt(opacityBasedOnDepthPropertyNameID, 1);
             else AppManager.Instance.SelectedVolumeMaterial.SetInt(opacityBasedOnDepthPropertyNameID, 0);

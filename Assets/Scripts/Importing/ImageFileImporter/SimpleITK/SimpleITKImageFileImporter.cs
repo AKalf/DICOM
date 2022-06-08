@@ -5,16 +5,14 @@ using itk.simple;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
-namespace UnityVolumeRendering
-{
+namespace UnityVolumeRendering {
     /// <summary>
     /// SimpleITK-based DICOM importer.
     /// </summary>
-    public class SimpleITKImageFileImporter : IImageFileImporter
-    {
-        public VolumeDataset Import(string filePath)
-        {
+    public class SimpleITKImageFileImporter : IImageFileImporter {
+        public VolumeDataset Import(string filePath) {
             ImageFileReader reader = new ImageFileReader();
 
             reader.SetFileName(filePath);

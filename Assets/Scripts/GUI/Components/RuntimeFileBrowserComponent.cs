@@ -1,18 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using UnityEngine;
 
-namespace UnityVolumeRendering
-{
-    public partial class RuntimeFileBrowser
-    {
+namespace UnityVolumeRendering {
+    public partial class RuntimeFileBrowser {
         /// <summary>
         /// Internal MonoBehaviour that shows the GUI of the file browser.
         /// </summary>
-        public class RuntimeFileBrowserComponent : MonoBehaviour
-        {
-            public enum DialogMode
-            {
+        public class RuntimeFileBrowserComponent : MonoBehaviour {
+            public enum DialogMode {
                 OpenFile,
                 OpenDirectory,
                 SaveFile
@@ -20,7 +17,7 @@ namespace UnityVolumeRendering
 
             public DialogMode dialogMode = DialogMode.OpenFile;
             public DialogCallback callback = null;
-
+            public EnumeratorDialogCallback enumeratorCallback = null;
             public string currentDirectory;
             private string selectedFile;
             private Vector2 scrollPos = Vector2.zero;
@@ -35,19 +32,16 @@ namespace UnityVolumeRendering
 
             private int windowID;
 
-            private void Awake()
-            {
+            private void Awake() {
                 // Fetch a unique ID for our window (see GUI.Window)
                 windowID = WindowGUID.GetUniqueWindowID();
             }
 
-            private void OnGUI()
-            {
+            private void OnGUI() {
                 windowRect = GUI.Window(windowID, windowRect, UpdateWindow, "File browser");
             }
 
-            private void UpdateWindow(int windowID)
-            {
+            private void UpdateWindow(int windowID) {
                 GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
                 TextAnchor oldAlignment = GUI.skin.label.alignment;
@@ -74,13 +68,11 @@ namespace UnityVolumeRendering
                 GUI.skin.button.alignment = oldAlignment;
             }
 
-            private void DrawTopPanel()
-            {
+            private void DrawTopPanel() {
                 GUILayout.BeginHorizontal();
 
                 // "Back" button
-                if (GUILayout.Button("Back", GUILayout.Width(LEFT_PANEL_WIDTH)))
-                {
+                if (GUILayout.Button("Back", GUILayout.Width(LEFT_PANEL_WIDTH))) {
                     DirectoryInfo parentDir = Directory.GetParent(currentDirectory);
                     if (parentDir != null)
                         currentDirectory = parentDir.FullName;
@@ -93,28 +85,23 @@ namespace UnityVolumeRendering
 
                 GUILayout.EndHorizontal();
             }
-            
-            private void DrawLeftSideMenu()
-            {
+
+            private void DrawLeftSideMenu() {
                 GUILayout.BeginVertical(GUILayout.Width(LEFT_PANEL_WIDTH));
 
                 dirScrollPos = GUILayout.BeginScrollView(dirScrollPos);
-                foreach (DriveInfo driveInfo in DriveInfo.GetDrives())
-                {
-                    if (GUILayout.Button(driveInfo.Name))
-                    {
+                foreach (DriveInfo driveInfo in DriveInfo.GetDrives()) {
+                    if (GUILayout.Button(driveInfo.Name)) {
                         currentDirectory = driveInfo.Name;
                         scrollPos = Vector2.zero;
                     }
                 }
 
-                if (GUILayout.Button("Documents"))
-                {
+                if (GUILayout.Button("Documents")) {
                     currentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     scrollPos = Vector2.zero;
                 }
-                if (GUILayout.Button("Desktop"))
-                {
+                if (GUILayout.Button("Desktop")) {
                     currentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                     scrollPos = Vector2.zero;
                 }
@@ -123,31 +110,24 @@ namespace UnityVolumeRendering
                 GUILayout.EndVertical();
             }
 
-            private void DrawDirectoryView()
-            {
+            private void DrawDirectoryView() {
                 GUILayout.BeginVertical();
 
                 // Draw directory content
-                if (!string.IsNullOrEmpty(currentDirectory) && Directory.Exists(currentDirectory))
-                {
+                if (!string.IsNullOrEmpty(currentDirectory) && Directory.Exists(currentDirectory)) {
                     scrollPos = GUILayout.BeginScrollView(scrollPos);
                     // Draw directories
-                    foreach (string dir in Directory.GetDirectories(currentDirectory))
-                    {
+                    foreach (string dir in Directory.GetDirectories(currentDirectory)) {
                         DirectoryInfo dirInfo = new DirectoryInfo(dir);
-                        if (GUILayout.Button(dirInfo.Name))
-                        {
+                        if (GUILayout.Button(dirInfo.Name)) {
                             currentDirectory = dir;
                         }
                     }
                     // Draw files
-                    if (dialogMode == DialogMode.OpenFile || dialogMode == DialogMode.SaveFile)
-                    {
-                        foreach (string file in Directory.GetFiles(currentDirectory))
-                        {
+                    if (dialogMode == DialogMode.OpenFile || dialogMode == DialogMode.SaveFile) {
+                        foreach (string file in Directory.GetFiles(currentDirectory)) {
                             FileInfo fileInfo = new FileInfo(file);
-                            if (GUILayout.Button(fileInfo.Name))
-                            {
+                            if (GUILayout.Button(fileInfo.Name)) {
                                 selectedFile = fileInfo.FullName;
                             }
                         }
@@ -157,14 +137,11 @@ namespace UnityVolumeRendering
                 GUILayout.EndVertical();
             }
 
-            private void DrawBottomBar()
-            {
+            private void DrawBottomBar() {
                 GUILayout.BeginHorizontal();
 
-                if(dialogMode == DialogMode.OpenFile || dialogMode == DialogMode.SaveFile)
-                {
-                    if (!string.IsNullOrEmpty(selectedFile))
-                    {
+                if (dialogMode == DialogMode.OpenFile || dialogMode == DialogMode.SaveFile) {
+                    if (!string.IsNullOrEmpty(selectedFile)) {
                         FileInfo fileInfo = new FileInfo(selectedFile);
                         string fileName = Path.GetFileName(selectedFile);
                         // Show filename textbox
@@ -173,46 +150,47 @@ namespace UnityVolumeRendering
                         GUILayout.FlexibleSpace();
                         // Show button
                         string buttonText = dialogMode == DialogMode.OpenFile ? "Open" : "Save";
-                        if (File.Exists(selectedFile) && GUILayout.Button(buttonText))
-                        {
-                            CloseBrowser(false, selectedFile);
+                        if (File.Exists(selectedFile) && GUILayout.Button(buttonText)) {
+                            if (callback != null) CloseBrowser(false, selectedFile);
+                            else if (enumeratorCallback != null) StartCoroutine(CloseBrowser(false, selectedFile));
                         }
                     }
                 }
-                else if(dialogMode == DialogMode.OpenDirectory)
-                {
-                    if (!string.IsNullOrEmpty(currentDirectory))
-                    {
+                else if (dialogMode == DialogMode.OpenDirectory) {
+                    if (!string.IsNullOrEmpty(currentDirectory)) {
                         // Show directory path textbox
                         currentDirectory = GUILayout.TextField(currentDirectory, GUILayout.Width(RIGHT_PANEL_WIDTH));
                         GUILayout.FlexibleSpace();
                         // Show button
-                        string buttonText ="Open";
-                        if (Directory.Exists(currentDirectory) && GUILayout.Button(buttonText))
-                        {
-                            CloseBrowser(false, currentDirectory);
+                        string buttonText = "Open";
+                        if (Directory.Exists(currentDirectory) && GUILayout.Button(buttonText)) {
+                            if (callback != null) CloseBrowser(false, selectedFile);
+                            else if (enumeratorCallback != null) StartCoroutine(CloseBrowser(false, currentDirectory));
                         }
                     }
                 }
 
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Cancel"))
-                {
+                if (GUILayout.Button("Cancel")) {
                     CloseBrowser(true, "");
                 }
 
                 GUILayout.EndHorizontal();
             }
 
-            private void CloseBrowser(bool cancelled, string selectedPath)
-            {
+            private IEnumerator CloseBrowser(bool cancelled, string selectedPath) {
                 DialogResult result;
                 result.cancelled = cancelled;
                 result.path = selectedPath;
 
                 callback?.Invoke(result);
-
-                GameObject.Destroy(this.gameObject);
+                if (enumeratorCallback != null) {
+                    Debug.Log("Starting enumerator callback");
+                    yield return StartCoroutine(enumeratorCallback.Invoke(result));
+                    GameObject.Destroy(this.gameObject);
+                }
+                else
+                    GameObject.Destroy(this.gameObject);
             }
         }
     }

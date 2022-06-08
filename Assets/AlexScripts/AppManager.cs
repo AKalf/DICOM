@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityVolumeRendering;
+using static UnityVolumeRendering.DICOMImporter;
+
 public class AppManager : MonoBehaviour {
 
     private static AppManager instance = null;
@@ -14,6 +17,8 @@ public class AppManager : MonoBehaviour {
     [SerializeField] private VolumeRenderedObject selectedVolume = null; public VolumeRenderedObject SelectedVolume => selectedVolume;
     private Material selectedVolumeMaterial = null; public Material SelectedVolumeMaterial => selectedVolume.GetComponentInChildren<Renderer>().material;
     private Transform selectedVolumeTransform = null; public Transform SelectedVolumeTransform => selectedVolume.transform;
+
+
     private void Awake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
@@ -48,6 +53,7 @@ public class AppManager : MonoBehaviour {
         }
     }
 
+
     public void OnOpenRAWDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {
 
@@ -72,7 +78,8 @@ public class AppManager : MonoBehaviour {
         }
     }
 
-    public void OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
+    public IEnumerator OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
+        Debug.Log("Result is canceled: " + result.cancelled);
         if (!result.cancelled) {
             // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
             DespawnAllDatasets();
@@ -82,13 +89,19 @@ public class AppManager : MonoBehaviour {
             // Read all files
             IEnumerable<string> fileCandidates = Directory.EnumerateFiles(result.path, "*.*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                 .Where(p => p.EndsWith(".dcm", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicom", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicm", StringComparison.InvariantCultureIgnoreCase));
-
+            yield return new WaitForEndOfFrame();
             // Import the dataset
             IImageSequenceImporter importer = ImporterFactory.CreateImageSequenceImporter(ImageSequenceFormat.DICOM);
             IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
             float numVolumesCreated = 0;
             foreach (IImageSequenceSeries series in seriesList) {
-                VolumeDataset dataset = importer.ImportSeries(series);
+                VolumeDataset dataset = null;
+                Debug.Log("Stating importing coroutine");
+                yield return StartCoroutine(importer.ImportSeries(series));
+
+                Debug.Log("Loaded dataseted is not null");
+                dataset = importer.LoadedDataset;
+                Debug.Log("Importing coroutine finished: " + dataset.datasetName);
                 // Spawn the object
                 if (dataset != null) {
                     VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
@@ -99,6 +112,8 @@ public class AppManager : MonoBehaviour {
             }
         }
     }
+
+
 
     private void DespawnAllDatasets() {
         VolumeRenderedObject[] volobjs = GameObject.FindObjectsOfType<VolumeRenderedObject>();

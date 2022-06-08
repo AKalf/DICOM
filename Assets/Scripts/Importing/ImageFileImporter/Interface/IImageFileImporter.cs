@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 
-namespace UnityVolumeRendering
-{
-    public enum ImageFileFormat
-    {
+namespace UnityVolumeRendering {
+    public enum ImageFileFormat {
         VASP,
         NRRD,
         NIFTI
@@ -13,8 +12,7 @@ namespace UnityVolumeRendering
     /// Interface for single file dataset importers (NRRD, NIFTI, etc.).
     /// These datasets contain only one single file.
     /// </summary>
-    public interface IImageFileImporter
-    {
+    public interface IImageFileImporter {
         VolumeDataset Import(String filePath);
     }
 }

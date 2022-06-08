@@ -1,20 +1,16 @@
 ﻿using System.Collections.Generic;
 
-namespace UnityVolumeRendering
-{
-    public enum ImageSequenceFormat
-    {
+namespace UnityVolumeRendering {
+    public enum ImageSequenceFormat {
         ImageSequence,
         DICOM
     }
 
-    public interface IImageSequenceFile
-    {
+    public interface IImageSequenceFile {
         string GetFilePath();
     }
 
-    public interface IImageSequenceSeries
-    {
+    public interface IImageSequenceSeries {
         IEnumerable<IImageSequenceFile> GetFiles();
     }
 
@@ -22,8 +18,10 @@ namespace UnityVolumeRendering
     /// Importer for image sequence datasets, such as DICOM and image sequences.
     /// These datasets usually contain one file per slice.
     /// </summary>
-    public interface IImageSequenceImporter
-    {
+    public interface IImageSequenceImporter {
+
+        VolumeDataset LoadedDataset { get; }
+
         /// <summary>
         /// Read a list of files, and return all image sequence series.
         /// Normally a directory will only contain a single series,
@@ -33,12 +31,12 @@ namespace UnityVolumeRendering
         /// <param name="files">Files to load. Typically all the files stored in a specific (DICOM) directory.</param>
         /// <returns>List of image sequence series.</returns>
         IEnumerable<IImageSequenceSeries> LoadSeries(IEnumerable<string> files);
-        
+
         /// <summary>
         /// Import a single image sequence series.
         /// </summary>
         /// <param name="series">The series to import</param>
         /// <returns>Imported 3D volume dataset.</returns>
-        VolumeDataset ImportSeries(IImageSequenceSeries series);
+        System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series);
     }
 }

@@ -6,40 +6,37 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.IO;
 
-namespace UnityVolumeRendering
-{
+namespace UnityVolumeRendering {
     /// <summary>
     /// SimpleITK-based DICOM importer.
     /// Has support for JPEG2000 and more.
     /// </summary>
-    public class SimpleITKImageSequenceImporter : IImageSequenceImporter
-    {
-        public class ImageSequenceSlice : IImageSequenceFile
-        {
+    public class SimpleITKImageSequenceImporter : IImageSequenceImporter {
+
+
+        private VolumeDataset loadedDataset = null;
+        public VolumeDataset LoadedDataset => loadedDataset;
+
+        public class ImageSequenceSlice : IImageSequenceFile {
             public string filePath;
 
-            public string GetFilePath()
-            {
+            public string GetFilePath() {
                 return filePath;
             }
         }
 
-        public class ImageSequenceSeries : IImageSequenceSeries
-        {
+        public class ImageSequenceSeries : IImageSequenceSeries {
             public List<ImageSequenceSlice> files = new List<ImageSequenceSlice>();
 
-            public IEnumerable<IImageSequenceFile> GetFiles()
-            {
+            public IEnumerable<IImageSequenceFile> GetFiles() {
                 return files;
             }
         }
 
-        public IEnumerable<IImageSequenceSeries> LoadSeries(IEnumerable<string> files)
-        {
-            HashSet<string>  directories = new HashSet<string>();
+        public IEnumerable<IImageSequenceSeries> LoadSeries(IEnumerable<string> files) {
+            HashSet<string> directories = new HashSet<string>();
 
-            foreach (string file in files)
-            {
+            foreach (string file in files) {
                 string dir = Path.GetDirectoryName(file);
                 if (!directories.Contains(dir))
                     directories.Add(dir);
@@ -47,21 +44,17 @@ namespace UnityVolumeRendering
 
             List<ImageSequenceSeries> seriesList = new List<ImageSequenceSeries>();
             Dictionary<string, VectorString> directorySeries = new Dictionary<string, VectorString>();
-            foreach (string directory in directories)
-            {
+            foreach (string directory in directories) {
                 VectorString seriesIDs = ImageSeriesReader.GetGDCMSeriesIDs(directory);
                 directorySeries.Add(directory, seriesIDs);
 
             }
 
-            foreach(var dirSeries in directorySeries)
-            {
-                foreach(string seriesID in dirSeries.Value)
-                {
+            foreach (var dirSeries in directorySeries) {
+                foreach (string seriesID in dirSeries.Value) {
                     VectorString dicom_names = ImageSeriesReader.GetGDCMSeriesFileNames(dirSeries.Key, seriesID);
                     ImageSequenceSeries series = new ImageSequenceSeries();
-                    foreach(string file in dicom_names)
-                    {
+                    foreach (string file in dicom_names) {
                         ImageSequenceSlice sliceFile = new ImageSequenceSlice();
                         sliceFile.filePath = file;
                         series.files.Add(sliceFile);
@@ -73,13 +66,12 @@ namespace UnityVolumeRendering
             return seriesList;
         }
 
-        public VolumeDataset ImportSeries(IImageSequenceSeries series)
-        {
+        public System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series) {
+            Debug.Log("Inside importing coroutine");
             ImageSequenceSeries sequenceSeries = (ImageSequenceSeries)series;
-            if (sequenceSeries.files.Count == 0)
-            {
+            if (sequenceSeries.files.Count == 0) {
                 Debug.LogError("Empty series. No files to load.");
-                return null;
+                yield break;
             }
 
             ImageSeriesReader reader = new ImageSeriesReader();
@@ -90,7 +82,7 @@ namespace UnityVolumeRendering
             reader.SetFileNames(dicomNames);
 
             Image image = reader.Execute();
-
+            yield return new WaitForEndOfFrame();
             // Cast to 32-bit float
             image = SimpleITK.Cast(image, PixelIDValueEnum.sitkFloat32);
 
@@ -124,7 +116,10 @@ namespace UnityVolumeRendering
 
             volumeDataset.FixDimensions();
 
-            return volumeDataset;
+            loadedDataset = volumeDataset;
+            Debug.Log(loadedDataset.datasetName);
+            yield break;
+
         }
     }
 }

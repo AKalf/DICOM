@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -68,7 +68,7 @@ namespace UnityVolumeRendering {
             }
         }
 
-        private void OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
+        private IEnumerator OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
             Debug.Log("A");
             if (!result.cancelled) {
                 // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
@@ -77,23 +77,27 @@ namespace UnityVolumeRendering {
                 bool recursive = true;
 
                 // Read all files
-                IEnumerable<string> fileCandidates = Directory.EnumerateFiles(result.path, "*.*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                System.Collections.Generic.IEnumerable<string> fileCandidates = Directory.EnumerateFiles(result.path, "*.*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                     .Where(p => p.EndsWith(".dcm", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicom", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicm", StringComparison.InvariantCultureIgnoreCase));
 
                 // Import the dataset
                 IImageSequenceImporter importer = ImporterFactory.CreateImageSequenceImporter(ImageSequenceFormat.DICOM);
-                IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
+                System.Collections.Generic.IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
                 float numVolumesCreated = 0;
                 foreach (IImageSequenceSeries series in seriesList) {
-                    VolumeDataset dataset = importer.ImportSeries(series);
+                    VolumeDataset dataset = null;
+                    yield return StartCoroutine(importer.ImportSeries(series));
+                    dataset = importer.LoadedDataset;
                     // Spawn the object
                     if (dataset != null) {
                         VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
                         obj.transform.position = new Vector3(numVolumesCreated, 0, 0);
                         numVolumesCreated++;
                     }
+                    yield return dataset;
                 }
             }
+
         }
 
         private void DespawnAllDatasets() {
