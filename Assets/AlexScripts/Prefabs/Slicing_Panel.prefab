@@ -2846,6 +2846,7 @@ GameObject:
   - component: {fileID: 897500070809405619}
   - component: {fileID: -9113513289483333576}
   - component: {fileID: 4141770990933463136}
+  - component: {fileID: 858468251}
   m_Layer: 5
   m_Name: Slicing_Panel
   m_TagString: Untagged
@@ -2958,7 +2959,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 897500070809405623}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -2977,6 +2978,7 @@ MonoBehaviour:
   closeButton: {fileID: 0}
   minimizeButton: {fileID: 659778513731205969}
   windowName: Slicing
+  isClosedOnStart: 0
   inputFieldPosX: {fileID: 897500070589595706}
   inputFieldPosY: {fileID: 897500071844886338}
   inputFieldPosZ: {fileID: 897500070938175998}
@@ -2999,6 +3001,22 @@ MonoBehaviour:
   selectFirstPlaneButton: {fileID: 897500071180132555}
   selectSecondPlaneButton: {fileID: 897500070872924067}
   selectThirdPlaneButton: {fileID: 897500071867037108}
+--- !u!114 &858468251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897500070809405623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c016b96d7e081bb428f93be2c271feb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  closeButton: {fileID: 0}
+  minimizeButton: {fileID: 659778513731205969}
+  windowName: Slicing
+  isClosedOnStart: 1
 --- !u!1 &897500070853242200
 GameObject:
   m_ObjectHideFlags: 0
@@ -9176,6 +9194,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d45e13d16823c7142bf3946724d1ca55, type: 3}
+--- !u!224 &2167508672714561751 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3089587004073913057, guid: d45e13d16823c7142bf3946724d1ca55,
+    type: 3}
+  m_PrefabInstance: {fileID: 3815923985485918774}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &659778513731205969 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4457688100564748647, guid: d45e13d16823c7142bf3946724d1ca55,
@@ -9188,9 +9212,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &2167508672714561751 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3089587004073913057, guid: d45e13d16823c7142bf3946724d1ca55,
-    type: 3}
-  m_PrefabInstance: {fileID: 3815923985485918774}
-  m_PrefabAsset: {fileID: 0}

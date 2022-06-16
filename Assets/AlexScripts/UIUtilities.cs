@@ -14,6 +14,7 @@ public static class UIUtilities {
         float lastValue = 0.0f;
         slider.onValueChanged.AddListener(value => {
             if (target == null) return;
+            value = (float)Math.Round(value, 1);
             AppManager.Instance.ChangeCameraStatus(true);
             float diff = lastValue - value;
             target.Invoke(Quaternion.AngleAxis(diff, dir));
@@ -44,6 +45,7 @@ public static class UIUtilities {
         float lastValue = 0.0f;
         slider.onValueChanged.AddListener(value => {
             if (target == null) return;
+            value = (float)Math.Round(value, 1);
             AppManager.Instance.ChangeCameraStatus(true);
             float diff = lastValue - value;
             target.Invoke(dir * diff);
@@ -72,6 +74,7 @@ public static class UIUtilities {
 
         float lastValue = 0.0f;
         slider.onValueChanged.AddListener(value => {
+            value = (float)Math.Round(value, 1);
             AppManager.Instance.ChangeCameraStatus(true);
             if (target == null) return;
             float diff = lastValue - value;
@@ -115,6 +118,7 @@ public static class UIUtilities {
         slider.maxValue = minMax.y;
         slider.onValueChanged.AddListener(value => {
             AppManager.Instance.ChangeCameraStatus(true);
+            value = (float)Math.Round(value, 1);
             inputField.SetTextWithoutNotify(value.ToString());
             if (onlyIntValues) AppManager.Instance.SelectedVolumeMaterial.SetInt(temp, (int)value);
             else AppManager.Instance.SelectedVolumeMaterial.SetFloat(temp, value);
@@ -132,6 +136,7 @@ public static class UIUtilities {
                 AppManager.Instance.ChangeCameraStatus(false);
             }
             else if (float.TryParse(value, out newFloatValue)) {
+                newFloatValue = (float)Math.Round(newFloatValue, 1);
                 AppManager.Instance.ChangeCameraStatus(true);
                 AppManager.Instance.SelectedVolumeMaterial.SetFloat(temp, newFloatValue);
                 if (newFloatValue > slider.maxValue) slider.SetValueWithoutNotify(slider.maxValue);

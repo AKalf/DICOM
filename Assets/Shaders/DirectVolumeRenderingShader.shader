@@ -283,7 +283,7 @@
 
                     #ifdef DVR_BACKWARD_ON
                         const fixed OneMinusAlpha = (1 - src.a);
-                        col.rgb = src.a * src.rgb + OneMinusAlpha; * col.rgb;
+                        col.rgb = src.a * src.rgb + OneMinusAlpha * col.rgb;
                         col.a = src.a + OneMinusAlpha * col.a;
                     
                         // Optimisation: A branchless version of: if (src.a > 0.15f) tDepth = t;
@@ -364,7 +364,6 @@
             // Draws the first point (closest to camera) with a density within the user-defined thresholds.
             frag_out frag_surf(frag_in i)
             {
-                #ifdef SHOULD_REDRAW
                     RayInfo ray = getRayFront2Back(i.vertexLocal);
                     RaymarchInfo raymarchInfo = initRaymarch(ray, _Density);
 
@@ -404,7 +403,6 @@
                         const fixed tDepth = iStep * raymarchInfo.numStepsRecip + (step(_SurfaceRenderingColour.a, 0.0) * 1000.0); // Write large depth if no hit
                         _SurfaceRenderingTDepth = localToDepth(lerp(ray.startPos, ray.endPos, tDepth) + fixed3(0.5f, 0.5f, 0.5f));
                     #endif
-                #endif
 
                 // Write fragment output
                 frag_out output;

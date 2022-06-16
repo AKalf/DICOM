@@ -68,17 +68,28 @@ namespace UnityVolumeRendering {
 
         public System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series) {
             Debug.Log("Inside importing coroutine");
+
             ImageSequenceSeries sequenceSeries = (ImageSequenceSeries)series;
             if (sequenceSeries.files.Count == 0) {
                 Debug.LogError("Empty series. No files to load.");
                 yield break;
             }
-
+            int totalProccesses = sequenceSeries.files.Count * 2;
             ImageSeriesReader reader = new ImageSeriesReader();
 
             VectorString dicomNames = new VectorString();
-            foreach (var dicomFile in sequenceSeries.files)
+            int loopIndex = 0;
+            const int loopsPerFrame = 10000;
+            foreach (var dicomFile in sequenceSeries.files) {
+                loopIndex++;
+                if (loopIndex > loopsPerFrame) {
+                    loopIndex = 0;
+                    yield return new WaitForEndOfFrame();
+                }
                 dicomNames.Add(dicomFile.filePath);
+            }
+            Debug.Log("Read sequence-series files, DONE");
+            loopIndex = 0;
             reader.SetFileNames(dicomNames);
 
             Image image = reader.Execute();
@@ -89,17 +100,31 @@ namespace UnityVolumeRendering {
             VectorUInt32 size = image.GetSize();
 
             int numPixels = 1;
-            for (int dim = 0; dim < image.GetDimension(); dim++)
+            totalProccesses = ((int)image.GetDimension());
+            for (int dim = 0; dim < image.GetDimension(); dim++) {
+                loopIndex++;
+                if (loopIndex > loopsPerFrame) {
+                    loopIndex = 0;
+                    yield return new WaitForEndOfFrame();
+                }
                 numPixels *= (int)size[dim];
-
+            }
+            Debug.Log("Read image pixels, DONE");
+            loopIndex = 0;
             // Read pixel data
             float[] pixelData = new float[numPixels];
             IntPtr imgBuffer = image.GetBufferAsFloat();
             Marshal.Copy(imgBuffer, pixelData, 0, numPixels);
-
-            for (int i = 0; i < pixelData.Length; i++)
+            totalProccesses = ((int)image.GetDimension());
+            for (int i = 0; i < pixelData.Length; i++) {
+                loopIndex++;
+                if (loopIndex > loopsPerFrame) {
+                    loopIndex = 0;
+                    yield return new WaitForEndOfFrame();
+                }
                 pixelData[i] = Mathf.Clamp(pixelData[i], -1024, 3071);
-
+            }
+            Debug.Log("Read pixel data, DONE");
             VectorDouble spacing = image.GetSpacing();
 
             // Create dataset
@@ -117,7 +142,9 @@ namespace UnityVolumeRendering {
             volumeDataset.FixDimensions();
 
             loadedDataset = volumeDataset;
-            Debug.Log(loadedDataset.datasetName);
+            Debug.Log("Dataset loaded: " + loadedDataset.datasetName);
+            LoadingWindow.Instance.SetLoadingMessage("");
+            yield return new WaitForEndOfFrame();
             yield break;
 
         }

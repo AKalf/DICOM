@@ -50,8 +50,11 @@ public class ShaderUIOptionsController : MonoBehaviour {
                 return;
             UnityVolumeRendering.RenderMode oldRenderMode = AppManager.Instance.SelectedVolume.RenderMode;
             UnityVolumeRendering.RenderMode newRenderMode = (UnityVolumeRendering.RenderMode)index;
-            if (newRenderMode != oldRenderMode)
+            if (newRenderMode != oldRenderMode) {
+                AppManager.Instance.ChangeCameraStatus(true);
                 AppManager.Instance.SelectedVolume.RenderMode = newRenderMode;
+                AppManager.Instance.ChangeCameraStatus(false);
+            }
         });
     }
 
@@ -69,8 +72,8 @@ public class ShaderUIOptionsController : MonoBehaviour {
         visibilityMinMax = new Vector2(VisibleRangeMin.value, VisibleRangeMax.value);
         AppManager.Instance.SelectedVolume.VisibilityWindow = visibilityMinMax;
 
-
         VisibleRangeMin.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
             if (value >= visibilityMinMax.y) {
                 value = visibilityMinMax.y - 0.01f;
                 VisibleRangeMin.SetValueWithoutNotify(value);
@@ -78,9 +81,10 @@ public class ShaderUIOptionsController : MonoBehaviour {
             visibilityMinMax.x = value;
             AppManager.Instance.SelectedVolume.VisibilityWindow = visibilityMinMax;
             MinVisibilityInputField.SetTextWithoutNotify("Min: " + Math.Round(value, 2).ToString());
+            AppManager.Instance.ChangeCameraStatus(false);
         });
-
         VisibleRangeMax.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
             if (value <= visibilityMinMax.x) {
                 value = visibilityMinMax.x + 0.01f;
                 VisibleRangeMax.SetValueWithoutNotify(value);
@@ -88,10 +92,12 @@ public class ShaderUIOptionsController : MonoBehaviour {
             visibilityMinMax.y = value;
             AppManager.Instance.SelectedVolume.VisibilityWindow = visibilityMinMax;
             MaxVisibilityInputField.SetTextWithoutNotify("Max: " + Math.Round(value, 2).ToString());
+            AppManager.Instance.ChangeCameraStatus(false);
         });
         MinVisibilityInputField.onValueChanged.AddListener(value => {
             float newValue = 0.0f;
             if (float.TryParse(value, out newValue)) {
+                AppManager.Instance.ChangeCameraStatus(true);
                 if (newValue >= visibilityMinMax.y) {
                     newValue = visibilityMinMax.y - 0.01f;
                     VisibleRangeMin.SetValueWithoutNotify(newValue);
@@ -99,11 +105,13 @@ public class ShaderUIOptionsController : MonoBehaviour {
                 visibilityMinMax.x = newValue;
                 AppManager.Instance.SelectedVolume.VisibilityWindow = visibilityMinMax;
                 VisibleRangeMin.SetValueWithoutNotify(newValue);
+                AppManager.Instance.ChangeCameraStatus(false);
             }
         });
         MaxVisibilityInputField.onValueChanged.AddListener(value => {
             float newValue = 0.0f;
             if (float.TryParse(value, out newValue)) {
+                AppManager.Instance.ChangeCameraStatus(true);
                 if (newValue <= visibilityMinMax.x) {
                     newValue = visibilityMinMax.x + 0.01f;
                     VisibleRangeMax.SetValueWithoutNotify(newValue);
@@ -111,27 +119,27 @@ public class ShaderUIOptionsController : MonoBehaviour {
                 visibilityMinMax.y = newValue;
                 AppManager.Instance.SelectedVolume.VisibilityWindow = visibilityMinMax;
                 VisibleRangeMax.SetValueWithoutNotify(newValue);
+                AppManager.Instance.ChangeCameraStatus(false);
             }
         });
-
     }
 
 
     public void UpdateRotation() {
         AppManager.Instance.ChangeCameraStatus(true);
-        float newX = AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.x;
+        float newX = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.x, 1);
         if (newX > RotationX.maxValue) RotationX.SetValueWithoutNotify(RotationX.maxValue);
         else if (newX < RotationX.minValue) RotationX.SetValueWithoutNotify(RotationX.minValue);
         else RotationX.SetValueWithoutNotify(newX);
         RotationXInputField.SetTextWithoutNotify(newX.ToString());
 
-        float newY = AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.y;
+        float newY = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.y, 1);
         if (newY > RotationY.maxValue) RotationY.SetValueWithoutNotify(RotationY.maxValue);
         else if (newY < RotationY.minValue) RotationY.SetValueWithoutNotify(RotationY.minValue);
         else RotationY.SetValueWithoutNotify(newY);
         RotationYInputField.SetTextWithoutNotify(newY.ToString());
 
-        float newZ = AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.z;
+        float newZ = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.z, 1);
         if (newZ > RotationZ.maxValue) RotationZ.SetValueWithoutNotify(RotationZ.maxValue);
         else if (newZ < RotationZ.minValue) RotationZ.SetValueWithoutNotify(RotationZ.minValue);
         else RotationZ.SetValueWithoutNotify(newZ);
@@ -141,7 +149,7 @@ public class ShaderUIOptionsController : MonoBehaviour {
     public void UpdatePositionZ() {
         AppManager.Instance.ChangeCameraStatus(true);
         float newZ = AppManager.Instance.SelectedVolumeTransform.position.z;
-        ZoomSlider.SetValueWithoutNotify(newZ);
+        ZoomSlider.SetValueWithoutNotify((float)Math.Round(newZ, 1));
         AppManager.Instance.ChangeCameraStatus(false);
 
     }
@@ -169,31 +177,53 @@ public class ShaderUIOptionsController : MonoBehaviour {
         minDepthPropertyNameID = AppManager.Instance.SelectedVolumeMaterial.shader.GetPropertyNameId(minDepthPropertyIndex);
         MinDepthInputField.onEndEdit.AddListener(value => {
             float newValue = 0.0f;
-            if (float.TryParse(value, out newValue)) AppManager.Instance.SelectedVolumeMaterial.SetFloat(minDepthPropertyNameID, newValue);
+            if (float.TryParse(value, out newValue)) {
+                AppManager.Instance.ChangeCameraStatus(true);
+                AppManager.Instance.SelectedVolumeMaterial.SetFloat(minDepthPropertyNameID, (float)Math.Round(newValue, 2));
+                AppManager.Instance.ChangeCameraStatus(false);
+            }
         });
 
         maxDepthPropertyIndex = AppManager.Instance.SelectedVolumeMaterial.shader.FindPropertyIndex("_MaxDepth");
         maxDepthPropertyNameID = AppManager.Instance.SelectedVolumeMaterial.shader.GetPropertyNameId(maxDepthPropertyIndex);
         MaxDepthInputField.onEndEdit.AddListener(value => {
             float newValue = 0.0f;
-            if (float.TryParse(value, out newValue)) AppManager.Instance.SelectedVolumeMaterial.SetFloat(maxDepthPropertyNameID, newValue);
+            if (float.TryParse(value, out newValue)) {
+                AppManager.Instance.ChangeCameraStatus(true);
+                AppManager.Instance.SelectedVolumeMaterial.SetFloat(maxDepthPropertyNameID, (float)Math.Round(newValue, 2));
+                AppManager.Instance.ChangeCameraStatus(false);
+            }
         });
-
 
 
         EnableLightingToggle.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
             if (value != LightingIntensityCanvasGroup.interactable)
                 LightingIntensityCanvasGroup.interactable = value;
             AppManager.Instance.SelectedVolume.IsLightingEnabled = value;
+            AppManager.Instance.ChangeCameraStatus(false);
         });
 
 
-        EnableBack2FrontRaycasting.onValueChanged.AddListener(value => AppManager.Instance.SelectedVolume.IsDvrBackwardEnabled = value);
+        EnableBack2FrontRaycasting.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
+            AppManager.Instance.SelectedVolume.IsDvrBackwardEnabled = value;
+            AppManager.Instance.ChangeCameraStatus(false);
+        });
 
+        EnableOpacityBasedOnDepth.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
+            AppManager.Instance.SelectedVolume.IsOpacityBasedOnDepthEnabled = value;
+            AppManager.Instance.ChangeCameraStatus(false);
+        });
         Vector3 currPos = AppManager.Instance.SelectedVolumeTransform.position;
         ZoomSlider.minValue = currPos.z - 1;
         ZoomSlider.maxValue = currPos.z + 5;
-        ZoomSlider.onValueChanged.AddListener(value => { currPos.z = value; AppManager.Instance.SelectedVolumeTransform.position = currPos; });
+        ZoomSlider.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
+            currPos.z = value; AppManager.Instance.SelectedVolumeTransform.position = currPos;
+            AppManager.Instance.ChangeCameraStatus(false);
+        });
 
         UIUtilities.SetRotationSliderControl(RotationX, RotationXInputField, Vector3.right, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
         UIUtilities.SetRotationSliderControl(RotationY, RotationYInputField, Vector3.up, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
@@ -201,6 +231,7 @@ public class ShaderUIOptionsController : MonoBehaviour {
 
         resetRotationButton.onClick.AddListener(() => {
             if (AppManager.Instance.SelectedVolume) {
+                AppManager.Instance.ChangeCameraStatus(true);
                 AppManager.Instance.SelectedVolumeTransform.rotation = Quaternion.identity * Quaternion.Euler(90, 0, 0);
                 RotationX.SetValueWithoutNotify(0);
                 RotationXInputField.SetTextWithoutNotify("0");
@@ -208,6 +239,7 @@ public class ShaderUIOptionsController : MonoBehaviour {
                 RotationYInputField.SetTextWithoutNotify("0");
                 RotationZ.SetValueWithoutNotify(0);
                 RotationZInputField.SetTextWithoutNotify("0");
+                AppManager.Instance.ChangeCameraStatus(false);
             }
         });
 

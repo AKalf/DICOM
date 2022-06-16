@@ -42,11 +42,10 @@ public class AppManager : MonoBehaviour {
 
     public void ChangeCameraStatus(bool status) {
         if (status) mainCamera.enabled = true;
-        else {
-            StartCoroutine(DisableCameraWithDelay());
-        }
+        else StartCoroutine(DisableCameraWithDelay());
     }
     private IEnumerator DisableCameraWithDelay() {
+        yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
         mainCamera.enabled = false;
     }
@@ -66,8 +65,6 @@ public class AppManager : MonoBehaviour {
             if (dataset != null) OnSelectVolume(VolumeObjectFactory.CreateObject(dataset));
         }
     }
-
-
     public void OnOpenRAWDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {
 
@@ -98,16 +95,17 @@ public class AppManager : MonoBehaviour {
             // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
             DespawnAllDatasets();
 
-            bool recursive = true;
+            bool recursive = false;
 
             // Read all files
             IEnumerable<string> fileCandidates = Directory.EnumerateFiles(result.path, "*.*", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                 .Where(p => p.EndsWith(".dcm", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicom", StringComparison.InvariantCultureIgnoreCase) || p.EndsWith(".dicm", StringComparison.InvariantCultureIgnoreCase));
-            yield return new WaitForEndOfFrame();
             // Import the dataset
             IImageSequenceImporter importer = ImporterFactory.CreateImageSequenceImporter(ImageSequenceFormat.DICOM);
             IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
             float numVolumesCreated = 0;
+            int loopIndex = 0;
+            const int loopsPerFrame = 10;
             foreach (IImageSequenceSeries series in seriesList) {
                 VolumeDataset dataset = null;
                 yield return StartCoroutine(importer.ImportSeries(series));
@@ -122,7 +120,15 @@ public class AppManager : MonoBehaviour {
                     OnSelectVolume(obj);
                     LoadingWindow.Instance.StopLoading();
                 }
+                loopIndex++;
+                if (loopIndex > loopsPerFrame) {
+                    loopIndex = 0;
+                    yield return new WaitForEndOfFrame();
+                }
             }
+            LoadingWindow.Instance.StopLoading();
+            Destroy(FindObjectOfType<RuntimeFileBrowser.RuntimeFileBrowserComponent>().gameObject);
+            ChangeCameraStatus(false);
         }
         else {
             LoadingWindow.Instance.StopLoading();

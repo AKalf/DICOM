@@ -31,17 +31,19 @@ namespace UnityVolumeRendering {
             private const int WINDOW_HEIGHT = 300;
 
             private int windowID;
-
+            private bool shouldDraw = true;
             private void Awake() {
                 // Fetch a unique ID for our window (see GUI.Window)
                 windowID = WindowGUID.GetUniqueWindowID();
             }
 
             private void OnGUI() {
+                if (!shouldDraw) return;
                 windowRect = GUI.Window(windowID, windowRect, UpdateWindow, "File browser");
             }
 
             private void UpdateWindow(int windowID) {
+                if (!shouldDraw) return;
                 GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
                 TextAnchor oldAlignment = GUI.skin.label.alignment;
@@ -172,22 +174,23 @@ namespace UnityVolumeRendering {
 
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("Cancel")) {
-                    CloseBrowser(true, "");
+                    //GameObject.Destroy(this.gameObject);
                 }
 
                 GUILayout.EndHorizontal();
             }
 
             private IEnumerator CloseBrowser(bool cancelled, string selectedPath) {
-
+                shouldDraw = false;
                 DialogResult result;
                 result.cancelled = cancelled;
                 result.path = selectedPath;
-
+                yield return new WaitForEndOfFrame();
                 callback?.Invoke(result);
                 if (enumeratorCallback != null) {
                     Debug.Log("Starting enumerator callback");
                     yield return StartCoroutine(enumeratorCallback.Invoke(result));
+                    yield return new WaitForEndOfFrame();
                     GameObject.Destroy(this.gameObject);
                 }
                 else
