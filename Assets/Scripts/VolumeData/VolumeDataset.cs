@@ -129,7 +129,7 @@ namespace UnityVolumeRendering {
                 texture.SetPixelData(bytes, 0);
             }
 
-            catch (OutOfMemoryException ex) {
+            catch {
                 Debug.LogWarning("Out of memory when creating texture. Using fallback method.");
                 for (int x = 0; x < dimX; x++)
                     for (int y = 0; y < dimY; y++)
@@ -153,7 +153,7 @@ namespace UnityVolumeRendering {
             try {
                 cols = new Color[data.Length];
             }
-            catch (OutOfMemoryException ex) {
+            catch {
                 cols = null;
             }
             for (int x = 0; x < dimX; x++) {

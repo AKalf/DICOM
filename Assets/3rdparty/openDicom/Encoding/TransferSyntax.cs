@@ -29,16 +29,14 @@ using openDicom.DataStructure;
 using openDicom.DataStructure.DataSet;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     using System.Text;
 
     /// <summary>
     ///     This class represents a DICOM transfer syntax.
     /// </summary>
-    public class TransferSyntax
-    {
+    public class TransferSyntax {
         /// <summary>
         ///     DICOM transfer syntax UID (0002,0010).
         /// </summary>
@@ -63,8 +61,7 @@ namespace openDicom.Encoding
         ///     from the data element dictionary and are not part of a
         ///     DICOM stream.
         /// </summary>
-        public bool IsImplicitVR
-        {
+        public bool IsImplicitVR {
             get { return isImplicitVR; }
         }
 
@@ -75,8 +72,7 @@ namespace openDicom.Encoding
         ///     DICOM stream content according to
         ///     <see cref="IsMachineLittleEndian" />.
         /// </summary>
-        public bool IsLittleEndian
-        {
+        public bool IsLittleEndian {
             get { return isLittleEndian; }
         }
 
@@ -84,20 +80,17 @@ namespace openDicom.Encoding
         ///     Returns whether the underlying machine is a little endian
         ///     byte ordering architecture or not.
         /// </summary>
-        public bool IsMachineLittleEndian
-        {
+        public bool IsMachineLittleEndian {
             get { return BitConverter.IsLittleEndian; }
         }
 
-        private CharacterRepertoire characterRepertoire = 
+        private CharacterRepertoire characterRepertoire =
             CharacterRepertoire.Default;
         /// <summary>
         ///     Returns the corresponding DICOM character repertoire.
         /// </summary>
-        public CharacterRepertoire CharacterRepertoire
-        {
-            set
-            {
+        public CharacterRepertoire CharacterRepertoire {
+            set {
                 if (value == null)
                     characterRepertoire = CharacterRepertoire.Default;
                 else
@@ -111,35 +104,29 @@ namespace openDicom.Encoding
         /// <summary>
         ///     Access the DICOM UID indentifying this transfer syntax instance.
         /// </summary>
-        public Uid Uid
-        {
-            set 
-            {
-                if (value != null)
-                {
+        public Uid Uid {
+            set {
+                if (value != null) {
                     uid = value;
-                    if (Regex.IsMatch(uid.ToString(), 
-                        "^1\\.2\\.840\\.10008\\.1\\.2"))
-                    {
-                        switch (uid.ToString())
-                        {
+                    if (Regex.IsMatch(uid.ToString(),
+                        "^1\\.2\\.840\\.10008\\.1\\.2")) {
+                        switch (uid.ToString()) {
                             case "1.2.840.10008.1.2":
                                 isImplicitVR = true;
                                 isLittleEndian = true;
                                 break;
-                            case "1.2.840.10008.1.2.1": 
+                            case "1.2.840.10008.1.2.1":
                                 isImplicitVR = false;
                                 isLittleEndian = true;
                                 break;
-                            case "1.2.840.10008.1.2.2": 
+                            case "1.2.840.10008.1.2.2":
                                 isImplicitVR = false;
                                 isLittleEndian = false;
                                 break;
-                            case "1.2.840.10008.1.2.99": 
+                            case "1.2.840.10008.1.2.99":
                                 throw new DicomException("The deflated " +
                                     "transfer syntax is not supported.",
                                     "uid", uid.ToString());
-                                break;
                             default:
                                 // defaults for transfer syntax for JPEG
                                 // (1.2.840.10008.1.2.4.*) and RLE
@@ -156,7 +143,7 @@ namespace openDicom.Encoding
                 }
                 else
                     throw new DicomException("UID is null.", "Uid.Uid");
-            }        
+            }
 
             get { return uid; }
         }
@@ -166,35 +153,34 @@ namespace openDicom.Encoding
         ///     Creates a new DICOM default transfer syntax instance with default
         ///     character repertoire.
         /// </summary>
-        public TransferSyntax() {}
+        public TransferSyntax() { }
 
         /// <summary>
         ///     Creates a new DICOM transfer syntax instance from specified
         ///     DICOM UID string representation and default character repertoire.
         /// </summary>
-        public TransferSyntax(string uid): this(new Uid(uid), null) {}
+        public TransferSyntax(string uid) : this(new Uid(uid), null) { }
 
         /// <summary>
         ///     Creates a new DICOM transfer syntax instance from specified
         ///     DICOM UID string representation and specified DICOM character
         ///     repertoire.
         /// </summary>
-        public TransferSyntax(string uid, 
-            CharacterRepertoire characterRepertoire):
-            this(new Uid(uid), characterRepertoire) {}
+        public TransferSyntax(string uid,
+            CharacterRepertoire characterRepertoire) :
+            this(new Uid(uid), characterRepertoire) { }
 
         /// <summary>
         ///     Creates a new DICOM transfer syntax instance from specified
         ///     DICOM UID and default character repertoire.
         /// </summary>
-        public TransferSyntax(Uid uid): this(uid, null) {}
+        public TransferSyntax(Uid uid) : this(uid, null) { }
 
         /// <summary>
         ///     Creates a new DICOM transfer syntax instance from specified DICOM
         ///     UID and default character repertoire.
         /// </summary>
-        public TransferSyntax(Uid uid, CharacterRepertoire characterRepertoire)
-        {
+        public TransferSyntax(Uid uid, CharacterRepertoire characterRepertoire) {
             Uid = uid;
             CharacterRepertoire = characterRepertoire;
         }
@@ -203,8 +189,8 @@ namespace openDicom.Encoding
         ///     Creates a new DICOM transfer syntax instance from specified transfer
         ///     syntax UID data element and default character repertoire.
         /// </summary>
-        public TransferSyntax(DataElement transferSyntaxUid):
-            this(transferSyntaxUid, null) {}
+        public TransferSyntax(DataElement transferSyntaxUid) :
+            this(transferSyntaxUid, null) { }
 
         /// <summary>
         ///     Creates a new DICOM transfer syntax instance from specified
@@ -212,8 +198,7 @@ namespace openDicom.Encoding
         ///     repertoire.
         /// </summary>
         public TransferSyntax(DataElement transferSyntaxUid,
-            CharacterRepertoire characterRepertoire)
-        {
+            CharacterRepertoire characterRepertoire) {
             CharacterRepertoire = characterRepertoire;
             LoadFrom(transferSyntaxUid);
         }
@@ -223,16 +208,15 @@ namespace openDicom.Encoding
         ///     set containing a transfer syntax UID data element and default
         ///     character repertoire.
         /// </summary>
-        public TransferSyntax(DataSet dataSet): this(dataSet, null) {}
+        public TransferSyntax(DataSet dataSet) : this(dataSet, null) { }
 
         /// <summary>
         ///     Creates a new DICOM transfer syntax instance from specified data
         ///     set containing a transfer syntax UID data element and specified
         ///     character repertoire.
         /// </summary>
-        public TransferSyntax(DataSet dataSet, 
-            CharacterRepertoire characterRepertoire)
-        {
+        public TransferSyntax(DataSet dataSet,
+            CharacterRepertoire characterRepertoire) {
             CharacterRepertoire = characterRepertoire;
             LoadFrom(dataSet);
         }
@@ -242,8 +226,7 @@ namespace openDicom.Encoding
         ///     set containing a transfer syntax UID data element and default
         ///     character repertoire.
         /// </summary>
-        public void LoadFrom(DataSet dataSet)
-        {
+        public void LoadFrom(DataSet dataSet) {
             // character repertoire content cannot be read from data set,
             // because data set is already read in.
             if (dataSet.Contains(UidTag))
@@ -258,20 +241,18 @@ namespace openDicom.Encoding
         ///     transfer syntax instance or not. Equality of the UIDs will
         ///     be checked.
         /// </summary>
-        public void LoadFrom(DataElement transferSyntaxUid)
-        {
-            if (transferSyntaxUid != null)
-            {
+        public void LoadFrom(DataElement transferSyntaxUid) {
+            if (transferSyntaxUid != null) {
                 if (transferSyntaxUid.Tag.Equals(UidTag))
-                    Uid = (Uid) transferSyntaxUid.Value[0];
+                    Uid = (Uid)transferSyntaxUid.Value[0];
                 else
                     throw new DicomException("Data element is not a transfer " +
-                        "syntax UID.", "transferSyntaxUID.Tag", 
+                        "syntax UID.", "transferSyntaxUID.Tag",
                         transferSyntaxUid.Tag.ToString());
             }
             else
-                throw new DicomException("Data element is null.", 
-                    "transferSyntaxUID");                        
+                throw new DicomException("Data element is null.",
+                    "transferSyntaxUID");
         }
 
         /// <summary>
@@ -279,8 +260,7 @@ namespace openDicom.Encoding
         ///     transfer syntax instance or not. Equality of the UIDs will
         ///     be checked.
         /// </summary>
-        public bool Equals(TransferSyntax transferSyntax)
-        {
+        public bool Equals(TransferSyntax transferSyntax) {
             if (transferSyntax != null)
                 return Uid.Equals(transferSyntax.Uid);
             else
@@ -291,8 +271,7 @@ namespace openDicom.Encoding
         ///     Converts an array of bytes into a string by this
         ///     DICOM transfer syntax instance's character repertoire.
         /// </summary>
-        public string ToString(byte[] bytes)
-        {
+        public string ToString(byte[] bytes) {
             return ByteConvert.ToString(bytes, CharacterRepertoire);
         }
 
@@ -300,8 +279,7 @@ namespace openDicom.Encoding
         ///     Converts count of bytes from a byte array into a string by this
         ///     DICOM transfer syntax instance's character repertoire.
         /// </summary>
-        public string ToString(byte[] bytes, int count)
-        {
+        public string ToString(byte[] bytes, int count) {
             return ByteConvert.ToString(bytes, count, CharacterRepertoire);
         }
 
@@ -310,9 +288,8 @@ namespace openDicom.Encoding
         ///     specified offset into a string by this DICOM transfer syntax
         ///     instance's character repertoire.
         /// </summary>
-        public virtual string ToString(byte[] bytes, int offset, int count)
-        {
-            return ByteConvert.ToString(bytes, offset, count, 
+        public virtual string ToString(byte[] bytes, int offset, int count) {
+            return ByteConvert.ToString(bytes, offset, count,
                 CharacterRepertoire);
         }
 
@@ -320,8 +297,7 @@ namespace openDicom.Encoding
         ///     Converts a string into an array of bytes by this
         ///     DICOM transfer syntax instance's character repertoire.
         /// </summary>
-        public virtual byte[] ToBytes(string s)
-        {
+        public virtual byte[] ToBytes(string s) {
             return ByteConvert.ToBytes(s, CharacterRepertoire);
         }
 
@@ -337,10 +313,9 @@ namespace openDicom.Encoding
         /// <returns>
         ///     Unsigned word with or without bytes swapped.
         /// </returns>
-        public ushort CorrectByteOrdering(ushort word)
-        {
-            if ((IsMachineLittleEndian && ! IsLittleEndian) ||
-                ( ! IsMachineLittleEndian && IsLittleEndian))
+        public ushort CorrectByteOrdering(ushort word) {
+            if ((IsMachineLittleEndian && !IsLittleEndian) ||
+                (!IsMachineLittleEndian && IsLittleEndian))
                 return ByteConvert.SwapBytes(word);
             else
                 return word;
@@ -358,10 +333,9 @@ namespace openDicom.Encoding
         /// <returns>
         ///     Signed word with or without bytes swapped.
         /// </returns>
-        public short CorrectByteOrdering(short word)
-        {
-            if ((IsMachineLittleEndian && ! IsLittleEndian) ||
-                ( ! IsMachineLittleEndian && IsLittleEndian))
+        public short CorrectByteOrdering(short word) {
+            if ((IsMachineLittleEndian && !IsLittleEndian) ||
+                (!IsMachineLittleEndian && IsLittleEndian))
                 return ByteConvert.SwapBytes(word);
             else
                 return word;
@@ -379,10 +353,9 @@ namespace openDicom.Encoding
         /// <returns>
         ///     Unsigned integer with or without bytes swapped.
         /// </returns>
-        public uint CorrectByteOrdering(uint value)
-        {
-            if ((IsMachineLittleEndian && ! IsLittleEndian) ||
-                ( ! IsMachineLittleEndian && IsLittleEndian))
+        public uint CorrectByteOrdering(uint value) {
+            if ((IsMachineLittleEndian && !IsLittleEndian) ||
+                (!IsMachineLittleEndian && IsLittleEndian))
                 return ByteConvert.SwapBytes(value);
             else
                 return value;
@@ -400,10 +373,9 @@ namespace openDicom.Encoding
         /// <returns>
         ///     Signed integer with or without bytes swapped.
         /// </returns>
-        public int CorrectByteOrdering(int value)
-        {
-            if ((IsMachineLittleEndian && ! IsLittleEndian) ||
-                ( ! IsMachineLittleEndian && IsLittleEndian))
+        public int CorrectByteOrdering(int value) {
+            if ((IsMachineLittleEndian && !IsLittleEndian) ||
+                (!IsMachineLittleEndian && IsLittleEndian))
                 return ByteConvert.SwapBytes(value);
             else
                 return value;
@@ -422,10 +394,9 @@ namespace openDicom.Encoding
         /// <returns>
         ///     Byte array with or without bytes swapped.
         /// </returns>
-        public byte[] CorrectByteOrdering(byte[] bytes)
-        {
-            if ((IsMachineLittleEndian && ! IsLittleEndian) ||
-                ( ! IsMachineLittleEndian && IsLittleEndian))
+        public byte[] CorrectByteOrdering(byte[] bytes) {
+            if ((IsMachineLittleEndian && !IsLittleEndian) ||
+                (!IsMachineLittleEndian && IsLittleEndian))
                 return ByteConvert.SwapBytes(bytes);
             else
                 return bytes;
@@ -434,8 +405,7 @@ namespace openDicom.Encoding
         /// <summary>
         ///     Returns a DICOM transfer syntax UID as string representation.
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             return Uid.ToString();
         }
     }

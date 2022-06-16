@@ -179,6 +179,7 @@ namespace UnityVolumeRendering {
             }
 
             private IEnumerator CloseBrowser(bool cancelled, string selectedPath) {
+
                 DialogResult result;
                 result.cancelled = cancelled;
                 result.path = selectedPath;

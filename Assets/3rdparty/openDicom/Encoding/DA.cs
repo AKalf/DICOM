@@ -27,42 +27,34 @@ using openDicom.DataStructure;
 using System.Text.RegularExpressions;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Date (DA).
     /// </summary>
-    public sealed class Date: ValueRepresentation
-    {
-        public Date(Tag tag): base("DA", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class Date : ValueRepresentation {
+        public Date(Tag tag) : base("DA", tag) { }
+
+        public override string ToLongString() {
             return "Date (DA)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToImproperMultiValue(s);
             System.DateTime[] date = new System.DateTime[multiValue.Length];
-            for (int i = 0; i < date.Length; i++)
-            {
+            for (int i = 0; i < date.Length; i++) {
                 string item = multiValue[i];
-                if (Regex.IsMatch(item, "^[0-9]{4}\\.?[0-9]{2}\\.?[0-9]{2}$"))
-                {
+                if (Regex.IsMatch(item, "^[0-9]{4}\\.?[0-9]{2}\\.?[0-9]{2}$")) {
                     item = item.Replace(".", null);
                     string year = item.Substring(0, 4);
                     string month = item.Substring(4, 2);
                     string day = item.Substring(6, 2);
-                    try
-                    {
-                        date[i] = new System.DateTime(int.Parse(year), 
+                    try {
+                        date[i] = new System.DateTime(int.Parse(year),
                             int.Parse(month), int.Parse(day));
                     }
-                    catch (Exception e)
-                    {
+                    catch {
                         throw new EncodingException("Date format is invalid.",
                             Tag, Name + "/item", item);
                     }
@@ -70,30 +62,24 @@ namespace openDicom.Encoding
             }
             return date;
         }
-        
-        protected override Array DecodeProper(byte[] bytes)
-        {
+
+        protected override Array DecodeProper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToProperMultiValue(s);
             System.DateTime[] date = new System.DateTime[multiValue.Length];
-            for (int i = 0; i < date.Length; i++)
-            {
+            for (int i = 0; i < date.Length; i++) {
                 string item = multiValue[i];
-                if (item.Length > 0)
-                {
-                    if (Regex.IsMatch(item, "^[0-9]{4}\\.?[0-9]{2}\\.?[0-9]{2}$"))
-                    {
+                if (item.Length > 0) {
+                    if (Regex.IsMatch(item, "^[0-9]{4}\\.?[0-9]{2}\\.?[0-9]{2}$")) {
                         item = item.Replace(".", null);
                         string year = item.Substring(0, 4);
                         string month = item.Substring(4, 2);
                         string day = item.Substring(6, 2);
-                        try
-                        {
-                            date[i] = new System.DateTime(int.Parse(year), 
+                        try {
+                            date[i] = new System.DateTime(int.Parse(year),
                                 int.Parse(month), int.Parse(day));
                         }
-                        catch (Exception e)
-                        {
+                        catch {
                             throw new EncodingException("Date format is invalid.",
                                 Tag, Name + "/item", item);
                         }

@@ -27,13 +27,11 @@ using System.Text.RegularExpressions;
 using openDicom;
 
 
-namespace openDicom.Encoding.Type
-{
+namespace openDicom.Encoding.Type {
     /// <summary>
     ///     All available age measuring units.
     /// </summary>
-    public enum AgeContext
-    {
+    public enum AgeContext {
         /// <summary>
         ///     DICOM VR Age String (AS) representation is "xxxD".
         /// </summary>
@@ -56,19 +54,17 @@ namespace openDicom.Encoding.Type
     /// <summary>
     ///     This class represents a single DICOM Age String (AS) value.
     /// </summary>
-    public sealed class Age
-    {
-        private const char days   = 'D';
-        private const char weeks  = 'W';
+    public sealed class Age {
+        private const char days = 'D';
+        private const char weeks = 'W';
         private const char months = 'M';
-        private const char years  = 'Y';
+        private const char years = 'Y';
 
         private AgeContext context = AgeContext.Days;
         /// <summary>
         ///     Returns the choosen age measuring unit.
         /// </summary>
-        public AgeContext Context
-        {
+        public AgeContext Context {
             get { return context; }
         }
 
@@ -80,8 +76,7 @@ namespace openDicom.Encoding.Type
         ///     once. If this property is set on true, <see cref="Context" />
         ///     will be re-assigned to days.
         /// </remarks>
-        public bool IsDays
-        {
+        public bool IsDays {
             set { if (value) context = AgeContext.Days; }
             get { return context == AgeContext.Days; }
         }
@@ -94,8 +89,7 @@ namespace openDicom.Encoding.Type
         ///     once. If this property is set on true, <see cref="Context" />
         ///     will be re-assigned to weeks.
         /// </remarks>
-        public bool IsWeeks
-        {
+        public bool IsWeeks {
             set { if (value) context = AgeContext.Weeks; }
             get { return context == AgeContext.Weeks; }
         }
@@ -108,8 +102,7 @@ namespace openDicom.Encoding.Type
         ///     once. If this property is set on true, <see cref="Context" />
         ///     will re-assigned to months.
         /// </remarks>
-        public bool IsMonths
-        {
+        public bool IsMonths {
             set { if (value) context = AgeContext.Months; }
             get { return context == AgeContext.Months; }
         }
@@ -122,8 +115,7 @@ namespace openDicom.Encoding.Type
         ///     once. If this property is set on true, <see cref="Context" />
         ///     will be re-assigned to years.
         /// </remarks>
-        public bool IsYears
-        {
+        public bool IsYears {
             set { if (value) context = AgeContext.Years; }
             get { return context == AgeContext.Years; }
         }
@@ -132,14 +124,12 @@ namespace openDicom.Encoding.Type
         /// <summary>
         ///     Access of age value.
         /// </summary>
-        public int AgeValue
-        {
-            set 
-            { 
+        public int AgeValue {
+            set {
                 if (value >= 0)
-                    ageValue = value; 
+                    ageValue = value;
                 else
-                    throw new DicomException("Age cannot be negativ.", 
+                    throw new DicomException("Age cannot be negativ.",
                         "Age.AgeValue", value.ToString());
             }
             get { return ageValue; }
@@ -151,15 +141,12 @@ namespace openDicom.Encoding.Type
         ///     format "xxxM", where "xxx" is a decimal number, the age value, 
         ///     like "013" and "M", is the age context or measuring unit.
         /// </summary>
-        public Age(string ageString)
-        {
-            if (Regex.IsMatch(ageString, 
-                "^[0-9]{3}[" + days + weeks + months + years + "]$"))
-            {
+        public Age(string ageString) {
+            if (Regex.IsMatch(ageString,
+                "^[0-9]{3}[" + days + weeks + months + years + "]$")) {
                 AgeValue = int.Parse(ageString.Substring(0, 3));
-                char context = (char) ageString[3];
-                switch (context)
-                {
+                char context = (char)ageString[3];
+                switch (context) {
                     case days: IsDays = true; break;
                     case weeks: IsWeeks = true; break;
                     case months: IsMonths = true; break;
@@ -167,7 +154,6 @@ namespace openDicom.Encoding.Type
                     default:
                         throw new DicomException("Age context is invalid.",
                             "ageString", ageString);
-                        break;
                 }
             }
             else
@@ -179,8 +165,7 @@ namespace openDicom.Encoding.Type
         ///     Creates a new age instance from specified age value and
         ///     context.
         /// </summary>
-        public Age(int ageValue, AgeContext context)
-        {
+        public Age(int ageValue, AgeContext context) {
             this.context = context;
             AgeValue = ageValue;
         }
@@ -190,10 +175,8 @@ namespace openDicom.Encoding.Type
         ///     context as single character. Only DICOM VR Age String (AS)
         ///     measuring units are allowed (see <see cref="AgeContext" />).
         /// </summary>
-        public Age(int ageValue, char context)
-        {
-            switch (context)
-            {
+        public Age(int ageValue, char context) {
+            switch (context) {
                 case days: IsDays = true; break;
                 case weeks: IsWeeks = true; break;
                 case months: IsMonths = true; break;
@@ -201,7 +184,6 @@ namespace openDicom.Encoding.Type
                 default:
                     throw new DicomException("Age context is invalid.",
                         "context", context.ToString());
-                    break;
             }
             AgeValue = ageValue;
         }
@@ -212,11 +194,9 @@ namespace openDicom.Encoding.Type
         ///     and "M" is a single character that represents the
         ///     <see cref="AgeContext" />.
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString() {
             char charContext = ' ';
-            switch (Context)
-            {
+            switch (Context) {
                 case AgeContext.Days: charContext = days; break;
                 case AgeContext.Weeks: charContext = weeks; break;
                 case AgeContext.Months: charContext = months; break;

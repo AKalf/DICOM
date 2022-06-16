@@ -31,22 +31,18 @@ using openDicom.Encoding;
 using openDicom.Image;
 
 
-namespace openDicom.File
-{
+namespace openDicom.File {
 
     /// <summary>
     ///     This class represents a prior DICOM file, an ACR-NEMA file.
     /// </summary>
-    public class AcrNemaFile
-    {
+    public class AcrNemaFile {
         protected DataSet dataSet = null;
         /// <summary>
         ///     DICOM data set containing the entire file content.
         /// </summary>
-        public DataSet DataSet
-        {
-            get 
-            { 
+        public DataSet DataSet {
+            get {
                 if (dataSet != null)
                     return dataSet;
                 else
@@ -63,23 +59,20 @@ namespace openDicom.File
         ///     Use in combination with <see cref="HasPixelData" /> in order to
         ///     prevent null pointer exceptions.
         /// </remarks>
-        public PixelData PixelData
-        {
-            get 
-            { 
+        public PixelData PixelData {
+            get {
                 if (pixelData != null)
                     return pixelData;
                 else
-                    throw new DicomException("Pixel data is null.", 
+                    throw new DicomException("Pixel data is null.",
                         "AcrNemaFile.PixelData");
-            }            
+            }
         }
 
         /// <summary>
         ///     Determines whether an ACR-NEMA file contains pixel data.
         /// </summary>
-        public bool HasPixelData
-        {
+        public bool HasPixelData {
             get { return PixelData.HasPixelData(dataSet); }
         }
 
@@ -87,8 +80,7 @@ namespace openDicom.File
         ///     Switch for controlling strictness of entire file content
         ///     decoding.
         /// </summary>
-        public bool IsStrictDecoded
-        {
+        public bool IsStrictDecoded {
             set { ValueRepresentation.IsStrictDecoded = value; }
             get { return ValueRepresentation.IsStrictDecoded; }
         }
@@ -97,15 +89,14 @@ namespace openDicom.File
         /// <summary>
         ///     Creates an ACR-NEMA file instance from a ACR-NEMA output stream.
         /// </summary>
-        public AcrNemaFile(Stream stream): this(stream, true) {}
+        public AcrNemaFile(Stream stream) : this(stream, true) { }
 
         /// <summary>
         ///     Creates an ACR-NEMA file instance from an ACR-NEMA output stream.
         ///     <see cref="IsStrictDecoded" /> is set to specified decoding
         ///     attribute.
         /// </summary>
-        public AcrNemaFile(Stream stream, bool useStrictDecoding)
-        {
+        public AcrNemaFile(Stream stream, bool useStrictDecoding) {
             IsStrictDecoded = useStrictDecoding;
             LoadFrom(stream);
         }
@@ -114,24 +105,21 @@ namespace openDicom.File
         ///     Creates an ACR-NEMA file instance from an ACR-NEMA file defined
         ///     by file name.
         /// </summary>
-        public AcrNemaFile(string fileName): this(fileName, true) {}
+        public AcrNemaFile(string fileName) : this(fileName, true) { }
 
         /// <summary>
         ///     Creates an ACR-NEMA file instance from an ACR-NEMA file defined
         ///     by file name. <see cref="IsStrictDecoded" /> is set to given
         ///     decoding attribute.
         /// </summary>
-        public AcrNemaFile(string fileName, bool useStrictDecoding)
-        {
+        public AcrNemaFile(string fileName, bool useStrictDecoding) {
             IsStrictDecoded = useStrictDecoding;
-            FileStream fileStream = new FileStream(fileName, FileMode.Open, 
+            FileStream fileStream = new FileStream(fileName, FileMode.Open,
                 FileAccess.Read);
-            try
-            {
+            try {
                 LoadFrom(fileStream);
             }
-            finally
-            {
+            finally {
                 fileStream.Close();
             }
         }
@@ -143,28 +131,23 @@ namespace openDicom.File
         ///     entire file content will be written to memory and afterwards
         ///     processed.
         /// </summary>
-        public AcrNemaFile(string fileName, bool preloadToMemory, 
-            bool useStrictDecoding)
-        {
+        public AcrNemaFile(string fileName, bool preloadToMemory,
+            bool useStrictDecoding) {
             IsStrictDecoded = useStrictDecoding;
-            FileStream fileStream = new FileStream(fileName, FileMode.Open, 
+            FileStream fileStream = new FileStream(fileName, FileMode.Open,
                 FileAccess.Read);
             byte[] buffer = new byte[fileStream.Length];
-            try
-            {
+            try {
                 fileStream.Read(buffer, 0, buffer.Length);
             }
-            finally
-            {
+            finally {
                 fileStream.Close();
             }
             MemoryStream memoryStream = new MemoryStream(buffer);
-            try
-            {
+            try {
                 LoadFrom(memoryStream);
             }
-            finally
-            {
+            finally {
                 memoryStream.Close();
             }
         }
@@ -172,16 +155,14 @@ namespace openDicom.File
         /// <summary>
         ///     Determines whether a specified file is an ACR-NEMA file.
         /// </summary>
-        public static bool IsAcrNemaFile(string fileName)
-        {
-            FileStream fileStream = new FileStream(fileName, FileMode.Open, 
+        public static bool IsAcrNemaFile(string fileName) {
+            FileStream fileStream = new FileStream(fileName, FileMode.Open,
                 FileAccess.Read);
             bool isStrictDecoded = ValueRepresentation.IsStrictDecoded;
             ValueRepresentation.IsStrictDecoded = false;
-            try
-            {
+            try {
                 Tag tag = new Tag(fileStream, TransferSyntax.Default);
-                ValueRepresentation vr = 
+                ValueRepresentation vr =
                     ValueRepresentation.LoadFrom(fileStream, tag);
                 if (vr.IsUndefined) return false;
                 ValueLength valueLength = new ValueLength(fileStream, vr);
@@ -192,12 +173,10 @@ namespace openDicom.File
                     return false;
                 return true;
             }
-            catch (Exception e)
-            {
+            catch {
                 return false;
             }
-            finally
-            {
+            finally {
                 fileStream.Close();
                 ValueRepresentation.IsStrictDecoded = isStrictDecoded;
             }
@@ -207,8 +186,7 @@ namespace openDicom.File
         ///     Re-creates an ACR-NEMA file instance from given ACR-NEMA output
         ///     stream.
         /// </summary>
-        public virtual void LoadFrom(Stream stream)
-        {
+        public virtual void LoadFrom(Stream stream) {
             dataSet = new DataSet(stream);
             pixelData = new PixelData(dataSet);
         }
@@ -225,8 +203,7 @@ namespace openDicom.File
         ///     thrown. DICOM data sets for concatenation are supposed to
         ///     complement one another.
         /// </remarks>
-        public virtual DataSet GetJointDataSets()
-        {
+        public virtual DataSet GetJointDataSets() {
             return dataSet;
         }
     }

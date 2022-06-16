@@ -28,39 +28,32 @@ using openDicom;
 using openDicom.DataStructure;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Decimal String (DS).
     /// </summary>
-    public sealed class DecimalString: ValueRepresentation
-    {
-        public DecimalString(Tag tag): base("DS", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class DecimalString : ValueRepresentation {
+        public DecimalString(Tag tag) : base("DS", tag) { }
+
+        public override string ToLongString() {
             return "Decimal String (DS)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToImproperMultiValue(s);
             decimal[] decimalValue = new decimal[multiValue.Length];
-            for (int i = 0; i < decimalValue.Length; i++)
-            {
+            for (int i = 0; i < decimalValue.Length; i++) {
                 string item = multiValue[i];
                 item = item.Trim();
-                try
-                {
+                try {
                     if (item.Length > 0)
                         decimalValue[i] = decimal.Parse(item,
-                            NumberStyles.Float, 
+                            NumberStyles.Float,
                             NumberFormatInfo.InvariantInfo);
                 }
-                catch (Exception e)
-                {
+                catch {
                     throw new EncodingException(
                         "Decimal string format is invalid.",
                         Tag, Name + "/item", item);
@@ -68,27 +61,22 @@ namespace openDicom.Encoding
             }
             return decimalValue;
         }
-        
-        protected override Array DecodeProper(byte[] bytes)
-        {
+
+        protected override Array DecodeProper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToProperMultiValue(s);
             decimal[] decimalValue = new decimal[multiValue.Length];
-            for (int i = 0; i < decimalValue.Length; i++)
-            {
+            for (int i = 0; i < decimalValue.Length; i++) {
                 string item = multiValue[i];
-                if (item.Length <= 16)
-                {
+                if (item.Length <= 16) {
                     item = item.Trim();
-                    try
-                    {
+                    try {
                         if (item.Length > 0)
                             decimalValue[i] = decimal.Parse(item,
-                                NumberStyles.Float, 
+                                NumberStyles.Float,
                                 NumberFormatInfo.InvariantInfo);
                     }
-                    catch (Exception e)
-                    {
+                    catch {
                         throw new EncodingException(
                             "Decimal string format is invalid.",
                             Tag, Name + "/item", item);

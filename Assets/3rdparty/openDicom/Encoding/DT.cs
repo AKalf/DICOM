@@ -27,91 +27,29 @@ using openDicom.DataStructure;
 using System.Text.RegularExpressions;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Date Time (DT).
     /// </summary>
-    public sealed class DateTime: ValueRepresentation
-    {
-        public DateTime(Tag tag): base("DT", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class DateTime : ValueRepresentation {
+        public DateTime(Tag tag) : base("DT", tag) { }
+
+        public override string ToLongString() {
             return "Date Time (DT)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToImproperMultiValue(s);
             System.DateTime[] dateTime = new System.DateTime[multiValue.Length];
-            for (int i = 0; i < dateTime.Length; i++)
-            {
+            for (int i = 0; i < dateTime.Length; i++) {
                 string item = multiValue[i];
-                if (item.Length > 0)
-                {
+                if (item.Length > 0) {
                     if (Regex.IsMatch(item, "^ [0-9]{10}" +
                         "([0-9]{2} ([0-9]{2} (\\.[0-9]{6}" +
                         "([\\+\\-][0-9]{4})? )? )? )? $",
-                        RegexOptions.IgnorePatternWhitespace))
-                    {
-                        item = item.Replace(".", null);
-                        string year = item.Substring(0, 4);
-                        string month = item.Substring(4, 2);
-                        string day = item.Substring(6, 2);
-                        string hour = "0";
-                        if (item.Length > 8) hour = item.Substring(8, 2);
-                        string minute = "0";
-                        if (item.Length > 10) minute = item.Substring(10, 2);
-                        string second = "0";
-                        if (item.Length > 12) second = item.Substring(12, 2);
-                        string millisecond = "0";
-                        if (item.Length > 14) 
-                            millisecond = item.Substring(14, 6);
-                        string timeZone = "+0";
-                        if (item.Length > 20) 
-                            timeZone = item.Substring(20, 5);
-                        // TODO: What to do with the time zone?
-                        try
-                        {
-                            dateTime[i] = new System.DateTime(int.Parse(year), 
-                                int.Parse(month), int.Parse(day), int.Parse(hour),
-                                int.Parse(minute), int.Parse(second),
-                                int.Parse(millisecond));
-                        }
-                        catch (Exception e)
-                        {
-                            UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}");
-                            dateTime[i] = System.DateTime.Now;
-                        }
-                    }
-                    else
-                    {
-                        UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}");
-                        dateTime[i] = System.DateTime.Now;
-                    }
-                }
-            }
-            return dateTime;
-        }
-        
-        protected override Array DecodeProper(byte[] bytes)
-        {
-            string s = TransferSyntax.ToString(bytes);
-            string[] multiValue = ToProperMultiValue(s);
-            System.DateTime[] dateTime = new System.DateTime[multiValue.Length];
-            for (int i = 0; i < dateTime.Length; i++)
-            {
-                string item = multiValue[i];
-                if (item.Length > 0)
-                {
-                    if (Regex.IsMatch(item, "^ [0-9]{10}" +
-                        "([0-9]{2} ([0-9]{2} (\\.[0-9]{6}" +
-                        "([\\+\\-][0-9]{4})? )? )? )? $",
-                        RegexOptions.IgnorePatternWhitespace))
-                    {
+                        RegexOptions.IgnorePatternWhitespace)) {
                         item = item.Replace(".", null);
                         string year = item.Substring(0, 4);
                         string month = item.Substring(4, 2);
@@ -129,21 +67,66 @@ namespace openDicom.Encoding
                         if (item.Length > 20)
                             timeZone = item.Substring(20, 5);
                         // TODO: What to do with the time zone?
-                        try
-                        {
+                        try {
                             dateTime[i] = new System.DateTime(int.Parse(year),
                                 int.Parse(month), int.Parse(day), int.Parse(hour),
                                 int.Parse(minute), int.Parse(second),
                                 int.Parse(millisecond));
                         }
-                        catch (Exception e)
-                        {
+                        catch {
                             UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}");
                             dateTime[i] = System.DateTime.Now;
                         }
                     }
-                    else
-                    {
+                    else {
+                        UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}");
+                        dateTime[i] = System.DateTime.Now;
+                    }
+                }
+            }
+            return dateTime;
+        }
+
+        protected override Array DecodeProper(byte[] bytes) {
+            string s = TransferSyntax.ToString(bytes);
+            string[] multiValue = ToProperMultiValue(s);
+            System.DateTime[] dateTime = new System.DateTime[multiValue.Length];
+            for (int i = 0; i < dateTime.Length; i++) {
+                string item = multiValue[i];
+                if (item.Length > 0) {
+                    if (Regex.IsMatch(item, "^ [0-9]{10}" +
+                        "([0-9]{2} ([0-9]{2} (\\.[0-9]{6}" +
+                        "([\\+\\-][0-9]{4})? )? )? )? $",
+                        RegexOptions.IgnorePatternWhitespace)) {
+                        item = item.Replace(".", null);
+                        string year = item.Substring(0, 4);
+                        string month = item.Substring(4, 2);
+                        string day = item.Substring(6, 2);
+                        string hour = "0";
+                        if (item.Length > 8) hour = item.Substring(8, 2);
+                        string minute = "0";
+                        if (item.Length > 10) minute = item.Substring(10, 2);
+                        string second = "0";
+                        if (item.Length > 12) second = item.Substring(12, 2);
+                        string millisecond = "0";
+                        if (item.Length > 14)
+                            millisecond = item.Substring(14, 6);
+                        string timeZone = "+0";
+                        if (item.Length > 20)
+                            timeZone = item.Substring(20, 5);
+                        // TODO: What to do with the time zone?
+                        try {
+                            dateTime[i] = new System.DateTime(int.Parse(year),
+                                int.Parse(month), int.Parse(day), int.Parse(hour),
+                                int.Parse(minute), int.Parse(second),
+                                int.Parse(millisecond));
+                        }
+                        catch {
+                            UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}");
+                            dateTime[i] = System.DateTime.Now;
+                        }
+                    }
+                    else {
                         UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}");
                         dateTime[i] = System.DateTime.Now;
                     }

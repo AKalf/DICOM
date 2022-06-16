@@ -1,18 +1,14 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace UnityVolumeRendering
-{
-    public class ValueRangeEditorWindow : EditorWindow
-    {
-        public static void ShowWindow()
-        {
+namespace UnityVolumeRendering {
+    public class ValueRangeEditorWindow : EditorWindow {
+        public static void ShowWindow() {
             ValueRangeEditorWindow wnd = new ValueRangeEditorWindow();
             wnd.Show();
         }
 
-        private void OnGUI()
-        {
+        private void OnGUI() {
             // Update selected object
             VolumeRenderedObject volRendObject = SelectionHelper.GetSelectedVolumeObject();
             if (volRendObject == null)
@@ -22,7 +18,7 @@ namespace UnityVolumeRendering
 
             EditorGUILayout.LabelField("Edit the visible value range (min/max value) with the slider.");
 
-            Vector2 visibilityWindow = volRendObject.GetVisibilityWindow();
+            Vector2 visibilityWindow = volRendObject.VisibilityWindow;
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.MinMaxSlider("Visible value range", ref visibilityWindow.x, ref visibilityWindow.y, 0.0f, 1.0f);
@@ -30,7 +26,7 @@ namespace UnityVolumeRendering
             EditorGUILayout.Space();
             EditorGUILayout.EndHorizontal();
 
-            volRendObject.SetVisibilityWindow(visibilityWindow);
+            volRendObject.VisibilityWindow = visibilityWindow;
         }
     }
 }

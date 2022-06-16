@@ -1,31 +1,27 @@
 ﻿using UnityEngine;
 
-namespace UnityVolumeRendering
-{
+namespace UnityVolumeRendering {
     /// <summary>
     /// Cross section plane.
     /// Used for cutting a model (cross section view).
     /// </summary>
     [ExecuteInEditMode]
-    public class CrossSectionPlane : MonoBehaviour
-    {
+    public class CrossSectionPlane : MonoBehaviour {
         /// <summary>
         /// Volume dataset to cross section.
         /// </summary>
         public VolumeRenderedObject targetObject;
 
-        private void OnDisable()
-        {
+        private void OnDisable() {
             if (targetObject != null)
-                targetObject.meshRenderer.sharedMaterial.DisableKeyword("CUTOUT_PLANE");
+                targetObject.VolumeMaterial.DisableKeyword("CUTOUT_PLANE");
         }
 
-        private void Update()
-        {
+        private void Update() {
             if (targetObject == null)
                 return;
 
-            Material mat = targetObject.meshRenderer.sharedMaterial;
+            Material mat = targetObject.VolumeMaterial;
 
             mat.EnableKeyword("CUTOUT_PLANE");
             mat.SetMatrix("_CrossSectionMatrix", transform.worldToLocalMatrix * targetObject.transform.localToWorldMatrix);

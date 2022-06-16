@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 
-namespace UnityVolumeRendering
-{
-    public enum CutoutType
-    {
+namespace UnityVolumeRendering {
+    public enum CutoutType {
         Inclusive, Exclusive
     }
 
@@ -12,8 +10,7 @@ namespace UnityVolumeRendering
     /// Used for cutting a model (cutout view).
     /// </summary>
     [ExecuteInEditMode]
-    public class CutoutBox : MonoBehaviour
-    {
+    public class CutoutBox : MonoBehaviour {
         /// <summary>
         /// Volume dataset to cut.
         /// </summary>
@@ -21,21 +18,18 @@ namespace UnityVolumeRendering
 
         public CutoutType cutoutType = CutoutType.Exclusive;
 
-        private void OnDisable()
-        {
-            if (targetObject != null)
-            {
-                targetObject.meshRenderer.sharedMaterial.DisableKeyword("CUTOUT_BOX_INCL");
-                targetObject.meshRenderer.sharedMaterial.DisableKeyword("CUTOUT_BOX_EXCL");
+        private void OnDisable() {
+            if (targetObject != null) {
+                targetObject.VolumeMaterial.DisableKeyword("CUTOUT_BOX_INCL");
+                targetObject.VolumeMaterial.DisableKeyword("CUTOUT_BOX_EXCL");
             }
         }
 
-        private void Update()
-        {
+        private void Update() {
             if (targetObject == null)
                 return;
 
-            Material mat = targetObject.meshRenderer.sharedMaterial;
+            Material mat = targetObject.VolumeMaterial;
 
             mat.DisableKeyword(cutoutType == CutoutType.Inclusive ? "CUTOUT_BOX_EXCL" : "CUTOUT_BOX_INCL");
             mat.EnableKeyword(cutoutType == CutoutType.Exclusive ? "CUTOUT_BOX_EXCL" : "CUTOUT_BOX_INCL");

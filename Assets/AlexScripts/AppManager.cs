@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityVolumeRendering;
 using static UnityVolumeRendering.DICOMImporter;
 
@@ -13,15 +14,22 @@ public class AppManager : MonoBehaviour {
     private static AppManager instance = null;
     public static AppManager Instance => instance;
 
+    private Camera mainCamera = null;
+
     private List<VolumeRenderedObject> volumeObjects = new List<VolumeRenderedObject>();
     [SerializeField] private VolumeRenderedObject selectedVolume = null; public VolumeRenderedObject SelectedVolume => selectedVolume;
-    private Material selectedVolumeMaterial = null; public Material SelectedVolumeMaterial => selectedVolume.GetComponentInChildren<Renderer>().material;
+    public Material SelectedVolumeMaterial => SelectedVolume.VolumeMaterial;
     private Transform selectedVolumeTransform = null; public Transform SelectedVolumeTransform => selectedVolume.transform;
 
 
     private void Awake() {
         if (instance == null) instance = this;
-        else if (instance != this) Destroy(this);
+        else if (instance != this) {
+            Destroy(this);
+            return;
+        }
+        mainCamera = Camera.main;
+
     }
     // Start is called before the first frame update
     void Start() {
@@ -30,17 +38,23 @@ public class AppManager : MonoBehaviour {
             selectedVolume = FindObjectOfType<VolumeRenderedObject>();
             if (selectedVolume != null) OnSelectVolume(selectedVolume);
         }
-
     }
 
-
-
-    private void OnSelectVolume(VolumeRenderedObject obj) {
+    public void ChangeCameraStatus(bool status) {
+        if (status) mainCamera.enabled = true;
+        else {
+            StartCoroutine(DisableCameraWithDelay());
+        }
+    }
+    private IEnumerator DisableCameraWithDelay() {
+        yield return new WaitForEndOfFrame();
+        mainCamera.enabled = false;
+    }
+    public void OnSelectVolume(VolumeRenderedObject obj) {
 
         selectedVolume = obj;
         ShaderUIOptionsController.Instance.SetUpUIControlls(SelectedVolumeMaterial);
-        selectedVolumeMaterial = selectedVolume.GetComponentInChildren<Renderer>().material;
-        selectedVolumeTransform = selectedVolume.transform.GetChild(0).transform;
+        selectedVolumeTransform = selectedVolume.transform;
 
     }
     public void OnOpenPARDatasetResult(RuntimeFileBrowser.DialogResult result) {
@@ -79,8 +93,8 @@ public class AppManager : MonoBehaviour {
     }
 
     public IEnumerator OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
-        Debug.Log("Result is canceled: " + result.cancelled);
         if (!result.cancelled) {
+            LoadingWindow.Instance.StartLoading();
             // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
             DespawnAllDatasets();
 
@@ -96,20 +110,23 @@ public class AppManager : MonoBehaviour {
             float numVolumesCreated = 0;
             foreach (IImageSequenceSeries series in seriesList) {
                 VolumeDataset dataset = null;
-                Debug.Log("Stating importing coroutine");
                 yield return StartCoroutine(importer.ImportSeries(series));
-
-                Debug.Log("Loaded dataseted is not null");
                 dataset = importer.LoadedDataset;
-                Debug.Log("Importing coroutine finished: " + dataset.datasetName);
                 // Spawn the object
                 if (dataset != null) {
                     VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
                     obj.transform.position = new Vector3(numVolumesCreated, 0, 0);
                     numVolumesCreated++;
+                    yield return new WaitUntil(() => obj != null);
+                    yield return new WaitForEndOfFrame();
                     OnSelectVolume(obj);
+                    LoadingWindow.Instance.StopLoading();
                 }
             }
+        }
+        else {
+            LoadingWindow.Instance.StopLoading();
+            Destroy(FindObjectOfType<RuntimeFileBrowser.RuntimeFileBrowserComponent>().gameObject);
         }
     }
 

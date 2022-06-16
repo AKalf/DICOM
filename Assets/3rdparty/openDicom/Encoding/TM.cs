@@ -27,35 +27,28 @@ using openDicom.DataStructure;
 using System.Text.RegularExpressions;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Time (TM).
     /// </summary>
-    public sealed class Time: ValueRepresentation
-    {
-        public Time(Tag tag): base("TM", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class Time : ValueRepresentation {
+        public Time(Tag tag) : base("TM", tag) { }
+
+        public override string ToLongString() {
             return "Time (TM)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToImproperMultiValue(s);
             TimeSpan[] time = new TimeSpan[multiValue.Length];
-            for (int i = 0; i < time.Length; i++)
-            {
+            for (int i = 0; i < time.Length; i++) {
                 string item = multiValue[i];
-                if (item.Length > 0)
-                {
+                if (item.Length > 0) {
                     item = item.TrimEnd(null);
-                    if (Regex.IsMatch(item, 
-                        "^[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}(\\.[0-9]{1,6})?)?)?$"))
-                    {
+                    if (Regex.IsMatch(item,
+                        "^[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}(\\.[0-9]{1,6})?)?)?$")) {
                         item = item.Replace(":", null).Replace(".", null);
                         string hour = item.Substring(0, 2);
                         string minute = "0";
@@ -63,22 +56,19 @@ namespace openDicom.Encoding
                         string second = "0";
                         if (item.Length > 4) second = item.Substring(4, 2);
                         string millisecond = "0";
-                        if (item.Length > 6) 
+                        if (item.Length > 6)
                             millisecond = item.Substring(6, item.Length - 6);
-                        try
-                        {
-                            time[i] = new TimeSpan(0, int.Parse(hour), 
+                        try {
+                            time[i] = new TimeSpan(0, int.Parse(hour),
                                 int.Parse(minute), int.Parse(second),
                                 int.Parse(millisecond));
                         }
-                        catch (Exception e)
-                        {
+                        catch {
                             UnityEngine.Debug.LogWarning($"Date time format is invalid. tag: {Tag}, name: {Name}, item: {item}");
                             time[i] = TimeSpan.Zero;
                         }
                     }
-                    else
-                    {
+                    else {
                         UnityEngine.Debug.LogWarning($"Time format is invalid. tag: {Tag}, name: {Name}, item: {item}");
                         time[i] = TimeSpan.Zero;
                     }
@@ -86,21 +76,17 @@ namespace openDicom.Encoding
             }
             return time;
         }
-        
-        protected override Array DecodeProper(byte[] bytes)
-        {
+
+        protected override Array DecodeProper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToProperMultiValue(s);
             TimeSpan[] time = new TimeSpan[multiValue.Length];
-            for (int i = 0; i < time.Length; i++)
-            {
+            for (int i = 0; i < time.Length; i++) {
                 string item = multiValue[i];
-                if (item.Length > 0)
-                {
+                if (item.Length > 0) {
                     item = item.TrimEnd(null);
-                    if (Regex.IsMatch(item, 
-                        "^[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}(\\.[0-9]{1,6})?)?)?$"))
-                    {
+                    if (Regex.IsMatch(item,
+                        "^[0-9]{2}(:?[0-9]{2}(:?[0-9]{2}(\\.[0-9]{1,6})?)?)?$")) {
                         item = item.Replace(":", null).Replace(".", null);
                         string hour = item.Substring(0, 2);
                         string minute = "0";
@@ -108,16 +94,14 @@ namespace openDicom.Encoding
                         string second = "0";
                         if (item.Length > 4) second = item.Substring(4, 2);
                         string millisecond = "0";
-                        if (item.Length > 6) 
+                        if (item.Length > 6)
                             millisecond = item.Substring(6, item.Length - 6);
-                        try
-                        {
-                            time[i] = new TimeSpan(0, int.Parse(hour), 
+                        try {
+                            time[i] = new TimeSpan(0, int.Parse(hour),
                                 int.Parse(minute), int.Parse(second),
                                 int.Parse(millisecond));
                         }
-                        catch (Exception e)
-                        {
+                        catch {
                             throw new EncodingException(
                                 "Time format is invalid.",
                                 Tag, Name + "/item", item);

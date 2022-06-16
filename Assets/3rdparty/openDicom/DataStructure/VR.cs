@@ -30,16 +30,14 @@ using openDicom.DataStructure.DataSet;
 using openDicom.Encoding;
 
 
-namespace openDicom.DataStructure
-{
+namespace openDicom.DataStructure {
 
     using DateTime = openDicom.Encoding.DateTime;
 
     /// <summary>
     ///     This class represents an unspecific DICOM value representation (VR).
     /// </summary>
-    public class ValueRepresentation: IDicomStreamMember
-    {
+    public class ValueRepresentation : IDicomStreamMember {
         private string vrName = "";
         /// <summary>
         ///     Access the string representation of this instance. The string
@@ -48,8 +46,7 @@ namespace openDicom.DataStructure
         ///     If a value representation is unspecified, an empty string will
         ///     be returned.
         /// </summary>
-        public string Name
-        {
+        public string Name {
             get { return vrName; }
         }
 
@@ -57,23 +54,20 @@ namespace openDicom.DataStructure
         /// <summary>
         ///     Access corresponding DICOM tag.
         /// </summary>
-        public Tag Tag
-        {
-            get 
-            {
+        public Tag Tag {
+            get {
                 if (tag != null)
                     return tag;
                 else
                     throw new DicomException(
-                        "ValueRepresentation.Tag is null.", (Tag) null);
+                        "ValueRepresentation.Tag is null.", (Tag)null);
             }
         }
 
         /// <summary>
         ///     Access corresponding DICOM transfer syntax.
         /// </summary>
-        public TransferSyntax TransferSyntax
-        {
+        public TransferSyntax TransferSyntax {
             get { return Tag.TransferSyntax; }
         }
 
@@ -82,12 +76,9 @@ namespace openDicom.DataStructure
         ///     representation without corresponding DICOM data stream entry.
         ///     Therefore, the transfer syntax is considered.
         /// </summary>
-        public bool IsImplicit
-        {
-            get
-            {
-                if (IsUndefined)
-                {
+        public bool IsImplicit {
+            get {
+                if (IsUndefined) {
                     if (Tag.IsUserDefined)
                         // no data dictionary entry exists
                         return TransferSyntax.IsImplicitVR;
@@ -108,16 +99,14 @@ namespace openDicom.DataStructure
         ///     representation and thus specific. An undefined value 
         ///     representation is represented by an empty string.
         /// </summary>
-        public bool IsUndefined
-        {
+        public bool IsUndefined {
             get { return Name.Equals(""); }
         }
 
         /// <summary>
         ///     Returns true, if this value representation instance is unknown (UN).
         /// </summary>
-        public bool IsUnknown
-        {
+        public bool IsUnknown {
             get { return Name.Equals("UN"); }
         }
 
@@ -127,8 +116,7 @@ namespace openDicom.DataStructure
         ///     decoding. If this switch is set to false, a lot of conditions
         ///     within <see cref="ValueRepresentation.Decode" /> will be ignored.
         /// </summary>
-        public static bool IsStrictDecoded
-        {
+        public static bool IsStrictDecoded {
             set { isStrictDecoded = value; }
             get { return isStrictDecoded; }
         }
@@ -140,8 +128,7 @@ namespace openDicom.DataStructure
         ///     will be the case, if this VR instance is registered in a
         ///     data element dictionary.
         /// </summary>
-        public long StreamPosition
-        {
+        public long StreamPosition {
             get { return streamPosition; }
         }
 
@@ -152,8 +139,8 @@ namespace openDicom.DataStructure
         /// <param name="tag">
         ///     DICOM tag.
         /// </param>
-        public ValueRepresentation(Tag tag): this((string) null, tag) {}
-              
+        public ValueRepresentation(Tag tag) : this((string)null, tag) { }
+
         /// <summary>
         ///     Creates a new value representation instance from its string 
         ///     representation and registers it by the defined tag.
@@ -164,17 +151,16 @@ namespace openDicom.DataStructure
         /// <param name="tag">
         ///     DICOM tag.
         /// </param>
-        public ValueRepresentation(string vr, Tag tag)
-        {
+        public ValueRepresentation(string vr, Tag tag) {
             if (vr == null)
                 vrName = "";
             else
                 vrName = vr.Trim().ToUpper();
-            if ( ! (Regex.IsMatch(vrName, 
+            if (!(Regex.IsMatch(vrName,
                 "^(AE|AS|AT|CS|DA|DS|DT|FL|FD|IS|LO|LT|OB|OF|OW|PN|SH|SL|SQ|" +
                 "SS|ST|TM|UI|UL|UN|US|UT)$") || vrName.Equals("")))
-               throw new DicomException(
-                   "Value representation is not valid.", "vr", vr); 
+                throw new DicomException(
+                    "Value representation is not valid.", "vr", vr);
             this.tag = tag;
         }
 
@@ -182,8 +168,7 @@ namespace openDicom.DataStructure
         ///     Creates a new VR instance form a DICOM output stream and
         ///     registers it by the specified tag.
         /// </summary>
-        public ValueRepresentation(Stream stream, Tag tag)
-        {
+        public ValueRepresentation(Stream stream, Tag tag) {
             this.tag = tag;
             LoadFrom(stream);
         }
@@ -198,8 +183,7 @@ namespace openDicom.DataStructure
         /// <returns>
         ///     New undefined DICOM VR.
         /// </returns>
-        public static ValueRepresentation GetBy(Tag tag)
-        {
+        public static ValueRepresentation GetBy(Tag tag) {
             return GetBy(null, tag);
         }
 
@@ -217,53 +201,49 @@ namespace openDicom.DataStructure
         /// <returns>
         ///     New specific DICOM VR or a new unspecific VR.
         /// </returns>
-        public static ValueRepresentation GetBy(string name, Tag tag)
-        {
-            switch (name)
-            {
-                case "AE": return new ApplicationEntity(tag); break;
-                case "AS": return new AgeString(tag); break;
-                case "AT": return new AttributeTag(tag); break;
-                case "CS": return new CodeString(tag); break;
-                case "DA": return new Date(tag); break;
-                case "DS": return new DecimalString(tag); break;
-                case "DT": return new DateTime(tag); break;
-                case "FL": return new FloatingPointSingle(tag); break;
-                case "FD": return new FloatingPointDouble(tag); break;
-                case "IS": return new IntegerString(tag); break;
-                case "LO": return new LongString(tag); break;
-                case "LT": return new LongText(tag); break;
-                case "OB": return new OtherByteString(tag); break;
-                case "OF": return new OtherFloatString(tag); break;
-                case "OW": return new OtherWordString(tag); break;
-                case "PN": return new PersonName(tag); break;
-                case "SH": return new ShortName(tag); break;
-                case "SL": return new SignedLong(tag); break;
-                case "SQ": return new SequenceOfItems(tag); break;
-                case "SS": return new SignedShort(tag); break;
-                case "ST": return new ShortText(tag); break;
-                case "TM": return new Time(tag); break;
-                case "UI": return new UniqueIdentifier(tag); break;
-                case "UL": return new UnsignedLong(tag); break;
-                case "UN": return new Unknown(tag); break;
-                case "US": return new UnsignedShort(tag); break;
-                case "UT": return new UnlimitedText(tag); break;
-                case null: 
-                case "": return new ValueRepresentation(tag); break;
+        public static ValueRepresentation GetBy(string name, Tag tag) {
+            switch (name) {
+                case "AE": return new ApplicationEntity(tag);
+                case "AS": return new AgeString(tag);
+                case "AT": return new AttributeTag(tag);
+                case "CS": return new CodeString(tag);
+                case "DA": return new Date(tag);
+                case "DS": return new DecimalString(tag);
+                case "DT": return new DateTime(tag);
+                case "FL": return new FloatingPointSingle(tag);
+                case "FD": return new FloatingPointDouble(tag);
+                case "IS": return new IntegerString(tag);
+                case "LO": return new LongString(tag);
+                case "LT": return new LongText(tag);
+                case "OB": return new OtherByteString(tag);
+                case "OF": return new OtherFloatString(tag);
+                case "OW": return new OtherWordString(tag);
+                case "PN": return new PersonName(tag);
+                case "SH": return new ShortName(tag);
+                case "SL": return new SignedLong(tag);
+                case "SQ": return new SequenceOfItems(tag);
+                case "SS": return new SignedShort(tag);
+                case "ST": return new ShortText(tag);
+                case "TM": return new Time(tag);
+                case "UI": return new UniqueIdentifier(tag);
+                case "UL": return new UnsignedLong(tag);
+                case "UN": return new Unknown(tag);
+                case "US": return new UnsignedShort(tag);
+                case "UT": return new UnlimitedText(tag);
+                case null:
+                case "": return new ValueRepresentation(tag);
                 default:
                     throw new DicomException(
                         "Value representation is not valid.", "name", name);
-                    break;
-            }            
+
+            }
         }
 
         /// <summary>
         ///     The same as <see cref="IsImplicit" />, but in a static manner.
         /// </summary>
-        public static bool IsImplicitBy(Tag tag)
-        {
-            if (tag.GetDictionaryEntry().VR.IsUndefined)
-            {
+        public static bool IsImplicitBy(Tag tag) {
+            if (tag.GetDictionaryEntry().VR.IsUndefined) {
                 if (tag.IsUserDefined)
                     // no data dictionary entry exists
                     return tag.TransferSyntax.IsImplicitVR;
@@ -278,12 +258,10 @@ namespace openDicom.DataStructure
         /// <summary>
         ///     Re-creates this instance from a DICOM output stream.
         /// </summary>
-        public void LoadFrom(Stream stream)
-        {
+        public void LoadFrom(Stream stream) {
             streamPosition = stream.Position;
             DicomContext.Set(stream, tag);
-            if (IsImplicit)
-            {
+            if (IsImplicit) {
                 if (Tag.IsUserDefined)
                     // implicit but unknown value representation
                     vrName = "UN";
@@ -293,12 +271,11 @@ namespace openDicom.DataStructure
                     // transfer syntax
                     vrName = Tag.GetDictionaryEntry().VR.Name;
             }
-            else
-            {
+            else {
                 // explicit value representation
                 byte[] buffer = new byte[2];
                 stream.Read(buffer, 0, 2);
-                vrName = ByteConvert.ToString(buffer, 
+                vrName = ByteConvert.ToString(buffer,
                     CharacterRepertoire.Default);
             }
             DicomContext.Reset();
@@ -313,11 +290,9 @@ namespace openDicom.DataStructure
         /// <returns>
         ///     Output stream position of this instance.
         /// </returns>
-        public static ValueRepresentation LoadFrom(Stream stream, Tag tag)
-        {
+        public static ValueRepresentation LoadFrom(Stream stream, Tag tag) {
             DicomContext.Set(stream, tag);
-            if (IsImplicitBy(tag))
-            {
+            if (IsImplicitBy(tag)) {
                 if (tag.IsUserDefined)
                     // implicit but unknown value representation
                     return GetBy("UN", tag);
@@ -325,10 +300,9 @@ namespace openDicom.DataStructure
                     // implicit but known value representation;
                     // return new instance, dictionary entry do not have a
                     // transfer syntax
-                    return GetBy(tag.GetDictionaryEntry().VR.Name, tag);            
+                    return GetBy(tag.GetDictionaryEntry().VR.Name, tag);
             }
-            else
-            {
+            else {
                 // explicit value representation
                 byte[] buffer = new byte[2];
                 stream.Read(buffer, 0, 2);
@@ -336,7 +310,7 @@ namespace openDicom.DataStructure
                     CharacterRepertoire.Default);
                 return GetBy(name, tag);
             }
-            DicomContext.Reset();           
+            // DicomContext.Reset();
         }
 
         /// <summary>
@@ -346,44 +320,38 @@ namespace openDicom.DataStructure
         ///     A DICOM VR as string of the format "VR". If this instance
         ///     is an undefined VR, an empty string will be returned.
         /// </returns>                        
-        public override string ToString()
-        {
+        public override string ToString() {
             return Name;
         }
-        
+
         /// <summary>
         ///     DICOM VR detailed string representation.
         /// </summary>
         /// <returns>
         ///     A DICOM VR as string of the format "Value Representation (VR)".
         /// </returns>                        
-        public virtual string ToLongString()
-        {
-            if ( ! Name.Equals(""))
+        public virtual string ToLongString() {
+            if (!Name.Equals(""))
                 return "Undefined (" + Name + ")";
             else
                 return "Undefined";
         }
 
         protected byte[][] ToImproperMultiValue(byte[] jointMultiValue,
-            int valueLength)
-        {
+            int valueLength) {
             byte[][] result = null;
-            if (jointMultiValue.Length > valueLength)
-            {
-                int count = (int) Math.Floor((double) jointMultiValue.Length / valueLength);
+            if (jointMultiValue.Length > valueLength) {
+                int count = (int)Math.Floor((double)jointMultiValue.Length / valueLength);
                 result = new byte[count][];
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     result[i] = new byte[valueLength];
                     Array.Copy(jointMultiValue, i * valueLength, result[i], 0,
                         valueLength);
                 }
             }
-            else
-            {
+            else {
                 if (jointMultiValue.Length > 0)
-                    result = new byte[1][] {jointMultiValue};
+                    result = new byte[1][] { jointMultiValue };
                 else
                     result = new byte[0][];
             }
@@ -391,11 +359,9 @@ namespace openDicom.DataStructure
         }
 
         protected byte[][] ToProperMultiValue(byte[] jointMultiValue,
-            int valueLength)
-        {
+            int valueLength) {
             byte[][] result = null;
-            if (jointMultiValue.Length > valueLength)
-            {
+            if (jointMultiValue.Length > valueLength) {
                 int count = 0;
                 if (jointMultiValue.Length % valueLength == 0)
                     count = jointMultiValue.Length / valueLength;
@@ -403,38 +369,35 @@ namespace openDicom.DataStructure
                     throw new EncodingException(
                         "Joint multi value cannot be seperated into single " +
                         "multi values by the specified value length.",
-                        Name + "/jointMultiValue.Length, " + Name + 
-                        "/valueLength", jointMultiValue.Length.ToString() + 
+                        Name + "/jointMultiValue.Length, " + Name +
+                        "/valueLength", jointMultiValue.Length.ToString() +
                         ", " + valueLength.ToString());
                 if (jointMultiValue.Length > 0 &&
-                    ! Tag.GetDictionaryEntry().VM.IsValid(count))
+                    !Tag.GetDictionaryEntry().VM.IsValid(count))
                     throw new EncodingException("Count of values is invalid.",
-                        Tag, Name + "/VM, " + Name + "/count", 
-                        Tag.GetDictionaryEntry().VM + ", " + 
+                        Tag, Name + "/VM, " + Name + "/count",
+                        Tag.GetDictionaryEntry().VM + ", " +
                         count.ToString());
                 result = new byte[count][];
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     result[i] = new byte[valueLength];
                     Array.Copy(jointMultiValue, i * valueLength, result[i], 0,
                         valueLength);
                 }
             }
             else
-                result = new byte[1][] {jointMultiValue};
+                result = new byte[1][] { jointMultiValue };
             return result;
         }
 
-        protected byte[] ToJointMultiValue(byte[][] multiValue)
-        {
+        protected byte[] ToJointMultiValue(byte[][] multiValue) {
             int jointLength = 0;
             foreach (byte[] value in multiValue)
                 jointLength += value.Length;
             byte[] result = new byte[jointLength];
             int resultIndex = 0;
             int multiValueIndex = 0;
-            while (multiValueIndex < multiValue.Length)
-            {
+            while (multiValueIndex < multiValue.Length) {
                 byte[] value = multiValue[multiValueIndex];
                 Array.Copy(value, 0, result, resultIndex, value.Length);
                 resultIndex += value.Length;
@@ -445,35 +408,31 @@ namespace openDicom.DataStructure
                 return result;
             else
                 throw new EncodingException("Count of values is invalid.",
-                    Tag, Name + "/VM, " + Name + "/multiValue.Length", 
-                    Tag.GetDictionaryEntry().VM + ", " + 
+                    Tag, Name + "/VM, " + Name + "/multiValue.Length",
+                    Tag.GetDictionaryEntry().VM + ", " +
                     multiValue.Length.ToString());
         }
 
-        protected string[] ToImproperMultiValue(string jointMultiValue)
-        {
+        protected string[] ToImproperMultiValue(string jointMultiValue) {
             string[] result = jointMultiValue.Split('\\');
             return result;
         }
 
-        protected string[] ToProperMultiValue(string jointMultiValue)
-        {
+        protected string[] ToProperMultiValue(string jointMultiValue) {
             string[] result = jointMultiValue.Split('\\');
             if (jointMultiValue.Length == 0 ||
                 Tag.GetDictionaryEntry().VM.IsValid(result.Length))
                 return result;
             else
                 throw new EncodingException("Count of values is invalid.",
-                    Tag, Name + "/VM, " + Name + "/result.Length", 
-                    Tag.GetDictionaryEntry().VM + ", " + 
+                    Tag, Name + "/VM, " + Name + "/result.Length",
+                    Tag.GetDictionaryEntry().VM + ", " +
                     result.Length.ToString());
         }
 
-        protected string ToJointMultiValue(string[] multiValue)
-        {
+        protected string ToJointMultiValue(string[] multiValue) {
             string result = "";
-            foreach (string value in multiValue)
-            {
+            foreach (string value in multiValue) {
                 if (result.Equals("")) result = value;
                 else result += "\\" + value;
             }
@@ -482,21 +441,19 @@ namespace openDicom.DataStructure
                 return result;
             else
                 throw new EncodingException("Count of values is invalid.",
-                    Tag, Name + "/VM, " + Name + "/multiValue.Length", 
-                    Tag.GetDictionaryEntry().VM + ", " + 
+                    Tag, Name + "/VM, " + Name + "/multiValue.Length",
+                    Tag.GetDictionaryEntry().VM + ", " +
                     multiValue.Length.ToString());
         }
 
-        protected virtual Array DecodeProper(byte[] bytes)
-        {
+        protected virtual Array DecodeProper(byte[] bytes) {
             return new byte[1][] { bytes };
         }
 
-        protected virtual Array DecodeImproper(byte[] bytes)
-        {
+        protected virtual Array DecodeImproper(byte[] bytes) {
             return new byte[1][] { bytes };
         }
-        
+
         /// <summary>
         ///     Determines the correct type and multiplicity of a DICOM value.
         /// </summary>
@@ -510,8 +467,7 @@ namespace openDicom.DataStructure
         /// <returns>
         ///     DICOM value as array of a specific type.
         /// </returns>                        
-        public Array Decode(byte[] bytes)
-        {
+        public Array Decode(byte[] bytes) {
             if (IsStrictDecoded)
                 return DecodeProper(bytes);
             else
@@ -528,8 +484,7 @@ namespace openDicom.DataStructure
         /// <returns>
         ///     DICOM Value class instance.
         /// </returns>                        
-        public Value DecodeToValue(byte[] bytes)
-        {
+        public Value DecodeToValue(byte[] bytes) {
             return new Value(this, new ValueLength(this, bytes.Length),
                 Decode(bytes));
         }

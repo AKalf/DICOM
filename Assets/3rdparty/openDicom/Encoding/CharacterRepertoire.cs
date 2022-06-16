@@ -27,14 +27,12 @@ using System.Text;
 using openDicom.DataStructure;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents a DICOM character repertoire.
     /// </summary>
-    public sealed class CharacterRepertoire
-    {
+    public sealed class CharacterRepertoire {
         /// <summary>
         ///     DICOM tag (0008,0005).
         /// </summary>
@@ -43,13 +41,13 @@ namespace openDicom.Encoding
         /// <summary>
         ///     DICOM default character repertoire (ISO_IR 6).
         /// </summary>
-        public static readonly CharacterRepertoire Default = 
+        public static readonly CharacterRepertoire Default =
             new CharacterRepertoire("ISO_IR 6");
 
         /// <summary>
         ///     DICOM ASCII character repertoire.
         /// </summary>
-        public static readonly CharacterRepertoire Ascii = 
+        public static readonly CharacterRepertoire Ascii =
             new CharacterRepertoire("ASCII");
 
         /// <summary>
@@ -61,87 +59,85 @@ namespace openDicom.Encoding
         /// <summary>
         ///     DICOM character repertoire G0 (ISO_IR 6).
         /// </summary>
-        public static readonly CharacterRepertoire G0 = 
+        public static readonly CharacterRepertoire G0 =
             new CharacterRepertoire("ISO_IR 6");
 
         /// <summary>
         ///     DICOM character repertoire G1 (ISO_IR 100).
         /// </summary>
-        public static readonly CharacterRepertoire G1 = 
+        public static readonly CharacterRepertoire G1 =
             new CharacterRepertoire("ISO_IR 100");
 
         private System.Text.Encoding encoding = null;
         /// <summary>
         ///     DICOM character repertoire text encoding.
         /// </summary>
-        public System.Text.Encoding Encoding
-        {
+        public System.Text.Encoding Encoding {
             get { return encoding; }
         }
 
 
-        public CharacterRepertoire(): this(null) {}
+        public CharacterRepertoire() : this(null) { }
 
         /// <summary>
         ///     Creates a new DICOM character repertoire instance from
         ///     specified character set or map.
         /// </summary>
-        public CharacterRepertoire(string characterSet)
-        {
+        public CharacterRepertoire(string characterSet) {
             if (characterSet == null) characterSet = "";
             characterSet = characterSet.ToUpper()
                 .Replace(" ", null)
                 .Replace("-", null)
                 .Replace("_", null);
-            switch (characterSet)
-            {
-                case "":                case "ISOIR6":
+            switch (characterSet) {
+                case "":
+                case "ISOIR6":
                 case "ASCII":
                     this.encoding = System.Text.Encoding.ASCII;
                     break;
                 case "ISOIR100":
                 case "ISO88591":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-1");
                     break;
                 case "ISOIR101":
                 case "ISO88592":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-2");
                     break;
                 case "ISOIR109":
                 case "ISO88593":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-3");
                     break;
                 case "ISOIR110":
                 case "ISO88594":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-4");
                     break;
                 case "ISOIR144":
                 case "ISO88595":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-5");
                     break;
                 case "ISOIR127":
                 case "ISO88596":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-6");
                     break;
                 case "ISOIR126":
                 case "ISO88597":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-7");
                     break;
                 case "ISOIR138":
                 case "ISO88598":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-8");
                     break;
                 case "ISOIR148":
                 case "ISO88599":
-                    this.encoding = 
+                    this.encoding =
                         System.Text.Encoding.GetEncoding("ISO-8859-9");
                     break;
                 case "ISOIR192":
@@ -151,7 +147,6 @@ namespace openDicom.Encoding
                 default:
                     throw new DicomException("Encoding is not supported.",
                         "characterSet", characterSet);
-                    break;
             }
         }
     }

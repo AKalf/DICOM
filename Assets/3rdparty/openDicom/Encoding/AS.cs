@@ -28,37 +28,30 @@ using openDicom.Encoding.Type;
 using System.Text.RegularExpressions;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Age String (AS).
     /// </summary>
-    public sealed class AgeString: ValueRepresentation
-    {
-        public AgeString(Tag tag): base("AS", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class AgeString : ValueRepresentation {
+        public AgeString(Tag tag) : base("AS", tag) { }
+
+        public override string ToLongString() {
             return "Age String (AS)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToImproperMultiValue(s);
             Age[] age = new Age[multiValue.Length];
-            for (int i = 0; i < age.Length; i++)
-            {
+            for (int i = 0; i < age.Length; i++) {
                 string item = multiValue[i];
-                try
-                {
+                try {
                     if (item == null || item.Equals(""))
                         item = "000D";
                     age[i] = new Age(item);
                 }
-                catch (Exception e)
-                {
+                catch {
                     throw new EncodingException("Age string format is invalid.",
                         Name + "/item", item);
                 }
@@ -66,20 +59,16 @@ namespace openDicom.Encoding
             return age;
         }
 
-        protected override Array DecodeProper(byte[] bytes)
-        {
+        protected override Array DecodeProper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToProperMultiValue(s);
             Age[] age = new Age[multiValue.Length];
-            for (int i = 0; i < age.Length; i++)
-            {
+            for (int i = 0; i < age.Length; i++) {
                 string item = multiValue[i];
-                try
-                {
+                try {
                     age[i] = new Age(item);
                 }
-                catch (Exception e)
-                {
+                catch {
                     throw new EncodingException("Age string format is invalid.",
                         Name + "/item", item);
                 }

@@ -26,63 +26,51 @@ using System;
 using openDicom.DataStructure;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Integer String (IS).
     /// </summary>
-    public sealed class IntegerString: ValueRepresentation
-    {
-        public IntegerString(Tag tag): base("IS", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class IntegerString : ValueRepresentation {
+        public IntegerString(Tag tag) : base("IS", tag) { }
+
+        public override string ToLongString() {
             return "Integer String (IS)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToImproperMultiValue(s);
             long[] intValue = new long[multiValue.Length];
-            for (int i = 0; i < intValue.Length; i++)
-            {
+            for (int i = 0; i < intValue.Length; i++) {
                 string item = multiValue[i];
                 item = item.Trim();
-                try
-                {
+                try {
                     if (item.Length > 0)
                         intValue[i] = long.Parse(item);
                 }
-                catch (Exception e)
-                {
-                   throw new EncodingException(
-                      "Integer string format is invalid.", Tag,
-                      Name + "/item", item);
+                catch {
+                    throw new EncodingException(
+                       "Integer string format is invalid.", Tag,
+                       Name + "/item", item);
                 }
             }
             return intValue;
         }
-        
-        protected override Array DecodeProper(byte[] bytes)
-        {
+
+        protected override Array DecodeProper(byte[] bytes) {
             string s = TransferSyntax.ToString(bytes);
             string[] multiValue = ToProperMultiValue(s);
             long[] intValue = new long[multiValue.Length];
-            for (int i = 0; i < intValue.Length; i++)
-            {
+            for (int i = 0; i < intValue.Length; i++) {
                 string item = multiValue[i];
-                if (item.Length <= 12)
-                {
+                if (item.Length <= 12) {
                     item = item.Trim();
-                    try
-                    {
+                    try {
                         if (item.Length > 0)
                             intValue[i] = long.Parse(item);
                     }
-                    catch (Exception e)
-                    {
+                    catch {
                         throw new EncodingException(
                             "Integer string format is invalid.", Tag,
                             Name + "/item", item);
