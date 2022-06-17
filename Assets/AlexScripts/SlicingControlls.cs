@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityVolumeRendering;
 
@@ -17,9 +15,13 @@ public class SlicingControlls : UIWindow {
     private int selectedPlaneIndex = 0;
     private int activePlanes = 0;
     private void Awake() {
-        openSlicingOptionsPanelButton.onClick.AddListener(() => { UIUtilities.ToggleCanvasGroup(CanvasGroup, true); });
-        addSlicingPlaneButton.onClick.AddListener(() => {
+        // Open slicing panel button
+        UIUtilities.SetUpButtonListener(openSlicingOptionsPanelButton, () => UIUtilities.ToggleCanvasGroup(CanvasGroup, true));
+        // Add new slicing plane button
+        UIUtilities.SetUpButtonListener(addSlicingPlaneButton, () => {
             if (activePlanes == 3) return;
+            ToggleOptionsInteractivity(true);
+            AppManager.Instance.SelectedVolume.GetComponent<Renderer>().enabled = false;
             activePlanes++;
             totalPlanes[activePlanes] = AppManager.Instance.SelectedVolume.CreateSlicingPlane();
             SetButtonStatusByIndex(activePlanes, true);
@@ -35,9 +37,9 @@ public class SlicingControlls : UIWindow {
                 UIUtilities.SetScaleSliderControl(scaleX, inputFieldScaleX, Vector3.right, vec => PlaneTransform.localScale += vec, 0.1f, 3, false);
                 UIUtilities.SetScaleSliderControl(scaleY, inputFieldScaleY, Vector3.up, vec => PlaneTransform.localScale += vec, 0.1f, 3, false);
             }
-
         });
-        removeSlicingPlaneButton.onClick.AddListener(() => {
+        // Remove slicing plane button
+        UIUtilities.SetUpButtonListener(removeSlicingPlaneButton, () => {
             if (activePlanes == 0) return;
             if (currentPlane != null) {
                 Destroy(currentPlane.gameObject);
@@ -46,19 +48,25 @@ public class SlicingControlls : UIWindow {
                 if (selectedPlaneIndex == activePlanes)
                     selectedPlaneIndex--;
                 activePlanes--;
-
+                if (activePlanes == 0) {
+                    ToggleOptionsInteractivity(false);
+                    AppManager.Instance.SelectedVolume.GetComponent<Renderer>().enabled = true;
+                }
             }
         });
-        selectFirstPlaneButton.onClick.AddListener(() => selectedPlaneIndex = 1);
-        selectSecondPlaneButton.onClick.AddListener(() => selectedPlaneIndex = 2);
-        selectThirdPlaneButton.onClick.AddListener(() => selectedPlaneIndex = 3);
+        // Select first plane button
+        UIUtilities.SetUpButtonListener(selectFirstPlaneButton, () => selectedPlaneIndex = 1);
+        // Select second plane button
+        UIUtilities.SetUpButtonListener(selectSecondPlaneButton, () => selectedPlaneIndex = 2);
+        // Select third plane button
+        UIUtilities.SetUpButtonListener(selectThirdPlaneButton, () => selectedPlaneIndex = 3);
+        ToggleOptionsInteractivity(false);
     }
     private void SetSlicingPlaneColor(int index) {
         Transform trans = totalPlanes[index].transform;
         Color color = index == 1 ? Color.red : index == 2 ? Color.blue : Color.green;
-        for (int i = 0; i < trans.childCount; i++) {
+        for (int i = 0; i < trans.childCount; i++)
             trans.GetChild(i).GetComponent<MeshRenderer>().material.color = color;
-        }
     }
     private void SetButtonStatusByIndex(int index, bool enable) {
         switch (index) {
@@ -76,5 +84,13 @@ public class SlicingControlls : UIWindow {
                 break;
 
         }
+    }
+    private void ToggleOptionsInteractivity(bool enabled) {
+        posX.interactable = enabled; posY.interactable = enabled; posZ.interactable = enabled;
+        rotX.interactable = enabled; rotY.interactable = enabled; rotZ.interactable = enabled;
+        scaleX.interactable = enabled; scaleY.interactable = enabled;
+        inputFieldPosX.interactable = enabled; inputFieldPosY.interactable = enabled; inputFieldPosZ.interactable = enabled;
+        inputFieldRotX.interactable = enabled; inputFieldRotY.interactable = enabled; inputFieldRotZ.interactable = enabled;
+        inputFieldScaleX.interactable = enabled; inputFieldScaleY.interactable = enabled;
     }
 }

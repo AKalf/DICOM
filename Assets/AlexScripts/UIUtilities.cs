@@ -23,24 +23,24 @@ public static class UIUtilities {
             lastValue = value;
             AppManager.Instance.ChangeCameraStatus(false);
         });
-
-        inputField.onEndEdit.AddListener(value => {
-            float f = 0.0f;
-            if (float.TryParse(value, out f)) {
-                AppManager.Instance.ChangeCameraStatus(true);
-                f = (float)Math.Round(f, 1);
-                inputField.text = f.ToString();
-                slider.value = f;
-                AppManager.Instance.ChangeCameraStatus(false);
-            }
-        });
+        if (inputField != null) {
+            inputField.onEndEdit.AddListener(value => {
+                float f = 0.0f;
+                if (float.TryParse(value, out f)) {
+                    AppManager.Instance.ChangeCameraStatus(true);
+                    f = (float)Math.Round(f, 1);
+                    inputField.text = f.ToString();
+                    slider.value = f;
+                    AppManager.Instance.ChangeCameraStatus(false);
+                }
+            });
+        }
     }
-
     public static void SetPositionSliderControl(Slider slider, InputField inputField, Vector3 dir, Action<Vector3> target, float minValue, float maxValue, bool wholeNumbers) {
         slider.minValue = minValue;
         slider.maxValue = maxValue;
         slider.wholeNumbers = wholeNumbers;
-        inputField.contentType = InputField.ContentType.DecimalNumber;
+
 
         float lastValue = 0.0f;
         slider.onValueChanged.AddListener(value => {
@@ -54,17 +54,20 @@ public static class UIUtilities {
             lastValue = value;
             AppManager.Instance.ChangeCameraStatus(false);
         });
+        if (inputField != null) {
+            inputField.contentType = InputField.ContentType.DecimalNumber;
+            inputField.onEndEdit.AddListener(value => {
+                float f = 0.0f;
+                if (float.TryParse(value, out f)) {
+                    AppManager.Instance.ChangeCameraStatus(true);
+                    f = (float)Math.Round(f, 1);
+                    inputField.text = f.ToString();
+                    slider.value = f;
+                    AppManager.Instance.ChangeCameraStatus(false);
+                }
+            });
+        }
 
-        inputField.onEndEdit.AddListener(value => {
-            float f = 0.0f;
-            if (float.TryParse(value, out f)) {
-                AppManager.Instance.ChangeCameraStatus(true);
-                f = (float)Math.Round(f, 1);
-                inputField.text = f.ToString();
-                slider.value = f;
-                AppManager.Instance.ChangeCameraStatus(false);
-            }
-        });
     }
     public static void SetScaleSliderControl(Slider slider, InputField inputField, Vector3 dir, Action<Vector3> target, float minValue, float maxValue, bool wholeNumbers) {
         slider.minValue = minValue;
@@ -84,17 +87,18 @@ public static class UIUtilities {
             lastValue = value;
             AppManager.Instance.ChangeCameraStatus(false);
         });
-
-        inputField.onEndEdit.AddListener(value => {
-            float f = 0.0f;
-            if (float.TryParse(value, out f)) {
-                AppManager.Instance.ChangeCameraStatus(true);
-                f = (float)Math.Round(f, 1);
-                inputField.text = f.ToString();
-                slider.value = f;
-                AppManager.Instance.ChangeCameraStatus(false);
-            }
-        });
+        if (inputField != null) {
+            inputField.onEndEdit.AddListener(value => {
+                float f = 0.0f;
+                if (float.TryParse(value, out f)) {
+                    AppManager.Instance.ChangeCameraStatus(true);
+                    f = (float)Math.Round(f, 1);
+                    inputField.text = f.ToString();
+                    slider.value = f;
+                    AppManager.Instance.ChangeCameraStatus(false);
+                }
+            });
+        }
     }
     public static void ToggleCanvasGroup(CanvasGroup group, bool open) {
         if (open) {
@@ -108,8 +112,7 @@ public static class UIUtilities {
             group.blocksRaycasts = false;
         }
     }
-
-    public static void SetUpSliderControl(Slider slider, InputField inputField, string propertyName, out int propertyIndex, out int nameID, bool onlyIntValues = false) {
+    public static void SetUpSliderControl(Slider slider, InputField inputField, string propertyName, out int propertyIndex, out int nameID, bool onlyIntValues = false, Action<float> extraActionToInvoke = null) {
         propertyIndex = AppManager.Instance.SelectedVolumeMaterial.shader.FindPropertyIndex(propertyName);
         int temp = AppManager.Instance.SelectedVolumeMaterial.shader.GetPropertyNameId(propertyIndex);
         nameID = temp;
@@ -124,28 +127,56 @@ public static class UIUtilities {
             else AppManager.Instance.SelectedVolumeMaterial.SetFloat(temp, value);
             AppManager.Instance.ChangeCameraStatus(false);
         });
-        inputField.onEndEdit.AddListener(value => {
-            int newIntValue;
-            float newFloatValue;
-            if (int.TryParse(value, out newIntValue)) {
-                AppManager.Instance.ChangeCameraStatus(true);
-                AppManager.Instance.SelectedVolumeMaterial.SetInt(temp, newIntValue);
-                if (newIntValue > slider.maxValue) slider.SetValueWithoutNotify(slider.maxValue);
-                else if (newIntValue < slider.minValue) slider.SetValueWithoutNotify(slider.minValue);
-                else slider.SetValueWithoutNotify(newIntValue);
-                AppManager.Instance.ChangeCameraStatus(false);
-            }
-            else if (float.TryParse(value, out newFloatValue)) {
-                newFloatValue = (float)Math.Round(newFloatValue, 1);
-                AppManager.Instance.ChangeCameraStatus(true);
-                AppManager.Instance.SelectedVolumeMaterial.SetFloat(temp, newFloatValue);
-                if (newFloatValue > slider.maxValue) slider.SetValueWithoutNotify(slider.maxValue);
-                else if (newFloatValue < slider.minValue) slider.SetValueWithoutNotify(slider.minValue);
-                else slider.SetValueWithoutNotify(newFloatValue);
-                AppManager.Instance.ChangeCameraStatus(false);
-            }
+        if (inputField != null) {
+            inputField.onEndEdit.AddListener(value => {
+                int newIntValue;
+                float newFloatValue;
+                if (int.TryParse(value, out newIntValue)) {
+                    AppManager.Instance.ChangeCameraStatus(true);
+                    AppManager.Instance.SelectedVolumeMaterial.SetInt(temp, newIntValue);
+                    if (newIntValue > slider.maxValue) slider.SetValueWithoutNotify(slider.maxValue);
+                    else if (newIntValue < slider.minValue) slider.SetValueWithoutNotify(slider.minValue);
+                    else slider.SetValueWithoutNotify(newIntValue);
+                    AppManager.Instance.ChangeCameraStatus(false);
+                }
+                else if (float.TryParse(value, out newFloatValue)) {
+                    newFloatValue = (float)Math.Round(newFloatValue, 1);
+                    AppManager.Instance.ChangeCameraStatus(true);
+                    AppManager.Instance.SelectedVolumeMaterial.SetFloat(temp, newFloatValue);
+                    if (newFloatValue > slider.maxValue) slider.SetValueWithoutNotify(slider.maxValue);
+                    else if (newFloatValue < slider.minValue) slider.SetValueWithoutNotify(slider.minValue);
+                    else slider.SetValueWithoutNotify(newFloatValue);
+                    AppManager.Instance.ChangeCameraStatus(false);
+                }
+            });
+        }
+    }
+    public static void SetUpButtonListener(Button button, Action actionToInvoke) {
+        button.onClick.AddListener(() => {
+            AppManager.Instance.ChangeCameraStatus(true);
+            actionToInvoke.Invoke();
+            AppManager.Instance.ChangeCameraStatus(false);
         });
-
-
+    }
+    public static void SetInputField(InputField field, Action<string> actionToInvoke, float waitFrames = 1) {
+        field.onValueChanged.AddListener(value => AppManager.Instance.ChangeCameraStatus(true));
+        field.onEndEdit.AddListener(value => {
+            actionToInvoke.Invoke(value);
+            AppManager.Instance.ChangeCameraStatus(false);
+        });
+    }
+    public static void SetDropdown(Dropdown dropdown, Action<int> actionToInvoke) {
+        dropdown.onValueChanged.AddListener(index => {
+            AppManager.Instance.ChangeCameraStatus(true);
+            actionToInvoke.Invoke(index);
+            AppManager.Instance.ChangeCameraStatus(false);
+        });
+    }
+    public static void SetToggle(Toggle toggle, Action<bool> actionToInvoke) {
+        toggle.onValueChanged.AddListener(value => {
+            AppManager.Instance.ChangeCameraStatus(true);
+            actionToInvoke.Invoke(value);
+            AppManager.Instance.ChangeCameraStatus(false);
+        });
     }
 }

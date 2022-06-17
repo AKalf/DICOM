@@ -3,7 +3,7 @@
    
     Properties
     {
-        _MainTex ("Data Texture (Generated)", 3D) = "" {}
+        _DataTex ("Data Texture (Generated)", 3D) = "" {}
         _GradientTex("Gradient Texture (Generated)", 3D) = "" {}
         _NoiseTex("Noise Texture (Generated)", 2D) = "white" {}
         _TFTex("Transfer Function Texture (Generated)", 2D) = "" {}
@@ -42,7 +42,7 @@
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "UnityCustomRenderTexture.cginc"
+            //#include "UnityCustomRenderTexture.cginc"
       
             #define CUTOUT_ON CUTOUT_PLANE || CUTOUT_BOX_INCL || CUTOUT_BOX_EXCL
             
@@ -56,7 +56,7 @@
 #endif
             };
 
-            sampler3D _MainTex;
+            sampler3D _DataTex;
             sampler3D _GradientTex;
             sampler2D _NoiseTex;
             sampler2D _TFTex;
@@ -157,7 +157,7 @@
             fixed4 getTF2DColour(fixed density, fixed gradientMagnitude) {  return tex2Dlod(_TFTex, fixed4(density, gradientMagnitude, 0.0f, 0.0f)); }
 
             // Gets the density at the specified position
-            fixed getDensity(fixed3 pos) {  return tex3Dlod(_MainTex, fixed4(pos.x, pos.y, pos.z, 0.0f)); }
+            fixed getDensity(fixed3 pos) {  return tex3Dlod(_DataTex, fixed4(pos.x, pos.y, pos.z, 0.0f)); }
 
             // Gets the gradient at the specified position
             fixed3 getGradient(fixed3 pos) {  return tex3Dlod(_GradientTex, fixed4(pos.x, pos.y, pos.z, 0.0f)).rgb; }
@@ -196,14 +196,14 @@
                 fixed3 planeSpacePos = mul(_CrossSectionMatrix, fixed4(pos, 1.0f));
                 
                 #if CUTOUT_PLANE
-                return planeSpacePos.z > 0.0f;
+                    return planeSpacePos.z > 0.0f;
                 #elif CUTOUT_BOX_INCL
-                return !(planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f);
+                    return !(planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f);
                 #elif CUTOUT_BOX_EXCL
-                return planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f;
+                    return planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f;
                 #endif
                 #else
-                return false;
+                    return false;
                 #endif
             }
 
@@ -238,9 +238,9 @@
 
                 col = Zerofixed4;
                 #ifdef DVR_BACKWARD_ON
-                fixed tDepth = 0.0f;
+                    fixed tDepth = 0.0f;
                 #else
-                fixed tDepth = raymarchInfo.numStepsRecip * (raymarchInfo.numSteps - 1);
+                    fixed tDepth = raymarchInfo.numStepsRecip * (raymarchInfo.numSteps - 1);
                 #endif
                 for (int iStep = 0; iStep < raymarchInfo.numSteps; iStep++)
                 {

@@ -5757,7 +5757,7 @@ RectTransform:
   m_GameObject: {fileID: 3305449971479510602}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4017877842143533249}
   m_Father: {fileID: 0}
@@ -5838,7 +5838,7 @@ Canvas:
   m_GameObject: {fileID: 3305449971479510602}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 2
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -6612,7 +6612,7 @@ GameObject:
   - component: {fileID: 4017877842143533262}
   - component: {fileID: 1881677401210294135}
   m_Layer: 5
-  m_Name: RightControls_Panel
+  m_Name: ShaderControls_Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

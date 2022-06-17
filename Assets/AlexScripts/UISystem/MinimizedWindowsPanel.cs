@@ -21,21 +21,25 @@ public class MinimizedWindowsPanel : MonoBehaviour {
 
     public void MinimizeWindow(UIWindow window) {
         if (minimizedWindows.ContainsValue(window) == false) {
+            AppManager.Instance.ChangeCameraStatus(true);
             UIUtilities.ToggleCanvasGroup(window.CanvasGroup, false);
             window.gameObject.SetActive(false);
             GameObject newMinPanel = Instantiate(minimizedWindowPrefab, minimizedPanel.transform);
             newMinPanel.GetComponent<Button>().onClick.AddListener(() => MaximizeWindow(newMinPanel));
             newMinPanel.GetComponentInChildren<Text>().text = window.WindowName;
             minimizedWindows.Add(newMinPanel, window);
+            AppManager.Instance.ChangeCameraStatus(false);
         }
     }
 
     private void MaximizeWindow(GameObject minimizedWindow) {
         if (minimizedWindows.ContainsKey(minimizedWindow)) {
+            AppManager.Instance.ChangeCameraStatus(true);
             UIUtilities.ToggleCanvasGroup(minimizedWindows[minimizedWindow].CanvasGroup, true);
             minimizedWindows[minimizedWindow].gameObject.SetActive(true);
             minimizedWindows.Remove(minimizedWindow);
             Destroy(minimizedWindow);
+            AppManager.Instance.ChangeCameraStatus(false);
         }
     }
 

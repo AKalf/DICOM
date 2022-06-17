@@ -92,6 +92,7 @@ public class AppManager : MonoBehaviour {
     public IEnumerator OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {
             LoadingWindow.Instance.StartLoading();
+            ChangeCameraStatus(true);
             // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
             DespawnAllDatasets();
 

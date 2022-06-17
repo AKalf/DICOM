@@ -4,7 +4,7 @@ Shader "VolumeRendering/SliceRenderingShader"
 {
     Properties
     {
-        _MainTex("Data Texture (Generated)", 3D) = "" {}
+        _DataTex("Data Texture (Generated)", 3D) = "" {}
         _TFTex("Transfer Function Texture", 2D) = "white" {}
     }
     SubShader
@@ -34,7 +34,7 @@ Shader "VolumeRendering/SliceRenderingShader"
                 float4 relVert : TEXCOORD1;
             };
 
-            sampler3D _MainTex;
+            sampler3D _DataTex;
             sampler2D _TFTex;
             // Parent's inverse transform (used to convert from world space to volume space)
             uniform float4x4 _parentInverseMat;
@@ -65,7 +65,7 @@ Shader "VolumeRendering/SliceRenderingShader"
                 else
                 {
                    // Sample the volume texture.
-                   float dataVal = tex3D(_MainTex, dataCoord);
+                   float dataVal = tex3D(_DataTex, dataCoord);
                    float4 col = tex2D(_TFTex, float2(dataVal, 0.0f));
                    col.a = 1.0f;
                    return col;
