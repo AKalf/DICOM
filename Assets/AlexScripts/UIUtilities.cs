@@ -49,7 +49,7 @@ public static class UIUtilities {
             AppManager.Instance.ChangeCameraStatus(true);
             float diff = lastValue - value;
             target.Invoke(dir * diff);
-            inputField.SetTextWithoutNotify(value.ToString());
+            if (inputField != null) inputField.SetTextWithoutNotify(value.ToString());
             slider.SetValueWithoutNotify(value);
             lastValue = value;
             AppManager.Instance.ChangeCameraStatus(false);

@@ -42,12 +42,12 @@ public class AppManager : MonoBehaviour {
 
     public void ChangeCameraStatus(bool status) {
         if (status) mainCamera.enabled = true;
-        //else StartCoroutine(DisableCameraWithDelay());
+        else StartCoroutine(DisableCameraWithDelay());
     }
     private IEnumerator DisableCameraWithDelay() {
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
-        //mainCamera.enabled = false;
+        mainCamera.enabled = false;
     }
     public void OnSelectVolume(VolumeRenderedObject obj) {
 
