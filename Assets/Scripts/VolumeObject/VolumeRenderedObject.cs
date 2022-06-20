@@ -1,9 +1,17 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UnityVolumeRendering {
     [ExecuteInEditMode]
     public class VolumeRenderedObject : MonoBehaviour {
+
+        //Variables
+        public List<TFColourControlPoint> color_points = new List<TFColourControlPoint>();
+        public List<TFAlphaControlPoint> alpha_points = new List<TFAlphaControlPoint>();
+
         [SerializeField, HideInInspector] public TransferFunction transferFunction;
 
         [SerializeField, HideInInspector] public TransferFunction2D transferFunction2D;
@@ -15,17 +23,6 @@ namespace UnityVolumeRendering {
 
         private Material volumeMaterial = null;
         public Material VolumeMaterial => volumeMaterial;
-
-        [SerializeField, HideInInspector] private RenderMode renderMode;
-        [SerializeField, HideInInspector] private TFRenderMode tfRenderMode;
-        [SerializeField, HideInInspector] private bool lightingEnabled;
-
-        [SerializeField, HideInInspector] private Vector2 visibilityWindow = new Vector2(0.0f, 1.0f);
-        [SerializeField, HideInInspector] private bool rayTerminationEnabled = true;
-        [SerializeField, HideInInspector] private bool dvrBackward = false;
-        [SerializeField, HideInInspector] private bool opacityBasedOnDepthEnabled = false;
-
-
 
         private void Start() {
             meshRenderer = GetComponent<MeshRenderer>();
@@ -48,13 +45,20 @@ namespace UnityVolumeRendering {
             VolumeMaterial.DisableKeyword("MODE_MIP");
             VolumeMaterial.DisableKeyword("MODE_SURF");
 
+            VolumeMaterial.DisableKeyword("TF2D_ON");
+            VolumeMaterial.DisableKeyword("LIGHTING_ON");
+
+            VolumeMaterial.SetFloat("_MinVal", 0);
+            VolumeMaterial.SetFloat("_MaxVal", 1);
+            VolumeMaterial.DisableKeyword("RAY_TERMINATE_ON");
+            VolumeMaterial.EnableKeyword("DVR_BACKWARD_ON");
+
             if (dataset.scaleX != 0.0f && dataset.scaleY != 0.0f && dataset.scaleZ != 0.0f) {
                 float maxScale = Mathf.Max(dataset.scaleX, dataset.scaleY, dataset.scaleZ);
                 transform.localScale = new Vector3(dataset.scaleX / maxScale, dataset.scaleY / maxScale, dataset.scaleZ / maxScale);
             }
-            UpdateAllMaterialProperties();
-        }
 
+        }
 
         public SlicingPlane CreateSlicingPlane() {
             GameObject sliceRenderingPlane = GameObject.Instantiate(Resources.Load<GameObject>("SlicingPlane"));
@@ -69,68 +73,49 @@ namespace UnityVolumeRendering {
             sliceMat.SetTexture("_TFTex", transferFunction.GetTexture());
             sliceMat.SetMatrix("_parentInverseMat", transform.worldToLocalMatrix);
             sliceMat.SetMatrix("_planeMat", Matrix4x4.TRS(sliceRenderingPlane.transform.position, sliceRenderingPlane.transform.rotation, transform.lossyScale)); // TODO: allow changing scale
+            SlicingPlane slicingPlane = sliceRenderingPlane.GetComponent<SlicingPlane>();
+            slicingPlane.VolumeTranform = this.transform;
 
-            return sliceRenderingPlane.GetComponent<SlicingPlane>();
+
+            return slicingPlane;
         }
 
-        private void UpdateAllMaterialProperties() {
-            bool useGradientTexture = tfRenderMode == TFRenderMode.TF2D || renderMode == RenderMode.IsosurfaceRendering || lightingEnabled;
-            meshRenderer.material.SetTexture("_GradientTex", useGradientTexture ? dataset.GetGradientTexture() : null);
-
-            if (tfRenderMode == TFRenderMode.TF2D) {
-                meshRenderer.material.SetTexture("_TFTex", transferFunction2D.GetTexture());
-                meshRenderer.material.EnableKeyword("TF2D_ON");
-            }
-            else {
-                meshRenderer.material.SetTexture("_TFTex", transferFunction.GetTexture());
-                meshRenderer.material.DisableKeyword("TF2D_ON");
-            }
-
-            if (lightingEnabled)
-                meshRenderer.material.EnableKeyword("LIGHTING_ON");
-            else
-                meshRenderer.material.DisableKeyword("LIGHTING_ON");
-
-            switch (renderMode) {
-                case RenderMode.DirectVolumeRendering: {
-                        meshRenderer.material.EnableKeyword("MODE_DVR");
-                        meshRenderer.material.DisableKeyword("MODE_MIP");
-                        meshRenderer.material.DisableKeyword("MODE_SURF");
-                        break;
-                    }
-                case RenderMode.MaximumIntensityProjectipon: {
-                        meshRenderer.material.DisableKeyword("MODE_DVR");
-                        meshRenderer.material.EnableKeyword("MODE_MIP");
-                        meshRenderer.material.DisableKeyword("MODE_SURF");
-                        break;
-                    }
-                case RenderMode.IsosurfaceRendering: {
-                        meshRenderer.material.DisableKeyword("MODE_DVR");
-                        meshRenderer.material.DisableKeyword("MODE_MIP");
-                        meshRenderer.material.EnableKeyword("MODE_SURF");
-                        break;
-                    }
-            }
-
-            meshRenderer.material.SetFloat("_MinVal", visibilityWindow.x);
-            meshRenderer.material.SetFloat("_MaxVal", visibilityWindow.y);
-
-            if (rayTerminationEnabled) {
-                meshRenderer.material.EnableKeyword("RAY_TERMINATE_ON");
-            }
-            else {
-                meshRenderer.material.DisableKeyword("RAY_TERMINATE_ON");
-            }
-
-            if (dvrBackward) {
-                meshRenderer.material.EnableKeyword("DVR_BACKWARD_ON");
-            }
-            else {
-                meshRenderer.material.DisableKeyword("DVR_BACKWARD_ON");
-            }
-
+        public void NewTF() {
+            TransferFunction tf = new TransferFunction();
+            tf.alphaControlPoints = alpha_points;
+            tf.colourControlPoints = color_points;
+            transferFunction = tf;
+            transferFunction.colourControlPoints.OrderBy(x => x.dataValue).ToList();
+            VolumeMaterial.SetTexture("_TFTex", transferFunction.GetTexture());
         }
 
 
+        public void ExposePointValues(Slider slider) {
+            TFAlphaControlPoint new_alpha = new TFAlphaControlPoint();
+            new_alpha.alphaValue = slider.value;
+            alpha_points[0] = new_alpha;
+            VolumeMaterial.SetTexture("_TFTex", transferFunction.GetTexture());
+
+        }
+
+        public void SaveTF(InputField filename) {
+            TransferFunctionDatabase.SaveTransferFunction(transferFunction, Path.Combine(Application.streamingAssetsPath, filename.text + ".tf"));  //maybe change it to Persistent path because of admin access
+        }
+
+        public void ResetTF() {
+            Debug.Log(transferFunction);
+            transferFunction.ClearTF();
+            VolumeMaterial.SetTexture("_TFTex", transferFunction.GetTexture());
+        }
+
+
+        public void SetTF(Texture2D texture) {
+            transferFunction.SetTexture(texture);
+            VolumeMaterial.SetTexture("_TFTex", transferFunction.GetTexture());
+        }
+
+        public void UpdateTFTextureOnShader() {
+            VolumeMaterial.SetTexture("_TFTex", transferFunction.GetTexture());
+        }
     }
 }

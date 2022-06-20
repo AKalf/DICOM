@@ -39,16 +39,23 @@ public class ShaderUIOptionsController : MonoBehaviour {
     private TFRenderMode tfRenderMode = TFRenderMode.TF1D;
     private bool hasInitialised = false;
 
-
-
     private void Awake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
         DensitySlider.wholeNumbers = true;
-
-        UIUtilities.SetUpButtonListener(importRawButton, () => RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenRAWDatasetResult, "DataFiles"));
-        UIUtilities.SetUpButtonListener(importPARCHG, () => RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenPARDatasetResult, "DataFiles"));
-        UIUtilities.SetUpButtonListener(importDICOM, () => RuntimeFileBrowser.ShowOpenDirectoryDialog(AppManager.Instance.OnOpenDICOMDatasetResult));
+        RuntimeFileBrowser.RuntimeFileBrowserComponent fileBrowser = null;
+        UIUtilities.SetUpButtonListener(importRawButton, () => {
+            fileBrowser = RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenRAWDatasetResult, "DataFiles");
+            fileBrowser.WindowName = "Select Raw File";
+        });
+        UIUtilities.SetUpButtonListener(importPARCHG, () => {
+            fileBrowser = RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenPARDatasetResult, "DataFiles");
+            fileBrowser.WindowName = "Select PARCHG File";
+        });
+        UIUtilities.SetUpButtonListener(importDICOM, () => {
+            fileBrowser = RuntimeFileBrowser.ShowOpenDirectoryDialog(AppManager.Instance.OnOpenDICOMDatasetResult);
+            fileBrowser.WindowName = "Select DICOM Folder";
+        });
         UIUtilities.SetDropdown(renderModeDropdown, index => {
             if (AppManager.Instance.SelectedVolume == null)
                 return;

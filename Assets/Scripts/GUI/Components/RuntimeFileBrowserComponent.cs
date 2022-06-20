@@ -15,10 +15,16 @@ namespace UnityVolumeRendering {
                 SaveFile
             }
 
+            private static RuntimeFileBrowserComponent instance;
+            public static RuntimeFileBrowserComponent Instance => instance;
+
+            public string WindowName = "File browser";
             public DialogMode dialogMode = DialogMode.OpenFile;
             public DialogCallback callback = null;
             public EnumeratorDialogCallback enumeratorCallback = null;
             public string currentDirectory;
+
+
             private string selectedFile;
             private Vector2 scrollPos = Vector2.zero;
             private Vector2 dirScrollPos = Vector2.zero;
@@ -35,15 +41,21 @@ namespace UnityVolumeRendering {
             private void Awake() {
                 // Fetch a unique ID for our window (see GUI.Window)
                 windowID = WindowGUID.GetUniqueWindowID();
+                if (instance == null) instance = this;
+                else {
+                    Destroy(instance);
+                    instance = this;
+                }
             }
 
             private void OnGUI() {
                 if (!shouldDraw) return;
-                windowRect = GUI.Window(windowID, windowRect, UpdateWindow, "File browser");
+                windowRect = GUI.Window(windowID, windowRect, UpdateWindow, WindowName);
             }
 
             private void UpdateWindow(int windowID) {
                 if (!shouldDraw) return;
+                AppManager.Instance.ChangeCameraStatus(true);
                 GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
                 TextAnchor oldAlignment = GUI.skin.label.alignment;
@@ -174,7 +186,8 @@ namespace UnityVolumeRendering {
 
                 GUILayout.FlexibleSpace();
                 if (GUILayout.Button("Cancel")) {
-                    //GameObject.Destroy(this.gameObject);
+                    gameObject.SetActive(false);
+                    shouldDraw = false;
                 }
 
                 GUILayout.EndHorizontal();
@@ -192,6 +205,7 @@ namespace UnityVolumeRendering {
                     yield return StartCoroutine(enumeratorCallback.Invoke(result));
                     yield return new WaitForEndOfFrame();
                     GameObject.Destroy(this.gameObject);
+
                 }
                 else
                     GameObject.Destroy(this.gameObject);

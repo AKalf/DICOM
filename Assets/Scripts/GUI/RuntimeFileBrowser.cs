@@ -29,12 +29,13 @@ namespace UnityVolumeRendering {
         /// </summary>
         /// <param name="resultCallback">Callback function called when the user has selected a file path</param>
         /// <param name="directory">Path of the file to open</param>
-        public static void ShowOpenFileDialog(DialogCallback resultCallback, string directory = "") {
+        public static RuntimeFileBrowserComponent ShowOpenFileDialog(DialogCallback resultCallback, string directory = "") {
             GameObject dialogObject = new GameObject("_OpenFileDialog");
             RuntimeFileBrowserComponent dialogComp = dialogObject.AddComponent<RuntimeFileBrowserComponent>();
             dialogComp.dialogMode = RuntimeFileBrowserComponent.DialogMode.OpenFile;
             dialogComp.callback = resultCallback;
             dialogComp.currentDirectory = GetAbsoluteDirectoryPath(directory);
+            return dialogComp;
         }
 
         /// <summary>
@@ -55,13 +56,14 @@ namespace UnityVolumeRendering {
         /// </summary>
         /// <param name="resultCallback">Callback function called when the user has selected a directory</param>
         /// <param name="directory">Path of the directory to open</param>
-        public static void ShowOpenDirectoryDialog(EnumeratorDialogCallback resultCallback, string directory = "") {
+        public static RuntimeFileBrowserComponent ShowOpenDirectoryDialog(EnumeratorDialogCallback resultCallback, string directory = "") {
             GameObject dialogObject = new GameObject("_OpenDirectoryDialog");
             RuntimeFileBrowserComponent dialogComp = dialogObject.AddComponent<RuntimeFileBrowserComponent>();
             dialogComp.dialogMode = RuntimeFileBrowserComponent.DialogMode.OpenDirectory;
             Debug.Log("Assigning enumerator callback");
             dialogComp.enumeratorCallback = resultCallback;
             dialogComp.currentDirectory = GetAbsoluteDirectoryPath(directory);
+            return dialogComp;
         }
 
         private static string GetAbsoluteDirectoryPath(string path) {
