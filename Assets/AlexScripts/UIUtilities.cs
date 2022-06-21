@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,7 +22,7 @@ public static class UIUtilities {
             AppManager.Instance.ChangeCameraStatus(false);
         });
         if (inputField != null) {
-            inputField.onEndEdit.AddListener(value => {
+            SetInputField(inputField, value => {
                 float f = 0.0f;
                 if (float.TryParse(value, out f)) {
                     AppManager.Instance.ChangeCameraStatus(true);
@@ -56,7 +54,7 @@ public static class UIUtilities {
         });
         if (inputField != null) {
             inputField.contentType = InputField.ContentType.DecimalNumber;
-            inputField.onEndEdit.AddListener(value => {
+            SetInputField(inputField, value => {
                 float f = 0.0f;
                 if (float.TryParse(value, out f)) {
                     AppManager.Instance.ChangeCameraStatus(true);
@@ -88,7 +86,7 @@ public static class UIUtilities {
             AppManager.Instance.ChangeCameraStatus(false);
         });
         if (inputField != null) {
-            inputField.onEndEdit.AddListener(value => {
+            SetInputField(inputField, value => {
                 float f = 0.0f;
                 if (float.TryParse(value, out f)) {
                     AppManager.Instance.ChangeCameraStatus(true);
@@ -122,13 +120,13 @@ public static class UIUtilities {
         slider.onValueChanged.AddListener(value => {
             AppManager.Instance.ChangeCameraStatus(true);
             value = (float)Math.Round(value, 1);
-            inputField.SetTextWithoutNotify(value.ToString());
+            if (inputField != null) inputField.SetTextWithoutNotify(value.ToString());
             if (onlyIntValues) AppManager.Instance.SelectedVolumeMaterial.SetInt(temp, (int)value);
             else AppManager.Instance.SelectedVolumeMaterial.SetFloat(temp, value);
             AppManager.Instance.ChangeCameraStatus(false);
         });
         if (inputField != null) {
-            inputField.onEndEdit.AddListener(value => {
+            SetInputField(inputField, value => {
                 int newIntValue;
                 float newFloatValue;
                 if (int.TryParse(value, out newIntValue)) {

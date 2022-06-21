@@ -9,24 +9,24 @@ using UnityEngine.UI;
 using UnityVolumeRendering;
 
 
-public class ShaderUIOptionsController : MonoBehaviour {
+public class ShaderUIOptionsController : UIWindow {
 
     private static ShaderUIOptionsController instance;
     public static ShaderUIOptionsController Instance => instance;
 
 
     [SerializeField] CanvasGroup LightingIntensityCanvasGroup;
-    [SerializeField] Slider DensitySlider, LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax, ZoomSlider, RotationX, RotationY, RotationZ;
+    [SerializeField] Slider DensitySlider, LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
     [SerializeField] Toggle EnableLightingToggle, EnableRayTermination, EnableBack2FrontRaycasting, EnableOpacityBasedOnDepth;
     [SerializeField]
     InputField DensityInputField, LightIntensityInputField, OpacityInputField,
         MinDepthInputField, MaxDepthInputField,
-        MinVisibilityInputField, MaxVisibilityInputField,
-        RotationXInputField, RotationYInputField, RotationZInputField;
-    [SerializeField] Button importRawButton = null, importPARCHG = null, importDICOM = null, resetRotationButton;
+        MinVisibilityInputField, MaxVisibilityInputField;
+    [SerializeField] Button importRawButton = null, importPARCHG = null, importDICOM = null;
     [SerializeField] Dropdown transferFunctionTypeDropdown, renderModeDropdown;
 
     private VolumeRenderedObject SelectedVolume => AppManager.Instance.SelectedVolume;
+    private AppManager.OnSelectVolume onSelectVolumeEvent = null;
 
     private int
            // Property indexes
@@ -39,10 +39,14 @@ public class ShaderUIOptionsController : MonoBehaviour {
     private TFRenderMode tfRenderMode = TFRenderMode.TF1D;
     private bool hasInitialised = false;
 
-    private void Awake() {
+    protected override void OnStart() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
-        DensitySlider.wholeNumbers = true;
+        onSelectVolumeEvent = newVolume => SetUpUIControlls(AppManager.Instance.SelectedVolumeMaterial);
+        AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
+
+
+
         RuntimeFileBrowser.RuntimeFileBrowserComponent fileBrowser = null;
         UIUtilities.SetUpButtonListener(importRawButton, () => {
             fileBrowser = RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenRAWDatasetResult, "DataFiles");
@@ -140,39 +144,13 @@ public class ShaderUIOptionsController : MonoBehaviour {
 
         VisibleRangeMin.onValueChanged.AddListener(value => SetNewLayerRangeValues(value, true));
         VisibleRangeMax.onValueChanged.AddListener(value => SetNewLayerRangeValues(value, false));
-        MinVisibilityInputField.onValueChanged.AddListener(value => SetNewLayerRangeValues(value, true));
-        MaxVisibilityInputField.onValueChanged.AddListener(value => SetNewLayerRangeValues(value, false));
+        UIUtilities.SetInputField(MinVisibilityInputField, value => SetNewLayerRangeValues(value, true));
+        UIUtilities.SetInputField(MaxVisibilityInputField, value => SetNewLayerRangeValues(value, false));
     }
-    public void UpdateRotation() {
-        AppManager.Instance.ChangeCameraStatus(true);
-        float newX = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.x, 1);
-        if (newX > RotationX.maxValue) RotationX.SetValueWithoutNotify(RotationX.maxValue);
-        else if (newX < RotationX.minValue) RotationX.SetValueWithoutNotify(RotationX.minValue);
-        else RotationX.SetValueWithoutNotify(newX);
-        RotationXInputField.SetTextWithoutNotify(newX.ToString());
 
-        float newY = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.y, 1);
-        if (newY > RotationY.maxValue) RotationY.SetValueWithoutNotify(RotationY.maxValue);
-        else if (newY < RotationY.minValue) RotationY.SetValueWithoutNotify(RotationY.minValue);
-        else RotationY.SetValueWithoutNotify(newY);
-        RotationYInputField.SetTextWithoutNotify(newY.ToString());
-
-        float newZ = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.z, 1);
-        if (newZ > RotationZ.maxValue) RotationZ.SetValueWithoutNotify(RotationZ.maxValue);
-        else if (newZ < RotationZ.minValue) RotationZ.SetValueWithoutNotify(RotationZ.minValue);
-        else RotationZ.SetValueWithoutNotify(newZ);
-        RotationZInputField.SetTextWithoutNotify(newZ.ToString());
-        AppManager.Instance.ChangeCameraStatus(false);
-    }
-    public void UpdatePositionZ() {
-        AppManager.Instance.ChangeCameraStatus(true);
-        float newZ = AppManager.Instance.SelectedVolumeTransform.position.z;
-        ZoomSlider.SetValueWithoutNotify((float)Math.Round(newZ, 1));
-        AppManager.Instance.ChangeCameraStatus(false);
-
-    }
     public void SetUpUIControlls(Material selectedVolumeMaterial) {
         if (!hasInitialised) Initialise();
+        DensitySlider.wholeNumbers = true;
         DensitySlider.SetValueWithoutNotify(selectedVolumeMaterial.GetInt(densityPropertyNameID));
         LightingIntensitySlider.SetValueWithoutNotify(selectedVolumeMaterial.GetFloat(lightIntensityPropertyNameID));
         OpacitySlider.SetValueWithoutNotify(selectedVolumeMaterial.GetFloat(opacityPropertyNameID));
@@ -219,10 +197,10 @@ public class ShaderUIOptionsController : MonoBehaviour {
                 LightingIntensityCanvasGroup.interactable = value;
         });
         // Ray termination
-        //UIUtilities.SetToggle(EnableRayTermination, value => {
-        //    if (value) AppManager.Instance.SelectedVolumeMaterial.EnableKeyword("RAY_TERMINATE_ON");
-        //    else AppManager.Instance.SelectedVolumeMaterial.DisableKeyword("RAY_TERMINATE_ON");
-        //});
+        UIUtilities.SetToggle(EnableRayTermination, value => {
+            if (value) AppManager.Instance.SelectedVolumeMaterial.EnableKeyword("RAY_TERMINATE_ON");
+            else AppManager.Instance.SelectedVolumeMaterial.DisableKeyword("RAY_TERMINATE_ON");
+        });
         // Back-to-fron Raycasting
         UIUtilities.SetToggle(EnableBack2FrontRaycasting, value => {
             if (value) AppManager.Instance.SelectedVolumeMaterial.EnableKeyword("DVR_BACKWARD_ON");
@@ -235,22 +213,7 @@ public class ShaderUIOptionsController : MonoBehaviour {
         });
         #endregion
 
-        Vector3 currPos = AppManager.Instance.SelectedVolumeTransform.position;
-        UIUtilities.SetPositionSliderControl(ZoomSlider, null, Vector3.forward, vec => AppManager.Instance.SelectedVolumeTransform.position = vec, currPos.z - 1, currPos.z + 5, false);
 
-        UIUtilities.SetRotationSliderControl(RotationX, RotationXInputField, Vector3.right, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
-        UIUtilities.SetRotationSliderControl(RotationY, RotationYInputField, Vector3.up, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
-        UIUtilities.SetRotationSliderControl(RotationZ, RotationZInputField, Vector3.forward, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
-
-        UIUtilities.SetUpButtonListener(resetRotationButton, () => {
-            AppManager.Instance.SelectedVolumeTransform.rotation = Quaternion.identity * Quaternion.Euler(90, 0, 0);
-            RotationX.SetValueWithoutNotify(0);
-            RotationXInputField.SetTextWithoutNotify("0");
-            RotationY.SetValueWithoutNotify(0);
-            RotationYInputField.SetTextWithoutNotify("0");
-            RotationZ.SetValueWithoutNotify(0);
-            RotationZInputField.SetTextWithoutNotify("0");
-        });
 
         //UIUtilities.SetDropdown(transferFunctionTypeDropdown, index => {
         //    TFRenderMode value = (TFRenderMode)index;

@@ -6797,6 +6797,8 @@ GameObject:
   - component: {fileID: 4017877842143533263}
   - component: {fileID: 4017877842143533262}
   - component: {fileID: 1881677401210294135}
+  - component: {fileID: 1898573141}
+  - component: {fileID: 1898573140}
   m_Layer: 5
   m_Name: ShaderControls_Panel
   m_TagString: Untagged
@@ -6895,6 +6897,56 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &1898573141
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4017877842143533248}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1898573140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4017877842143533248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8be6ed6bfdad4be4980f7c836be60c02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  closeButton: {fileID: 0}
+  minimizeButton: {fileID: 6478506001174672414}
+  windowName: Rendering Controlls
+  isClosedOnStart: 0
+  LightingIntensityCanvasGroup: {fileID: 3305449970610160665}
+  DensitySlider: {fileID: 3305449969679550770}
+  LightingIntensitySlider: {fileID: 3305449970407658818}
+  OpacitySlider: {fileID: 3305449971751966434}
+  VisibleRangeMin: {fileID: 3305449970021928833}
+  VisibleRangeMax: {fileID: 3305449969766245585}
+  EnableLightingToggle: {fileID: 3305449970515705126}
+  EnableRayTermination: {fileID: 1646016114436278241}
+  EnableBack2FrontRaycasting: {fileID: 3305449970183576702}
+  EnableOpacityBasedOnDepth: {fileID: 6304835081743788892}
+  DensityInputField: {fileID: 3305449970649535930}
+  LightIntensityInputField: {fileID: 3305449971320977297}
+  OpacityInputField: {fileID: 3305449969974810660}
+  MinDepthInputField: {fileID: 1956408298783453565}
+  MaxDepthInputField: {fileID: 3305449969994020313}
+  MinVisibilityInputField: {fileID: 3305449969852055644}
+  MaxVisibilityInputField: {fileID: 3305449970292596825}
+  importRawButton: {fileID: 0}
+  importPARCHG: {fileID: 0}
+  importDICOM: {fileID: 0}
+  transferFunctionTypeDropdown: {fileID: 0}
+  renderModeDropdown: {fileID: 8089234476694664262}
 --- !u!1 &4240807541505382934
 GameObject:
   m_ObjectHideFlags: 0

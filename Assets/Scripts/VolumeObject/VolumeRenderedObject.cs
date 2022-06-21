@@ -24,6 +24,7 @@ namespace UnityVolumeRendering {
         private Material volumeMaterial = null;
         public Material VolumeMaterial => volumeMaterial;
 
+        private float guiAxisX = 0.0f;
         private void Start() {
             meshRenderer = GetComponent<MeshRenderer>();
             volumeMaterial = meshRenderer.material;
@@ -33,8 +34,8 @@ namespace UnityVolumeRendering {
             Texture2D tfTexture = tf.GetTexture();
             transferFunction = tf;
 
-            TransferFunction2D tf2D = TransferFunctionDatabase.CreateTransferFunction2D();
-            transferFunction2D = tf2D;
+            //TransferFunction2D tf2D = TransferFunctionDatabase.CreateTransferFunction2D();
+            //transferFunction2D = tf2D;
 
             VolumeMaterial.SetTexture("_DataTex", dataset.GetDataTexture());
             VolumeMaterial.SetTexture("_GradientTex", null);
@@ -57,14 +58,13 @@ namespace UnityVolumeRendering {
                 float maxScale = Mathf.Max(dataset.scaleX, dataset.scaleY, dataset.scaleZ);
                 transform.localScale = new Vector3(dataset.scaleX / maxScale, dataset.scaleY / maxScale, dataset.scaleZ / maxScale);
             }
-
         }
 
         public SlicingPlane CreateSlicingPlane() {
             GameObject sliceRenderingPlane = GameObject.Instantiate(Resources.Load<GameObject>("SlicingPlane"));
-            sliceRenderingPlane.transform.parent = transform;
+            //sliceRenderingPlane.transform.parent = transform;
             sliceRenderingPlane.transform.localPosition = Vector3.zero;
-            sliceRenderingPlane.transform.localRotation = Quaternion.Euler(0, 0, 90);
+            //sliceRenderingPlane.transform.localRotation = Quaternion.Euler(0, 0, 90);
             sliceRenderingPlane.transform.localScale = Vector3.one * 0.1f; // TODO: Change the plane mesh instead and use Vector3.one
             MeshRenderer sliceMeshRend = sliceRenderingPlane.GetComponent<MeshRenderer>();
             sliceMeshRend.material = new Material(sliceMeshRend.sharedMaterial);
@@ -79,6 +79,7 @@ namespace UnityVolumeRendering {
 
             return slicingPlane;
         }
+
 
         public void NewTF() {
             TransferFunction tf = new TransferFunction();

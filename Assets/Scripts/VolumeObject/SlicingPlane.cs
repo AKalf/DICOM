@@ -4,15 +4,17 @@ namespace UnityVolumeRendering {
     [ExecuteInEditMode]
     public class SlicingPlane : MonoBehaviour {
         public Transform VolumeTranform = null;
-        private MeshRenderer meshRenderer;
+        private Material thisMaterial = null;
+
+        //private MeshRenderer meshRenderer;
 
         private void Start() {
-            meshRenderer = GetComponent<MeshRenderer>();
+            thisMaterial = GetComponent<MeshRenderer>().sharedMaterial;
         }
 
         private void Update() {
-            meshRenderer.sharedMaterial.SetMatrix("_parentInverseMat", VolumeTranform.worldToLocalMatrix);
-            meshRenderer.sharedMaterial.SetMatrix("_planeMat", Matrix4x4.TRS(transform.position, transform.rotation, transform.parent.lossyScale)); // TODO: allow changing scale
+            thisMaterial.SetMatrix("_parentInverseMat", VolumeTranform.worldToLocalMatrix);
+            thisMaterial.SetMatrix("_planeMat", Matrix4x4.TRS(transform.position, transform.rotation, VolumeTranform.lossyScale)); // TODO: allow changing scale        
         }
     }
 }

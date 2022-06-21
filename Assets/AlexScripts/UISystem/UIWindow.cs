@@ -11,8 +11,12 @@ public class UIWindow : MonoBehaviour {
     [SerializeField] protected bool isClosedOnStart = false;
     public CanvasGroup CanvasGroup { get; private set; }
     public string WindowName => windowName;
+
+    private void Awake() {
+        OnAwake();
+    }
     // Start is called before the first frame update
-    protected void Start() {
+    private void Start() {
         this.CanvasGroup = GetComponent<CanvasGroup>();
         if (closeButton != null) closeButton.onClick.AddListener(Close);
         if (minimizeButton != null) minimizeButton.onClick.AddListener(() => MinimizedWindowsPanel.Instance.MinimizeWindow(this));
@@ -20,12 +24,12 @@ public class UIWindow : MonoBehaviour {
         OnStart();
 
     }
-
+    protected virtual void OnAwake() { }
     protected virtual void OnStart() {
 
     }
-
-
+    public virtual void OnMinimize() { }
+    public virtual void OnMaximize() { }
     private void Close() {
         Destroy(this.gameObject);
     }

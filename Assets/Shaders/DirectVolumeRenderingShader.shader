@@ -407,7 +407,9 @@
                 // Write fragment output
                 frag_out output;
                 output.colour = _SurfaceRenderingColour;
-                output.depth = _SurfaceRenderingTDepth;
+                #if DEPTHWRITE_ON   
+                    output.depth = _SurfaceRenderingTDepth;
+                #endif
                 return output;
             }
 /****************************************************************************************************************************************************************************/

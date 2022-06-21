@@ -15,7 +15,7 @@ public class MouseControls : MonoBehaviour {
             float newZ = AppManager.Instance.SelectedVolumeTransform.position.z + scroll;
             if (newZ > zoomRange.x && newZ < zoomRange.y) {
                 AppManager.Instance.SelectedVolumeTransform.position += Vector3.forward * Input.mouseScrollDelta.y;
-                ShaderUIOptionsController.Instance.UpdatePositionZ();
+                TranslationUIHandlers.Instance.UpdatePositionZ();
             }
         }
         if (Input.GetMouseButton(1)) {
@@ -23,7 +23,7 @@ public class MouseControls : MonoBehaviour {
             float mouseY = Input.GetAxis("Mouse Y");
             if (mouseX != 0 || mouseY != 0) {
                 AppManager.Instance.SelectedVolumeTransform.rotation *= Quaternion.Euler(mouseY, mouseX, 0);
-                ShaderUIOptionsController.Instance.UpdateRotation();
+                TranslationUIHandlers.Instance.UpdateRotation();
             }
         }
 

@@ -3,17 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityVolumeRendering;
-using static UnityVolumeRendering.DICOMImporter;
 
 public class AppManager : MonoBehaviour {
 
     private static AppManager instance = null;
     public static AppManager Instance => instance;
 
+
+    public delegate void OnSelectVolume(VolumeRenderedObject volume);
+    private OnSelectVolume OnSelectVolumeEvent = null;
     private Camera mainCamera = null;
 
     private List<VolumeRenderedObject> volumeObjects = new List<VolumeRenderedObject>();
@@ -33,10 +33,10 @@ public class AppManager : MonoBehaviour {
     }
     // Start is called before the first frame update
     void Start() {
-        if (selectedVolume != null) OnSelectVolume(selectedVolume);
+        if (selectedVolume != null) SelectVolume(selectedVolume);
         else {
             selectedVolume = FindObjectOfType<VolumeRenderedObject>();
-            if (selectedVolume != null) OnSelectVolume(selectedVolume);
+            if (selectedVolume != null) SelectVolume(selectedVolume);
         }
     }
 
@@ -49,12 +49,10 @@ public class AppManager : MonoBehaviour {
         yield return new WaitForEndOfFrame();
         mainCamera.enabled = false;
     }
-    public void OnSelectVolume(VolumeRenderedObject obj) {
-
+    private void SelectVolume(VolumeRenderedObject obj) {
         selectedVolume = obj;
-        ShaderUIOptionsController.Instance.SetUpUIControlls(SelectedVolumeMaterial);
         selectedVolumeTransform = selectedVolume.transform;
-        TF_Utilities.Instance.volumeRenderedObject = selectedVolume;
+        OnSelectVolumeEvent.Invoke(obj);
     }
     public void OnOpenPARDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {
@@ -62,7 +60,7 @@ public class AppManager : MonoBehaviour {
             string filePath = result.path;
             IImageFileImporter parimporter = ImporterFactory.CreateImageFileImporter(ImageFileFormat.VASP);
             VolumeDataset dataset = parimporter.Import(filePath);
-            if (dataset != null) OnSelectVolume(VolumeObjectFactory.CreateObject(dataset));
+            if (dataset != null) SelectVolume(VolumeObjectFactory.CreateObject(dataset));
         }
     }
     public void OnOpenRAWDatasetResult(RuntimeFileBrowser.DialogResult result) {
@@ -83,12 +81,11 @@ public class AppManager : MonoBehaviour {
                 RawDatasetImporter importer = new RawDatasetImporter(filePath, initData.dimX, initData.dimY, initData.dimZ, initData.format, initData.endianness, initData.bytesToSkip);
                 VolumeDataset dataset = importer.Import();
                 // Spawn the object
-                if (dataset != null) OnSelectVolume(VolumeObjectFactory.CreateObject(dataset));
+                if (dataset != null) SelectVolume(VolumeObjectFactory.CreateObject(dataset));
 
             }
         }
     }
-
     public IEnumerator OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {
             LoadingWindow.Instance.StartLoading();
@@ -118,7 +115,7 @@ public class AppManager : MonoBehaviour {
                     numVolumesCreated++;
                     yield return new WaitUntil(() => obj != null);
                     yield return new WaitForEndOfFrame();
-                    OnSelectVolume(obj);
+                    SelectVolume(obj);
                     LoadingWindow.Instance.StopLoading();
                 }
                 loopIndex++;
@@ -136,7 +133,12 @@ public class AppManager : MonoBehaviour {
             Destroy(FindObjectOfType<RuntimeFileBrowser.RuntimeFileBrowserComponent>().gameObject);
         }
     }
-
+    public void AddOnSelectVolumeEventListener(OnSelectVolume delegateFunction) {
+        OnSelectVolumeEvent += delegateFunction;
+    }
+    public void RemoveOnSelectVolumeEventListener(OnSelectVolume delegateFunction) {
+        OnSelectVolumeEvent -= delegateFunction;
+    }
 
 
     private void DespawnAllDatasets() {

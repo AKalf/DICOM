@@ -7,7 +7,7 @@ using UnityVolumeRendering;
 
 public class CutoutControls : MonoBehaviour {
     [SerializeField] private CanvasGroup panelGroup = null;
-    [SerializeField] private Button createPlaneCutoutButton, createVolumeCutoutButton, deleteCutout, openPanel;
+    [SerializeField] private Button createPlaneCutoutButton, createVolumeCutoutButton, deleteCutout;
     [SerializeField] private Slider posX, posY, posZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ;
     [SerializeField] private InputField posInputFieldX, posInputFieldY, posInputFieldZ, rotInputFieldX, rotInputFieldY, rotInputFieldZ, scaleInputFieldX, scaleInputFieldY, scaleInputFieldZ;
     [SerializeField] private Dropdown cutOutMode;
@@ -42,12 +42,14 @@ public class CutoutControls : MonoBehaviour {
             sectionVolume.cutoutType = (CutoutType)index;
             AppManager.Instance.ChangeCameraStatus(false);
         });
-        UIUtilities.SetUpButtonListener(openPanel, () => UIUtilities.ToggleCanvasGroup(panelGroup, true));
 
         SetPositionSliders(-3, 7, false);
         SetRotationSliders(-180, 180, false);
         SetScaleSliders(0.1f, 5, false);
 
+    }
+    public static CrossSectionPlane CreateCrossSectionPlane() {
+        return VolumeObjectFactory.SpawnCrossSectionPlane(AppManager.Instance.SelectedVolume);
     }
     private void SetPositionSliders(int minValue = -3, int maxValue = 7, bool wholeNumbers = false) {
         Action<Vector3> action = vec => {
@@ -78,12 +80,19 @@ public class CutoutControls : MonoBehaviour {
     }
 
     private void ToggleOptionsInteractivity(bool enabled) {
+        // Position sliders
         posX.interactable = enabled; posY.interactable = enabled; posZ.interactable = enabled;
+        // Rotation sliders
         rotX.interactable = enabled; rotY.interactable = enabled; rotZ.interactable = enabled;
+        // Scale sliders
         scaleX.interactable = enabled; scaleY.interactable = enabled; scaleZ.interactable = enabled;
+        // Position Input fields
         posInputFieldX.interactable = enabled; posInputFieldY.interactable = enabled; posInputFieldZ.interactable = enabled;
+        // Rotation Input fields
         rotInputFieldX.interactable = enabled; rotInputFieldY.interactable = enabled; rotInputFieldZ.interactable = enabled;
+        // Scale Input Fields
         scaleInputFieldX.interactable = enabled; scaleInputFieldY.interactable = enabled; scaleInputFieldZ.interactable = enabled;
+        // Dropdown
         cutOutMode.interactable = enabled;
     }
 }
