@@ -79,7 +79,7 @@ namespace UnityVolumeRendering {
 
             VectorString dicomNames = new VectorString();
             int loopIndex = 0;
-            const int loopsPerFrame = 10000;
+            const int loopsPerFrame = 25000;
             foreach (var dicomFile in sequenceSeries.files) {
                 loopIndex++;
                 if (loopIndex > loopsPerFrame) {
@@ -203,7 +203,6 @@ namespace UnityVolumeRendering {
 
             loadedDataset = volumeDataset;
             Debug.Log("Dataset loaded: " + loadedDataset.datasetName);
-            LoadingWindow.Instance.SetLoadingMessage("");
             return loadedDataset;
 
         }

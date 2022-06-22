@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityVolumeRendering;
 
@@ -38,15 +34,14 @@ public class ShaderUIOptionsController : UIWindow {
     private UnityVolumeRendering.RenderMode currentRenderMode = UnityVolumeRendering.RenderMode.DirectVolumeRendering;
     private TFRenderMode tfRenderMode = TFRenderMode.TF1D;
     private bool hasInitialised = false;
-
-    protected override void OnStart() {
+    protected override void OnAwake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
         onSelectVolumeEvent = newVolume => SetUpUIControlls(AppManager.Instance.SelectedVolumeMaterial);
         AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
 
-
-
+    }
+    protected override void OnStart() {
         RuntimeFileBrowser.RuntimeFileBrowserComponent fileBrowser = null;
         UIUtilities.SetUpButtonListener(importRawButton, () => {
             fileBrowser = RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenRAWDatasetResult, "DataFiles");
@@ -60,6 +55,7 @@ public class ShaderUIOptionsController : UIWindow {
             fileBrowser = RuntimeFileBrowser.ShowOpenDirectoryDialog(AppManager.Instance.OnOpenDICOMDatasetResult);
             fileBrowser.WindowName = "Select DICOM Folder";
         });
+
         UIUtilities.SetDropdown(renderModeDropdown, index => {
             if (AppManager.Instance.SelectedVolume == null)
                 return;
@@ -91,7 +87,11 @@ public class ShaderUIOptionsController : UIWindow {
                 AppManager.Instance.SelectedVolumeMaterial.SetTexture("_GradientTex", useGradientTexture ? SelectedVolume.dataset.GetGradientTexture() : null);
             }
         });
-
+        EventTrigger trigger = renderModeDropdown.gameObject.AddComponent<EventTrigger>();
+        EventTrigger.Entry entry = new EventTrigger.Entry();
+        entry.eventID = EventTriggerType.PointerClick;
+        entry.callback.AddListener(data => AppManager.Instance.ChangeCameraStatus(true));
+        trigger.triggers.Add(entry);
     }
 
     private void SetNewLayerRangeValues(float value, bool isMin) {

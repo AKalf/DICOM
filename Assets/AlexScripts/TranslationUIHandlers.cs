@@ -18,12 +18,10 @@ public class TranslationUIHandlers : UIWindow {
     protected override void OnAwake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
-    }
-    protected override void OnStart() {
         onSelectVolumeEvent = Initialise;
         AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
-
     }
+
     public void Initialise(UnityVolumeRendering.VolumeRenderedObject volume) {
         Vector3 currPos = AppManager.Instance.SelectedVolumeTransform.position;
         UIUtilities.SetPositionSliderControl(ZoomSlider, null, Vector3.forward, vec => AppManager.Instance.SelectedVolumeTransform.position = vec, currPos.z - 1, currPos.z + 5, false);

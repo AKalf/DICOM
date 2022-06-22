@@ -391,11 +391,11 @@
                             _SurfaceRenderingColour.rgb = calculateLighting(_SurfaceRenderingColour.rgb, normal, -ray.direction, -ray.direction, 0.25);
                       
                             // 1.732f 
-                            #if OPACITY_BASED_ON_DEPTH
-                                _SurfaceRenderingColour = (1 - currPos.y - density) * _Opacity;
-                            #else
-                                _SurfaceRenderingColour.a *= _Opacity;
-                            #endif
+                            //#if OPACITY_BASED_ON_DEPTH
+                                _SurfaceRenderingColour.a = (1 - currPos.y - density) * _Opacity;
+                            //#else
+                                //_SurfaceRenderingColour.a *= _Opacity;
+                            //#endif
                             break;
                         }
                     }

@@ -6512,7 +6512,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Loading...
+  m_Text: 'Loading... '
 --- !u!222 &2104284020
 CanvasRenderer:
   m_ObjectHideFlags: 0

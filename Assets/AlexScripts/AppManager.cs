@@ -52,7 +52,7 @@ public class AppManager : MonoBehaviour {
     private void SelectVolume(VolumeRenderedObject obj) {
         selectedVolume = obj;
         selectedVolumeTransform = selectedVolume.transform;
-        OnSelectVolumeEvent.Invoke(obj);
+        OnSelectVolumeEvent.Invoke(selectedVolume);
     }
     public void OnOpenPARDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {

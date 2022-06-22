@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
-[ExecuteAlways]
 public class LoadingWindow : MonoBehaviour {
 
     private static LoadingWindow instance = null;
