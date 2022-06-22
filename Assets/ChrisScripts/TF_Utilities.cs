@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityVolumeRendering;
-using TMPro;
 using System;
 
 
@@ -47,10 +46,15 @@ public class TF_Utilities : MonoBehaviour {
         AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
     }
 
+    public VolumeRenderedObject GetVolume()
+    {
+        return volumeRenderedObject;
+    }
+
     public void GenerateColorPoint() {
 
         GameObject new_colorpoint = Instantiate(colorPointUIField, colorPointsContent.transform, false);
-        string new_HU_value = new_colorpoint.GetComponentInChildren<TMP_InputField>().text;
+        string new_HU_value = new_colorpoint.GetComponentInChildren<Text>().text;
         TFColourControlPoint color_point = new TFColourControlPoint();
         Color new_color = new Color(0, 0, 0, 1);
         new_datavalue = float.Parse(new_HU_value);
@@ -68,7 +72,7 @@ public class TF_Utilities : MonoBehaviour {
 
     public void GenerateAlphaPoint() {
         GameObject new_alphapoint = Instantiate(alphaPointUIField, alphaPointsContent.transform, false);
-        string new_HU_value = new_alphapoint.GetComponentInChildren<TMP_InputField>().text;
+        string new_HU_value = new_alphapoint.GetComponentInChildren<Text>().text;
         TFAlphaControlPoint alpha_point = new TFAlphaControlPoint();
 
         //new_alphapoint.GetComponent<TMP_InputField>().text = "0.5";
@@ -91,7 +95,7 @@ public class TF_Utilities : MonoBehaviour {
 
                 GameObject new_colorpoint = Instantiate(colorPointUIField, colorPointsContent.transform, false);
 
-                new_colorpoint.GetComponentInChildren<TMP_InputField>().text = Mathf.Round(HUScaleTransform.ReverseNormalization(point.dataValue, HUScaleMin, HUScaleMax)).ToString();
+                new_colorpoint.GetComponentInChildren<Text>().text = Mathf.Round(HUScaleTransform.ReverseNormalization(point.dataValue, HUScaleMin, HUScaleMax)).ToString();
                 new_colorpoint.GetComponentInChildren<EditHUPoint>().point_index = current_index;
                 new_colorpoint.GetComponentInChildren<Slider>().value = Mathf.Round(HUScaleTransform.ReverseNormalization(point.dataValue, HUScaleMin, HUScaleMax));
                 new_colorpoint.transform.GetChild(1).GetComponent<Image>().color = point.colourValue;
@@ -109,7 +113,7 @@ public class TF_Utilities : MonoBehaviour {
 
                 GameObject new_alphapoint = Instantiate(alphaPointUIField, alphaPointsContent.transform, false);
 
-                new_alphapoint.GetComponentInChildren<TMP_InputField>().text = Mathf.Round(HUScaleTransform.ReverseNormalization(point.dataValue, HUScaleMin, HUScaleMax)).ToString();
+                new_alphapoint.GetComponentInChildren<Text>().text = Mathf.Round(HUScaleTransform.ReverseNormalization(point.dataValue, HUScaleMin, HUScaleMax)).ToString();
                 new_alphapoint.GetComponentInChildren<EditHUPoint>().point_index = current_index;
                 new_alphapoint.transform.GetChild(0).GetComponentInChildren<Slider>().value = Mathf.Round(HUScaleTransform.ReverseNormalization(point.dataValue, HUScaleMin, HUScaleMax));
                 new_alphapoint.transform.GetChild(1).GetComponent<Slider>().value = point.alphaValue;
@@ -117,11 +121,6 @@ public class TF_Utilities : MonoBehaviour {
                 current_index++;
             }
         }
-
-
-
-
-
 
         allow_changing_values = true;
         //maybe allow here to datavalues to change????

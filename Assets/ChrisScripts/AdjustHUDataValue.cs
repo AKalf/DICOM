@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 
 public class AdjustHUDataValue : MonoBehaviour
 {
@@ -34,7 +34,7 @@ public class AdjustHUDataValue : MonoBehaviour
 
             TF_Utilities.Instance.UpdateColorDataValue(slider.value);
             //value_display = slider.value.ToString();
-            slider_text.GetComponent<TMP_InputField>().text = slider.value.ToString();
+            slider_text.GetComponent<Text>().text = slider.value.ToString();
 
         }
 
@@ -51,7 +51,7 @@ public class AdjustHUDataValue : MonoBehaviour
 
             TF_Utilities.Instance.UpdateAlphaDataValue(slider.value);
             //value_display = slider.value.ToString();
-            slider_text.GetComponent<TMP_InputField>().text = slider.value.ToString();
+            slider_text.GetComponent<Text>().text = slider.value.ToString();
 
         }
     }

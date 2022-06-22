@@ -331,16 +331,16 @@ RectTransform:
   m_GameObject: {fileID: 673011165334242289}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4569793, y: 1.4569793, z: 1.4569793}
+  m_LocalScale: {x: 0.09050312, y: 0.09050312, z: 0.09050312}
   m_Children:
   - {fileID: 5118292051276705142}
   - {fileID: 673011164735793323}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -250, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -80.91}
   m_SizeDelta: {x: 1302.5251, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &673011165334242292
@@ -360,8 +360,8 @@ MonoBehaviour:
     m_Right: -2500
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 2
-  m_Spacing: 1000
+  m_ChildAlignment: 4
+  m_Spacing: 1703.8
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -813,12 +813,12 @@ PrefabInstance:
     - target: {fileID: 130698295360646515, guid: a5207d1893ce1464ab84a0c6be7fa8d8,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 91.19885
+      value: 108.79292
       objectReference: {fileID: 0}
     - target: {fileID: 130698295360646515, guid: a5207d1893ce1464ab84a0c6be7fa8d8,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 45.8542
+      value: 49.518238
       objectReference: {fileID: 0}
     - target: {fileID: 130698295360646515, guid: a5207d1893ce1464ab84a0c6be7fa8d8,
         type: 3}
@@ -890,6 +890,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 741072067778733730, guid: a5207d1893ce1464ab84a0c6be7fa8d8,
+        type: 3}
+      propertyPath: m_FontData.m_FontStyle
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4316957172786825445, guid: a5207d1893ce1464ab84a0c6be7fa8d8,
         type: 3}
       propertyPath: m_Enabled
@@ -900,7 +905,9 @@ PrefabInstance:
       propertyPath: datavalue_slider
       value: 
       objectReference: {fileID: 7339637207012423758}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 130698295360646513, guid: a5207d1893ce1464ab84a0c6be7fa8d8, type: 3}
+    - {fileID: 130698295360646514, guid: a5207d1893ce1464ab84a0c6be7fa8d8, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a5207d1893ce1464ab84a0c6be7fa8d8, type: 3}
 --- !u!114 &3656902813789039585 stripped
 MonoBehaviour:

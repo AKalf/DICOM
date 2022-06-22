@@ -36,11 +36,13 @@ public class DropDownTexturePicker : MonoBehaviour {
         //Change Dropdown Menu on Start depending on the number of options
         dropdown.AddOptions(options);
 
-        Update_TF();
     }
 
     public void Update_TF() {
-        if (volume == null) return;
+        if (volume == null)
+        {
+            TF_Utilities.Instance.GetVolume();
+        }
         tf = TransferFunctionDatabase.LoadTransferFunction(filepaths[dropdown.value]);
         volume.transferFunction = tf;
         volume.UpdateTFTextureOnShader();

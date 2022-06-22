@@ -14,7 +14,7 @@ public class EditHUPoint : MonoBehaviour
     //Need to be initialized on Start() because on Awake() it gets the values from the TF_Utilities.GeneratePoint();
     private void Start()
     {
-        data_text = GetComponent<TMP_InputField>().text;
+        data_text = GetComponent<Text>().text;
         datavalue_slider.GetComponent<Slider>();
         //data_value = float.Parse(data_text);
 
