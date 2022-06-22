@@ -56,7 +56,7 @@ namespace UnityVolumeRendering {
             return sequenceByFiletype.Select(f => f.Value).ToList();
         }
 
-        public System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series) {
+        public System.Collections.IEnumerator ImportSeriesAsynch(IImageSequenceSeries series) {
             List<string> imagePaths = series.GetFiles().Select(f => f.GetFilePath()).ToList();
             yield return new WaitForEndOfFrame();
             Vector3Int dimensions = GetVolumeDimensions(imagePaths);

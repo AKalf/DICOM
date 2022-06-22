@@ -92,7 +92,7 @@ namespace UnityVolumeRendering {
             return new List<DICOMSeries>(seriesByUID.Values);
         }
 
-        public System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series) {
+        public System.Collections.IEnumerator ImportSeriesAsynch(IImageSequenceSeries series) {
             Debug.Log("Inside import coroutine");
             DICOMSeries dicomSeries = (DICOMSeries)series;
             List<DICOMSliceFile> files = dicomSeries.dicomFiles;

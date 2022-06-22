@@ -106,7 +106,7 @@ public class AppManager : MonoBehaviour {
             const int loopsPerFrame = 10;
             foreach (IImageSequenceSeries series in seriesList) {
                 VolumeDataset dataset = null;
-                yield return StartCoroutine(importer.ImportSeries(series));
+                yield return StartCoroutine(importer.ImportSeriesAsynch(series));
                 dataset = importer.LoadedDataset;
                 // Spawn the object
                 if (dataset != null) {

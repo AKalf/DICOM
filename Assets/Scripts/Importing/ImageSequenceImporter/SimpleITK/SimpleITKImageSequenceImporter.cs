@@ -66,7 +66,7 @@ namespace UnityVolumeRendering {
             return seriesList;
         }
 
-        public System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series) {
+        public System.Collections.IEnumerator ImportSeriesAsynch(IImageSequenceSeries series) {
             Debug.Log("Inside importing coroutine");
 
             ImageSequenceSeries sequenceSeries = (ImageSequenceSeries)series;

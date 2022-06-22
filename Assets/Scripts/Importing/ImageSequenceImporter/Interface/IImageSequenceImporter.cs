@@ -37,6 +37,6 @@ namespace UnityVolumeRendering {
         /// </summary>
         /// <param name="series">The series to import</param>
         /// <returns>Imported 3D volume dataset.</returns>
-        System.Collections.IEnumerator ImportSeries(IImageSequenceSeries series);
+        System.Collections.IEnumerator ImportSeriesAsynch(IImageSequenceSeries series);
     }
 }

@@ -7,7 +7,7 @@ namespace UnityVolumeRendering {
     /// An imported dataset. Has a dimension and a 3D pixel array.
     /// </summary>
     [Serializable]
-    public class VolumeDataset {
+    public class VolumeDataset  {
         public string filePath;
 
         // Flattened 3D array of data sample values.
