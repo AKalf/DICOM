@@ -148,6 +148,65 @@ namespace UnityVolumeRendering {
             yield break;
 
         }
+
+        public VolumeDataset ImportSeries(IImageSequenceSeries series) {
+            Debug.Log("Inside importing coroutine");
+
+            ImageSequenceSeries sequenceSeries = (ImageSequenceSeries)series;
+            if (sequenceSeries.files.Count == 0) {
+                Debug.LogError("Empty series. No files to load.");
+                return null;
+            }
+            int totalProccesses = sequenceSeries.files.Count * 2;
+            ImageSeriesReader reader = new ImageSeriesReader();
+
+            VectorString dicomNames = new VectorString();
+            foreach (var dicomFile in sequenceSeries.files)
+                dicomNames.Add(dicomFile.filePath);
+            Debug.Log("Read sequence-series files, DONE");
+            reader.SetFileNames(dicomNames);
+
+            Image image = reader.Execute();
+            // Cast to 32-bit float
+            image = SimpleITK.Cast(image, PixelIDValueEnum.sitkFloat32);
+
+            VectorUInt32 size = image.GetSize();
+
+            int numPixels = 1;
+            totalProccesses = ((int)image.GetDimension());
+            for (int dim = 0; dim < image.GetDimension(); dim++)
+                numPixels *= (int)size[dim];
+            Debug.Log("Read image pixels, DONE");
+            // Read pixel data
+            float[] pixelData = new float[numPixels];
+            IntPtr imgBuffer = image.GetBufferAsFloat();
+            Marshal.Copy(imgBuffer, pixelData, 0, numPixels);
+            totalProccesses = ((int)image.GetDimension());
+            for (int i = 0; i < pixelData.Length; i++)
+                pixelData[i] = Mathf.Clamp(pixelData[i], -1024, 3071);
+            Debug.Log("Read pixel data, DONE");
+            VectorDouble spacing = image.GetSpacing();
+
+            // Create dataset
+            VolumeDataset volumeDataset = new VolumeDataset();
+            volumeDataset.data = pixelData;
+            volumeDataset.dimX = (int)size[0];
+            volumeDataset.dimY = (int)size[1];
+            volumeDataset.dimZ = (int)size[2];
+            volumeDataset.datasetName = "test";
+            volumeDataset.filePath = dicomNames[0];
+            volumeDataset.scaleX = (float)(spacing[0] * size[0]);
+            volumeDataset.scaleY = (float)(spacing[1] * size[1]);
+            volumeDataset.scaleZ = (float)(spacing[2] * size[2]);
+
+            volumeDataset.FixDimensions();
+
+            loadedDataset = volumeDataset;
+            Debug.Log("Dataset loaded: " + loadedDataset.datasetName);
+            LoadingWindow.Instance.SetLoadingMessage("");
+            return loadedDataset;
+
+        }
     }
 }
 #endif

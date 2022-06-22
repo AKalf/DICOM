@@ -67,6 +67,14 @@ namespace UnityVolumeRendering {
 
             yield return loadedDataset;
         }
+        public VolumeDataset ImportSeries(IImageSequenceSeries series) {
+            List<string> imagePaths = series.GetFiles().Select(f => f.GetFilePath()).ToList();
+            Vector3Int dimensions = GetVolumeDimensions(imagePaths);
+            int[] data = FillSequentialData(dimensions, imagePaths);
+            loadedDataset = FillVolumeDataset(data, dimensions);
+            loadedDataset.FixDimensions();
+            return loadedDataset;
+        }
 
         /// <summary>
         /// Gets the XY dimensions of an image at the path.

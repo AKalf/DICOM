@@ -156,10 +156,76 @@ namespace UnityVolumeRendering {
 
             dataset.FixDimensions();
             Debug.Log("Returning import coroutine results");
+            dataset.datasetName = "test";
             loadedDataset = dataset;
             yield return dataset;
         }
+        public VolumeDataset ImportSeries(IImageSequenceSeries series) {
+            Debug.Log("Inside import coroutine");
+            DICOMSeries dicomSeries = (DICOMSeries)series;
+            List<DICOMSliceFile> files = dicomSeries.dicomFiles;
 
+            // Check if the series is missing the slice location tag
+            bool needsCalcLoc = false;
+            foreach (DICOMSliceFile file in files) {
+                needsCalcLoc |= file.missingLocation;
+            }
+
+            // Calculate slice location from "Image Position" (0020,0032)
+            if (needsCalcLoc)
+                CalcSliceLocFromPos(files);
+
+            // Sort files by slice location
+            files.Sort((DICOMSliceFile a, DICOMSliceFile b) => { return a.location.CompareTo(b.location); });
+
+            Debug.Log($"Importing {files.Count} DICOM slices");
+
+            if (files.Count <= 1) {
+                Debug.LogError("Insufficient number of slices.");
+                return null;
+            }
+
+            // Create dataset
+            VolumeDataset dataset = new VolumeDataset();
+            dataset.datasetName = Path.GetFileName(files[0].filePath);
+            dataset.dimX = files[0].file.PixelData.Columns;
+            dataset.dimY = files[0].file.PixelData.Rows;
+            dataset.dimZ = files.Count;
+
+            int dimension = dataset.dimX * dataset.dimY * dataset.dimZ;
+            dataset.data = new float[dimension];
+
+            for (int iSlice = 0; iSlice < files.Count; iSlice++) {
+                DICOMSliceFile slice = files[iSlice];
+                PixelData pixelData = slice.file.PixelData;
+                int[] pixelArr = ToPixelArray(pixelData);
+                if (pixelArr == null) // This should not happen
+                    pixelArr = new int[pixelData.Rows * pixelData.Columns];
+
+                for (int iRow = 0; iRow < pixelData.Rows; iRow++) {
+                    for (int iCol = 0; iCol < pixelData.Columns; iCol++) {
+                        int pixelIndex = (iRow * pixelData.Columns) + iCol;
+                        int dataIndex = (iSlice * pixelData.Columns * pixelData.Rows) + (iRow * pixelData.Columns) + iCol;
+
+                        int pixelValue = pixelArr[pixelIndex];
+                        float hounsfieldValue = pixelValue * slice.slope + slice.intercept;
+
+                        dataset.data[dataIndex] = Mathf.Clamp(hounsfieldValue, -1024.0f, 3071.0f);
+                    }
+                }
+            }
+
+            if (files[0].pixelSpacing > 0.0f) {
+                dataset.scaleX = files[0].pixelSpacing * dataset.dimX;
+                dataset.scaleY = files[0].pixelSpacing * dataset.dimY;
+                dataset.scaleZ = Mathf.Abs(files[files.Count - 1].location - files[0].location);
+            }
+
+            dataset.FixDimensions();
+            dataset.datasetName = "test";
+            loadedDataset = dataset;
+            return dataset;
+        }
         private DICOMSliceFile ReadDICOMFile(string filePath) {
             AcrNemaFile file = LoadFile(filePath);
 

@@ -41,9 +41,8 @@ namespace UnityVolumeRendering {
                         foreach (IImageSequenceSeries series in seriesList) {
                             // Only import the series that contains the selected file
                             if (series.GetFiles().Any(f => Path.GetFileName(f.GetFilePath()) == Path.GetFileName(filePath))) {
-                                VolumeDataset dataset = null;
-                                //importer.ImportSeries(series);
-
+                                VolumeDataset dataset = importer.ImportSeries(series);
+                                Debug.Log(dataset.datasetName);
                                 if (dataset != null) {
                                     VolumeRenderedObject obj = VolumeObjectFactory.CreateObject(dataset);
                                 }

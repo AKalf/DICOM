@@ -48,9 +48,8 @@ namespace UnityVolumeRendering {
                     float numVolumesCreated = 0;
 
                     foreach (IImageSequenceSeries series in seriesList) {
-
-                        importer.ImportSeriesAsynch(series);
-                        VolumeDataset dataset = importer.LoadedDataset;
+                        VolumeDataset dataset = importer.ImportSeries(series);
+                        Debug.Log(importer.LoadedDataset.datasetName);
                         if (dataset != null) {
                             if (EditorPrefs.GetBool("DownscaleDatasetPrompt")) {
                                 if (EditorUtility.DisplayDialog("Optional DownScaling",
