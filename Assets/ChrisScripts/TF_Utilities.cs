@@ -34,6 +34,8 @@ public class TF_Utilities : MonoBehaviour {
     private TFColourControlPoint new_color_point;
     private TFAlphaControlPoint new_alpha_point;
 
+    private AppManager.OnSelectVolume onSelectVolumeEvent = null;
+
     private void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(this);
@@ -41,7 +43,10 @@ public class TF_Utilities : MonoBehaviour {
         else {
             Instance = this;
         }
+        onSelectVolumeEvent = volume => volumeRenderedObject = volume;
+        AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
     }
+
     public void GenerateColorPoint() {
 
         GameObject new_colorpoint = Instantiate(colorPointUIField, colorPointsContent.transform, false);

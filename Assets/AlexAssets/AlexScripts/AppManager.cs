@@ -103,7 +103,7 @@ public class AppManager : MonoBehaviour {
             IEnumerable<IImageSequenceSeries> seriesList = importer.LoadSeries(fileCandidates);
             float numVolumesCreated = 0;
             int loopIndex = 0;
-            const int loopsPerFrame = 10;
+            const int loopsPerFrame = 100;
             foreach (IImageSequenceSeries series in seriesList) {
                 VolumeDataset dataset = null;
                 yield return StartCoroutine(importer.ImportSeriesAsynch(series));

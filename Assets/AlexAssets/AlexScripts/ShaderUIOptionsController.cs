@@ -18,7 +18,7 @@ public class ShaderUIOptionsController : UIWindow {
     InputField DensityInputField, LightIntensityInputField, OpacityInputField,
         MinDepthInputField, MaxDepthInputField,
         MinVisibilityInputField, MaxVisibilityInputField;
-    [SerializeField] Button importRawButton = null, importPARCHG = null, importDICOM = null;
+
     [SerializeField] Dropdown transferFunctionTypeDropdown, renderModeDropdown;
 
     private VolumeRenderedObject SelectedVolume => AppManager.Instance.SelectedVolume;
@@ -42,19 +42,7 @@ public class ShaderUIOptionsController : UIWindow {
 
     }
     protected override void OnStart() {
-        RuntimeFileBrowser.RuntimeFileBrowserComponent fileBrowser = null;
-        UIUtilities.SetUpButtonListener(importRawButton, () => {
-            fileBrowser = RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenRAWDatasetResult, "DataFiles");
-            fileBrowser.WindowName = "Select Raw File";
-        });
-        UIUtilities.SetUpButtonListener(importPARCHG, () => {
-            fileBrowser = RuntimeFileBrowser.ShowOpenFileDialog(AppManager.Instance.OnOpenPARDatasetResult, "DataFiles");
-            fileBrowser.WindowName = "Select PARCHG File";
-        });
-        UIUtilities.SetUpButtonListener(importDICOM, () => {
-            fileBrowser = RuntimeFileBrowser.ShowOpenDirectoryDialog(AppManager.Instance.OnOpenDICOMDatasetResult);
-            fileBrowser.WindowName = "Select DICOM Folder";
-        });
+
 
         UIUtilities.SetDropdown(renderModeDropdown, index => {
             if (AppManager.Instance.SelectedVolume == null)
