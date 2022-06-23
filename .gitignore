@@ -27,7 +27,8 @@ sysinfo.txt
 *.userprefs
 *.pidb
 .DS_Store
-.vsidx
+*.vsidx
+*.bin
 ###
 # OS generated
 ###
