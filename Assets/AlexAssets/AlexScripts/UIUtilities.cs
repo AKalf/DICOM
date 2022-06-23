@@ -40,16 +40,13 @@ public static class UIUtilities {
         slider.wholeNumbers = wholeNumbers;
 
 
-        float lastValue = 0.0f;
         slider.onValueChanged.AddListener(value => {
             if (target == null) return;
-            value = (float)Math.Round(value, 1);
+            value = (float)Math.Round(value, 2);
             AppManager.Instance.ChangeCameraStatus(true);
-            float diff = lastValue - value;
-            target.Invoke(dir * diff);
+            target.Invoke(dir * value);
             if (inputField != null) inputField.SetTextWithoutNotify(value.ToString());
             slider.SetValueWithoutNotify(value);
-            lastValue = value;
             AppManager.Instance.ChangeCameraStatus(false);
         });
         if (inputField != null) {

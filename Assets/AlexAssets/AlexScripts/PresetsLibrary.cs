@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.Collections;
 using UnityEngine;
 using UnityVolumeRendering;
 
 
 public class PresetsLibrary : MonoBehaviour {
-    [SerializeField]
-    public List<VolumePreset> Presets = new List<VolumePreset>();
+
     private static PresetsLibrary instance = null;
     public static PresetsLibrary Instance => instance;
-    private const string fileName = "/presets.json";
+    [SerializeField][ReadOnly] private List<VolumePreset> presetsLibrary = new List<VolumePreset>();
+    public VolumePreset[] PresetsCopy => presetsLibrary.ToArray();
+    private readonly string pathToFile = Application.streamingAssetsPath + "/presets.json";
 
     private void Awake() {
         if (instance == null) instance = this;
@@ -20,27 +22,17 @@ public class PresetsLibrary : MonoBehaviour {
     private void Start() {
         LoadePresets();
     }
+
     public void SavePreset(VolumePreset preset) {
-        string saveFile = Application.streamingAssetsPath + fileName;
-        if (File.Exists(saveFile) == false)
-            File.Create(saveFile).Dispose();
-        Debug.Log(preset.Name);
-        if (Presets.Contains(preset)) return;
-        Presets.Add(preset);
-        string toJson = "";
-        for (int i = 0; i < Presets.Count; i++) {
-            toJson += JsonUtility.ToJson(Presets[i]);
-            toJson += "\n-NEW_OBJ-\n";
-        }
-        Debug.Log("toJson: " + toJson);
-        File.WriteAllText(saveFile, toJson);
+        if (presetsLibrary.Contains(preset)) return;
+        presetsLibrary.Add(preset);
+        SerializeLibrary();
+        PresetsUIManager.Instance.SpawnThumbnails();
     }
     public void LoadePresets() {
-        string saveFile = Application.streamingAssetsPath + fileName;
-        Debug.Log(Application.streamingAssetsPath + fileName);
-        if (File.Exists(saveFile) == false)
+        if (File.Exists(pathToFile) == false)
             return;
-        string[] lines = File.ReadAllLines(saveFile);
+        string[] lines = File.ReadAllLines(pathToFile);
         List<string> jsons = new List<string>();
         int currentJsonIndex = 0;
         jsons.Add("");
@@ -53,18 +45,33 @@ public class PresetsLibrary : MonoBehaviour {
                 jsons[currentJsonIndex] += lines[i];
             }
         }
-        if (Presets == null) Presets = new List<VolumePreset>();
+        if (presetsLibrary == null) presetsLibrary = new List<VolumePreset>();
+        else presetsLibrary.Clear();
         foreach (string json in jsons) {
             VolumePreset p = JsonUtility.FromJson<VolumePreset>(json);
             if (p != null)
-                Presets.Add(p);
+                presetsLibrary.Add(p);
 
         }
-#if UNITY_EDITOR
-        foreach (VolumePreset preset in Presets) {
-            Debug.Log("Preset loaded: " + preset.Name);
+        PresetsUIManager.Instance.SpawnThumbnails();
+    }
+    public void RemovePresetFromLibrary(VolumePreset preset) {
+        if (presetsLibrary.Contains(preset)) {
+            presetsLibrary.Remove(preset);
+            SerializeLibrary();
+            PresetsUIManager.Instance.SpawnThumbnails();
         }
-#endif
+    }
+    private void SerializeLibrary() {
+        if (File.Exists(pathToFile) == false)
+            File.Create(pathToFile).Dispose();
+        string toJson = "";
+        for (int i = 0; i < presetsLibrary.Count; i++) {
+            toJson += JsonUtility.ToJson(presetsLibrary[i]);
+            toJson += "\n-NEW_OBJ-\n";
+        }
+        Debug.Log("toJson: " + toJson);
+        File.WriteAllText(pathToFile, toJson);
     }
 }
 [System.Serializable]

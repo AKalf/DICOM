@@ -28,8 +28,7 @@ namespace UnityVolumeRendering {
 
         public Texture2D GetTexture() {
             if (texture == null)
-                Debug.Log("Texture is null");
-            GenerateTexture();
+                GenerateTexture();
 
             return texture;
         }
@@ -166,7 +165,6 @@ namespace UnityVolumeRendering {
             }
 
             texture.wrapMode = TextureWrapMode.Clamp;
-            Debug.Log(tfCols.Length);
             texture.SetPixels(tfCols);
             texture.Apply();
         }

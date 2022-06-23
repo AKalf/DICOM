@@ -60,7 +60,6 @@ namespace UnityVolumeRendering {
             GameObject dialogObject = new GameObject("_OpenDirectoryDialog");
             RuntimeFileBrowserComponent dialogComp = dialogObject.AddComponent<RuntimeFileBrowserComponent>();
             dialogComp.dialogMode = RuntimeFileBrowserComponent.DialogMode.OpenDirectory;
-            Debug.Log("Assigning enumerator callback");
             dialogComp.enumeratorCallback = resultCallback;
             dialogComp.currentDirectory = GetAbsoluteDirectoryPath(directory);
             return dialogComp;

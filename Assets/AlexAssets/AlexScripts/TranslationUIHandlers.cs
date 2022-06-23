@@ -12,7 +12,7 @@ public class TranslationUIHandlers : UIWindow {
     [SerializeField] Slider ZoomSlider, RotationX, RotationY, RotationZ;
     [SerializeField] InputField RotationXInputField, RotationYInputField, RotationZInputField;
     [SerializeField] Button resetRotationButton;
-
+    [SerializeField] Vector2 zoomRange = new Vector2(-3, 3);
     private AppManager.OnSelectVolume onSelectVolumeEvent = null;
 
     protected override void OnAwake() {
@@ -24,7 +24,10 @@ public class TranslationUIHandlers : UIWindow {
 
     public void Initialise(UnityVolumeRendering.VolumeRenderedObject volume) {
         Vector3 currPos = AppManager.Instance.SelectedVolumeTransform.position;
-        UIUtilities.SetPositionSliderControl(ZoomSlider, null, Vector3.forward, vec => AppManager.Instance.SelectedVolumeTransform.position = vec, currPos.z - 1, currPos.z + 5, false);
+        UIUtilities.SetPositionSliderControl(ZoomSlider, null, Vector3.forward, vec => {
+            AppManager.Instance.SelectedVolumeTransform.position = vec;
+            AppManager.Instance.ChangeCameraStatus(false);
+        }, zoomRange.x, zoomRange.y, false);
 
         UIUtilities.SetRotationSliderControl(RotationX, RotationXInputField, Vector3.right, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
         UIUtilities.SetRotationSliderControl(RotationY, RotationYInputField, Vector3.up, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
@@ -62,11 +65,10 @@ public class TranslationUIHandlers : UIWindow {
         RotationZInputField.SetTextWithoutNotify(newZ.ToString());
         AppManager.Instance.ChangeCameraStatus(false);
     }
-    public void UpdatePositionZ() {
-        AppManager.Instance.ChangeCameraStatus(true);
-        float newZ = AppManager.Instance.SelectedVolumeTransform.position.z;
-        ZoomSlider.SetValueWithoutNotify((float)Math.Round(newZ, 1));
-        AppManager.Instance.ChangeCameraStatus(false);
-
+    public void UpdateZoomSlider(float newSliderValue) {
+        Debug.Log(newSliderValue);
+        float newValue = ZoomSlider.value + newSliderValue;
+        if (newValue >= zoomRange.x && newValue <= zoomRange.y)
+            ZoomSlider.value = newValue;
     }
 }

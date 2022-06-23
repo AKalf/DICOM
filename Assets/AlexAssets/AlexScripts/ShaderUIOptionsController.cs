@@ -116,6 +116,8 @@ public class ShaderUIOptionsController : UIWindow {
 
         var renderTarget = RenderTexture.GetTemporary(512, 512);
         //mainCamera.orthographic = true;
+        float oldFOV = mainCamera.fieldOfView;
+        mainCamera.fieldOfView = 25;
         mainCamera.targetTexture = renderTarget;
         mainCamera.Render();
         RenderTexture.active = renderTarget;
@@ -127,6 +129,7 @@ public class ShaderUIOptionsController : UIWindow {
         mainCamera.orthographic = false;
         PresetsLibrary.Instance.SavePreset(settings);
         AppManager.Instance.ChangeCameraStatus(false);
+        mainCamera.fieldOfView = oldFOV;
         foreach (Canvas can in canvases)
             can.gameObject.SetActive(true);
     }

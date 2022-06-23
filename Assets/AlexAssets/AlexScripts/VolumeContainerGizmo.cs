@@ -25,8 +25,6 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
 
         GameObject gizmoGO = GameObject.Instantiate((GameObject)Resources.Load("VolumeContainerVectors_Holder"));
         VolumeContainerGizmo gizmoComponent = gizmoGO.AddComponent<VolumeContainerGizmo>();
-        gizmoGO.transform.position = target.transform.position;
-        gizmoGO.transform.position += new Vector3(1.5f, -0.5f, 1);
         gizmoComponent.Target = target;
         gizmos.Add(target, gizmoComponent);
         ChangeActiveGizmo(target);
@@ -43,7 +41,10 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
     private class VolumeContainerGizmo : MonoBehaviour {
         [SerializeField] private GameObject axisX, axisY, axisZ;
         [SerializeField] public Transform Target = null;
+
         private Vector2 initialDragPosition = Vector2.zero;
+
+
         private void Start() {
             axisX = transform.GetChild(0).gameObject;
             axisY = transform.GetChild(1).gameObject;
@@ -53,6 +54,9 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
             if (axisZ) SetTrigger(axisZ, Vector3.forward);
         }
         private void SetTrigger(GameObject targetAxis, Vector3 direction) {
+
+            Vector3 initialAxisScale = targetAxis.transform.localScale;
+
             EventTrigger trigger = targetAxis.AddComponent<EventTrigger>();
             EventTrigger.Entry beginDragEntry = new EventTrigger.Entry();
             beginDragEntry.eventID = EventTriggerType.BeginDrag;
@@ -89,6 +93,8 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
             EventTrigger.Entry endDragEntry = new EventTrigger.Entry();
             endDragEntry.eventID = EventTriggerType.PointerUp;
             endDragEntry.callback.AddListener(data => {
+                targetAxis
+                .transform.localScale = initialAxisScale;
                 AppManager.Instance.ChangeCameraStatus(false);
             });
             trigger.triggers.Add(endDragEntry);

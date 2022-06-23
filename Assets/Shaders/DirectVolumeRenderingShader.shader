@@ -14,7 +14,6 @@
         _Opacity("Opactiy", Range(0.00, 1.00)) = 1.00
         _MaxDepth("Max Depth", Range(0.0, 1.5)) = 1
         _MinDepth("Min Depth", Range(-1.0, 1.0)) = 0
-        _DecreaseOpacityBasedOnDepth("OpacityBasedOnDepth", int) = 0
     }
     SubShader
     {
@@ -31,6 +30,7 @@
 
             #pragma multi_compile MODE_DVR MODE_MIP MODE_SURF
             #pragma multi_compile __ TF2D_ON
+             #pragma multi_compile __ CUTOUT_ON
             #pragma multi_compile __ CUTOUT_PLANE CUTOUT_BOX_INCL CUTOUT_BOX_EXCL
             #pragma multi_compile __ LIGHTING_ON
             #pragma multi_compile DEPTHWRITE_ON DEPTHWRITE_OFF
@@ -71,7 +71,6 @@
             fixed _MaxDepth;
             fixed4 _SurfaceRenderingColour;
             fixed _SurfaceRenderingTDepth;
-            int _DecreaseOpacityBasedOnDepth;
             
             fixed4 col = fixed4(0,0,0,0);
 
@@ -187,21 +186,18 @@
             }
 
             bool IsCutout(fixed3 currPos) {
-
-                #if CUTOUT_ON
-                // Move the reference in the middle of the mesh, like the pivot
-                fixed3 pos = currPos - fixed3(0.5f, 0.5f, 0.5f);
-
-                // Convert from model space to plane's vector space
-                fixed3 planeSpacePos = mul(_CrossSectionMatrix, fixed4(pos, 1.0f));
-                
-                #if CUTOUT_PLANE
-                    return planeSpacePos.z > 0.0f;
-                #elif CUTOUT_BOX_INCL
-                    return !(planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f);
-                #elif CUTOUT_BOX_EXCL
-                    return planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f;
-                #endif
+               #if CUTOUT_ON
+                    // Move the reference in the middle of the mesh, like the pivot
+                    fixed3 pos = currPos - fixed3(0.5f, 0.5f, 0.5f);
+                    // Convert from model space to plane's vector space
+                    fixed3 planeSpacePos = mul(_CrossSectionMatrix, fixed4(pos, 1.0f));           
+                    #if CUTOUT_PLANE
+                        return planeSpacePos.z > 0.0f;
+                    #elif CUTOUT_BOX_INCL
+                        return !(planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f);
+                    #elif CUTOUT_BOX_EXCL
+                        return planeSpacePos.x >= -0.5f && planeSpacePos.x <= 0.5f && planeSpacePos.y >= -0.5f && planeSpacePos.y <= 0.5f && planeSpacePos.z >= -0.5f && planeSpacePos.z <= 0.5f;
+                    #endif
                 #else
                     return false;
                 #endif
@@ -252,9 +248,8 @@
                         continue;
                     #ifdef CUTOUT_ON
                         if(IsCutout(currPos))
-                    	    continue;
+                            continue;
                     #endif
-
                     // Get the dansity/sample value of the current position
                     const fixed density = getDensity(currPos);
                     
@@ -280,7 +275,11 @@
                     #elif defined(LIGHTING_ON)
                         src.rgb = calculateLighting(src.rgb, normalize(gradient), lightDir, -ray.direction, 0.3f);
                     #endif
-
+                     #if OPACITY_BASED_ON_DEPTH
+                        col.a = (1 - currPos.y ) * _Opacity;
+                    #else    
+                        col.a *= _Opacity ; // - ALEX
+                    #endif  
                     #ifdef DVR_BACKWARD_ON
                         const fixed OneMinusAlpha = (1 - src.a);
                         col.rgb = src.a * src.rgb + OneMinusAlpha * col.rgb;
@@ -304,11 +303,7 @@
                         }
                     #endif
 
-                    #if OPACITY_BASED_ON_DEPTH
-                        col.a = (1 - currPos.y ) * _Opacity;
-                    #else    
-                        col.a *= _Opacity ; // - ALEX
-                    #endif  
+                   
                 }
                 // Write fragment output
                 frag_out output;

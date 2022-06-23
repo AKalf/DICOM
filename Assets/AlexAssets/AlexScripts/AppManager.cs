@@ -36,16 +36,20 @@ public class AppManager : MonoBehaviour {
         if (selectedVolume != null) SelectVolume(selectedVolume);
     }
 
-    public void ChangeCameraStatus(bool status) {
+    public void ChangeCameraStatus(bool status, int delay = 0) {
         if (status) mainCamera.enabled = true;
-        else StartCoroutine(DisableCameraWithDelay());
+        else StartCoroutine(DisableCameraWithDelay(delay));
     }
     public void ForceEnableCamera() {
         mainCamera.enabled = true;
     }
-    private IEnumerator DisableCameraWithDelay() {
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
+    private IEnumerator DisableCameraWithDelay(int delay) {
+        if (delay == 0) {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+        }
+        else
+            yield return new WaitForSeconds(delay);
         mainCamera.enabled = false;
     }
     private void SelectVolume(VolumeRenderedObject obj) {

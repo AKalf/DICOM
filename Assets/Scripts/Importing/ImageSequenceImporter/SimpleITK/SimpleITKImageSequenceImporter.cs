@@ -67,7 +67,6 @@ namespace UnityVolumeRendering {
         }
 
         public System.Collections.IEnumerator ImportSeriesAsynch(IImageSequenceSeries series) {
-            Debug.Log("Inside importing coroutine");
 
             ImageSequenceSeries sequenceSeries = (ImageSequenceSeries)series;
             if (sequenceSeries.files.Count == 0) {
@@ -88,7 +87,6 @@ namespace UnityVolumeRendering {
                 }
                 dicomNames.Add(dicomFile.filePath);
             }
-            Debug.Log("Read sequence-series files, DONE");
             loopIndex = 0;
             reader.SetFileNames(dicomNames);
 
@@ -109,7 +107,6 @@ namespace UnityVolumeRendering {
                 }
                 numPixels *= (int)size[dim];
             }
-            Debug.Log("Read image pixels, DONE");
             loopIndex = 0;
             // Read pixel data
             float[] pixelData = new float[numPixels];
@@ -124,7 +121,6 @@ namespace UnityVolumeRendering {
                 }
                 pixelData[i] = Mathf.Clamp(pixelData[i], -1024, 3071);
             }
-            Debug.Log("Read pixel data, DONE");
             VectorDouble spacing = image.GetSpacing();
 
             // Create dataset
@@ -142,7 +138,6 @@ namespace UnityVolumeRendering {
             volumeDataset.FixDimensions();
 
             loadedDataset = volumeDataset;
-            Debug.Log("Dataset loaded: " + loadedDataset.datasetName);
             LoadingWindow.Instance.SetLoadingMessage("");
             yield return new WaitForEndOfFrame();
             yield break;

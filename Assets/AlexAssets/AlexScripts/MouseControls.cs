@@ -1,23 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
+using UnityEngine.EventSystems;
+using UnityVolumeRendering;
 public class MouseControls : MonoBehaviour {
 
-    [SerializeField]
-    private Vector2 zoomRange = new Vector2(-4, 5);
-
+    private void Awake() {
+        AppManager.Instance.AddOnSelectVolumeEventListener(OnScroll);
+    }
     void Update() {
         if (AppManager.Instance.SelectedVolume == null) return;
-        float scroll = Input.mouseScrollDelta.y;
-        if (scroll != 0) {
-            float newZ = AppManager.Instance.SelectedVolumeTransform.position.z + scroll;
-            if (newZ > zoomRange.x && newZ < zoomRange.y) {
-                AppManager.Instance.SelectedVolumeTransform.position += Vector3.forward * Input.mouseScrollDelta.y;
-                TranslationUIHandlers.Instance.UpdatePositionZ();
-            }
-        }
+
         if (Input.GetMouseButton(1)) {
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");
@@ -28,5 +21,18 @@ public class MouseControls : MonoBehaviour {
         }
 
 
+    }
+
+    private void OnScroll(VolumeRenderedObject obj) {
+        EventTrigger trigger = obj.GetComponent<EventTrigger>();
+        EventTrigger.Entry entry = new EventTrigger.Entry();
+        entry.eventID = EventTriggerType.Scroll;
+        entry.callback.AddListener(data => {
+            float scroll = Input.mouseScrollDelta.y;
+            if (scroll != 0) {
+                TranslationUIHandlers.Instance.UpdateZoomSlider(scroll);
+            }
+        });
+        trigger.triggers.Add(entry);
     }
 }

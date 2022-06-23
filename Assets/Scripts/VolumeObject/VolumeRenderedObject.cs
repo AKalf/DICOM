@@ -57,7 +57,7 @@ namespace UnityVolumeRendering {
             VolumeMaterial.SetFloat("_MaxVal", 1);
             VolumeMaterial.DisableKeyword("RAY_TERMINATE_ON");
             VolumeMaterial.EnableKeyword("DVR_BACKWARD_ON");
-
+            VolumeMaterial.DisableKeyword("CUTOUT_ON");
             if (dataset.scaleX != 0.0f && dataset.scaleY != 0.0f && dataset.scaleZ != 0.0f) {
                 float maxScale = Mathf.Max(dataset.scaleX, dataset.scaleY, dataset.scaleZ);
                 transform.localScale = new Vector3(dataset.scaleX / maxScale, dataset.scaleY / maxScale, dataset.scaleZ / maxScale);
@@ -77,6 +77,7 @@ namespace UnityVolumeRendering {
             sliceMat.SetTexture("_TFTex", transferFunction.GetTexture());
             sliceMat.SetMatrix("_parentInverseMat", transform.worldToLocalMatrix);
             sliceMat.SetMatrix("_planeMat", Matrix4x4.TRS(sliceRenderingPlane.transform.position, sliceRenderingPlane.transform.rotation, transform.lossyScale)); // TODO: allow changing scale
+            VolumeMaterial.EnableKeyword("CUTOUT_ON");
             SlicingPlane slicingPlane = sliceRenderingPlane.GetComponent<SlicingPlane>();
             slicingPlane.VolumeTranform = this.transform;
 

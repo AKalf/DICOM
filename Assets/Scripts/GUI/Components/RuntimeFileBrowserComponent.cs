@@ -29,7 +29,7 @@ namespace UnityVolumeRendering {
             private Vector2 scrollPos = Vector2.zero;
             private Vector2 dirScrollPos = Vector2.zero;
 
-            private Rect windowRect = new Rect(100, 50, WINDOW_WIDTH, WINDOW_HEIGHT);
+            private Rect windowRect = new Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
             private const int LEFT_PANEL_WIDTH = 100;
             private const int RIGHT_PANEL_WIDTH = 370;
@@ -41,6 +41,7 @@ namespace UnityVolumeRendering {
             private void Awake() {
                 // Fetch a unique ID for our window (see GUI.Window)
                 windowID = WindowGUID.GetUniqueWindowID();
+                windowRect = new Rect(Screen.width / 2 - WINDOW_WIDTH / 2, Screen.height / 2 - WINDOW_HEIGHT / 2, WINDOW_WIDTH, WINDOW_HEIGHT);
                 if (instance == null) instance = this;
                 else {
                     Destroy(instance);
@@ -201,7 +202,6 @@ namespace UnityVolumeRendering {
                 yield return new WaitForEndOfFrame();
                 callback?.Invoke(result);
                 if (enumeratorCallback != null) {
-                    Debug.Log("Starting enumerator callback");
                     yield return StartCoroutine(enumeratorCallback.Invoke(result));
                     yield return new WaitForEndOfFrame();
                     GameObject.Destroy(this.gameObject);
