@@ -29,20 +29,19 @@ public class AppManager : MonoBehaviour {
             return;
         }
         mainCamera = Camera.main;
-
+        if (selectedVolume == null) selectedVolume = FindObjectOfType<VolumeRenderedObject>();
     }
     // Start is called before the first frame update
     void Start() {
         if (selectedVolume != null) SelectVolume(selectedVolume);
-        else {
-            selectedVolume = FindObjectOfType<VolumeRenderedObject>();
-            if (selectedVolume != null) SelectVolume(selectedVolume);
-        }
     }
 
     public void ChangeCameraStatus(bool status) {
         if (status) mainCamera.enabled = true;
         else StartCoroutine(DisableCameraWithDelay());
+    }
+    public void ForceEnableCamera() {
+        mainCamera.enabled = true;
     }
     private IEnumerator DisableCameraWithDelay() {
         yield return new WaitForEndOfFrame();

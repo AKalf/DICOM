@@ -25,9 +25,13 @@ namespace UnityVolumeRendering {
         public Material VolumeMaterial => volumeMaterial;
 
         private float guiAxisX = 0.0f;
-        private void Start() {
+
+        private void Awake() {
             meshRenderer = GetComponent<MeshRenderer>();
-            volumeMaterial = meshRenderer.material;
+            volumeMaterial = meshRenderer.sharedMaterial;
+        }
+        private void Start() {
+
             const int noiseDimX = 512, noiseDimY = 512;
             Texture2D noiseTexture = NoiseTextureGenerator.GenerateNoiseTexture(noiseDimX, noiseDimY);
             TransferFunction tf = TransferFunctionDatabase.CreateTransferFunction();

@@ -15,10 +15,11 @@ public class ShaderUIOptionsController : UIWindow {
     [SerializeField] Slider DensitySlider, LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
     [SerializeField] Toggle EnableLightingToggle, EnableRayTermination, EnableBack2FrontRaycasting, EnableOpacityBasedOnDepth;
     [SerializeField]
-    InputField DensityInputField, LightIntensityInputField, OpacityInputField,
+    InputField
+        DensityInputField, LightIntensityInputField, OpacityInputField,
         MinDepthInputField, MaxDepthInputField,
         MinVisibilityInputField, MaxVisibilityInputField;
-
+    [SerializeField] Button savePreset;
     [SerializeField] Dropdown transferFunctionTypeDropdown, renderModeDropdown;
 
     private VolumeRenderedObject SelectedVolume => AppManager.Instance.SelectedVolume;
@@ -34,6 +35,7 @@ public class ShaderUIOptionsController : UIWindow {
     private UnityVolumeRendering.RenderMode currentRenderMode = UnityVolumeRendering.RenderMode.DirectVolumeRendering;
     private TFRenderMode tfRenderMode = TFRenderMode.TF1D;
     private bool hasInitialised = false;
+
     protected override void OnAwake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
@@ -42,8 +44,7 @@ public class ShaderUIOptionsController : UIWindow {
 
     }
     protected override void OnStart() {
-
-
+        savePreset.onClick.AddListener(SavePreset);
         UIUtilities.SetDropdown(renderModeDropdown, index => {
             if (AppManager.Instance.SelectedVolume == null)
                 return;
@@ -82,6 +83,74 @@ public class ShaderUIOptionsController : UIWindow {
         trigger.triggers.Add(entry);
     }
 
+    public void SavePreset() {
+        VolumePreset settings = new VolumePreset();
+        settings.Name = SelectedVolume.dataset.datasetName;
+        settings.Position = AppManager.Instance.SelectedVolumeTransform.position;
+        settings.Rotation = AppManager.Instance.SelectedVolumeTransform.rotation;
+        settings.Scale = AppManager.Instance.SelectedVolumeTransform.localScale;
+        settings.IsLighted = EnableLightingToggle.isOn;
+        settings.AreRaysTerminated = EnableRayTermination.isOn;
+        settings.IsBack2FrontRaycasted = EnableBack2FrontRaycasting.isOn;
+        settings.IsOpacityBasedOnDepth = EnableOpacityBasedOnDepth.isOn;
+        settings.Density = DensitySlider.value;
+        settings.LightIntensity = LightingIntensitySlider.value;
+        settings.Opacity = OpacitySlider.value;
+        settings.VisibleRangeMin = visibilityMinMax.x;
+        settings.VisibleRangeMax = visibilityMinMax.y;
+        float minDepth = 0.0f;
+        if (float.TryParse(MinDepthInputField.text, out minDepth))
+            settings.MinimumDepth = (float)Math.Round(minDepth, 2);
+        float maxDepth = 0.0f;
+        if (float.TryParse(MaxDepthInputField.text, out maxDepth))
+            settings.MaximumDepth = (float)Math.Round(maxDepth, 2);
+        settings.RenderMode = currentRenderMode;
+        settings.TransferFunction = SelectedVolume.transferFunction;
+
+
+        AppManager.Instance.ForceEnableCamera();
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas can in canvases)
+            can.gameObject.SetActive(false);
+        Camera mainCamera = Camera.main;
+
+        var renderTarget = RenderTexture.GetTemporary(512, 512);
+        //mainCamera.orthographic = true;
+        mainCamera.targetTexture = renderTarget;
+        mainCamera.Render();
+        RenderTexture.active = renderTarget;
+        Texture2D tex = new Texture2D(renderTarget.width, renderTarget.height);
+        tex.ReadPixels(new Rect(0, 0, renderTarget.width, renderTarget.height), 0, 0);
+        tex.Apply();
+        settings.Thumbnail = tex.EncodeToPNG();
+        mainCamera.targetTexture = null;
+        mainCamera.orthographic = false;
+        PresetsLibrary.Instance.SavePreset(settings);
+        AppManager.Instance.ChangeCameraStatus(false);
+        foreach (Canvas can in canvases)
+            can.gameObject.SetActive(true);
+    }
+    public void LoadPreset(VolumePreset preset) {
+        AppManager.Instance.ChangeCameraStatus(true);
+        AppManager.Instance.SelectedVolumeTransform.position = preset.Position;
+        AppManager.Instance.SelectedVolumeTransform.rotation = preset.Rotation;
+        AppManager.Instance.SelectedVolumeTransform.localScale = preset.Scale;
+        EnableLightingToggle.isOn = preset.IsLighted;
+        EnableRayTermination.isOn = preset.AreRaysTerminated;
+        EnableBack2FrontRaycasting.isOn = preset.IsBack2FrontRaycasted;
+        EnableRayTermination.isOn = preset.IsOpacityBasedOnDepth;
+        DensitySlider.value = preset.Density;
+        LightingIntensitySlider.value = preset.LightIntensity;
+        OpacitySlider.value = preset.Opacity;
+        VisibleRangeMin.value = preset.VisibleRangeMin;
+        VisibleRangeMax.value = preset.VisibleRangeMax;
+        MinDepthInputField.text = preset.MinimumDepth.ToString();
+        MaxDepthInputField.text = preset.MaximumDepth.ToString();
+        renderModeDropdown.value = (int)preset.RenderMode;
+        SelectedVolume.transferFunction = preset.TransferFunction;
+        SelectedVolume.UpdateTFTextureOnShader();
+        AppManager.Instance.ChangeCameraStatus(false);
+    }
     private void SetNewLayerRangeValues(float value, bool isMin) {
         AppManager.Instance.ChangeCameraStatus(true);
         value = (float)Math.Round(value, 2);
@@ -135,8 +204,7 @@ public class ShaderUIOptionsController : UIWindow {
         UIUtilities.SetInputField(MinVisibilityInputField, value => SetNewLayerRangeValues(value, true));
         UIUtilities.SetInputField(MaxVisibilityInputField, value => SetNewLayerRangeValues(value, false));
     }
-
-    public void SetUpUIControlls(Material selectedVolumeMaterial) {
+    private void SetUpUIControlls(Material selectedVolumeMaterial) {
         if (!hasInitialised) Initialise();
         DensitySlider.wholeNumbers = true;
         DensitySlider.SetValueWithoutNotify(selectedVolumeMaterial.GetInt(densityPropertyNameID));

@@ -3799,7 +3799,6 @@ GameObject:
   - component: {fileID: 1546336685247879023}
   - component: {fileID: 1546336685247879012}
   - component: {fileID: 1546336685247879017}
-  - component: {fileID: 1546336685247879016}
   - component: {fileID: 1546336685247879018}
   - component: {fileID: 1546336685247879019}
   m_Layer: 5
@@ -3909,6 +3908,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc7401c04b6dcef429e81b517779e3b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  closeButton: {fileID: 0}
+  minimizeButton: {fileID: 4778965663627079105}
+  windowName: Transfer Function Editor
+  isClosedOnStart: 1
   HUScaleMax: 3071
   HUScaleMin: -1024
   colorPointsContent: {fileID: 1546336685987630481}
@@ -3935,22 +3938,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1546336685247879016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1546336685247879022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c016b96d7e081bb428f93be2c271feb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  closeButton: {fileID: 0}
-  minimizeButton: {fileID: 4778965663627079105}
-  windowName: Transfer Function
-  isClosedOnStart: 1
 --- !u!222 &1546336685247879018
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3966,7 +3953,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1546336685247879022}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -9474,6 +9461,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d4bd6c6370e97bb459225f542e069dd0, type: 3}
+--- !u!224 &4778965663627079104 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6323275165406845235, guid: d4bd6c6370e97bb459225f542e069dd0,
+    type: 3}
+  m_PrefabInstance: {fileID: 1554448521159521523}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4778965663627079105 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6323275165406845234, guid: d4bd6c6370e97bb459225f542e069dd0,
@@ -9486,9 +9479,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &4778965663627079104 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 6323275165406845235, guid: d4bd6c6370e97bb459225f542e069dd0,
-    type: 3}
-  m_PrefabInstance: {fileID: 1554448521159521523}
-  m_PrefabAsset: {fileID: 0}

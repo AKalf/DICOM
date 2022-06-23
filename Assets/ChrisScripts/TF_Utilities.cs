@@ -7,7 +7,7 @@ using System;
 
 
 
-public class TF_Utilities : MonoBehaviour {
+public class TF_Utilities : UIWindow {
     public static TF_Utilities Instance;
 
 
@@ -35,7 +35,10 @@ public class TF_Utilities : MonoBehaviour {
 
     private AppManager.OnSelectVolume onSelectVolumeEvent = null;
 
-    private void Awake() {
+    public override void OnMaximize() {
+        AppManager.Instance.ChangeCameraStatus(true);
+    }
+    protected override void OnAwake() {
         if (Instance != null && Instance != this) {
             Destroy(this);
         }
@@ -46,8 +49,7 @@ public class TF_Utilities : MonoBehaviour {
         AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
     }
 
-    public VolumeRenderedObject GetVolume()
-    {
+    public VolumeRenderedObject GetVolume() {
         return volumeRenderedObject;
     }
 

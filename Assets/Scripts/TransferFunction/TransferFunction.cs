@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System;
 using System.Collections;
 
-namespace UnityVolumeRendering
-{
+namespace UnityVolumeRendering {
     [CreateAssetMenu(fileName = "TF", menuName = "VolumeRendering/Transfer Function", order = 1)]
     [Serializable]
-    public class TransferFunction : ScriptableObject
-    {
+    public class TransferFunction : ScriptableObject {
         [SerializeField]
         public List<TFColourControlPoint> colourControlPoints = new List<TFColourControlPoint>();
         [SerializeField]
@@ -20,34 +18,29 @@ namespace UnityVolumeRendering
         private const int TEXTURE_WIDTH = 512;
         private const int TEXTURE_HEIGHT = 2;
 
-        public void AddControlPoint(TFColourControlPoint ctrlPoint)
-        {
+        public void AddControlPoint(TFColourControlPoint ctrlPoint) {
             colourControlPoints.Add(ctrlPoint);
         }
 
-        public void AddControlPoint(TFAlphaControlPoint ctrlPoint)
-        {
+        public void AddControlPoint(TFAlphaControlPoint ctrlPoint) {
             alphaControlPoints.Add(ctrlPoint);
         }
 
-        public Texture2D GetTexture()
-        {
+        public Texture2D GetTexture() {
             if (texture == null)
                 Debug.Log("Texture is null");
-                GenerateTexture();
+            GenerateTexture();
 
             return texture;
         }
 
-        public void SetTexture(Texture2D _texture)
-        {
+        public void SetTexture(Texture2D _texture) {
             texture = _texture;
             Debug.Log(texture);
             //Maybe needs updating
         }
 
-        public void ClearTF()
-        {
+        public void ClearTF() {
             float HU_scale_min = -1024.0f;
             float HU_scale_max = 3071.0f;
 
@@ -80,8 +73,7 @@ namespace UnityVolumeRendering
             int iCurrColour = 0;
             int iCurrAlpha = 0;
 
-            for (int iX = 0; iX < TEXTURE_WIDTH; iX++)
-            {
+            for (int iX = 0; iX < TEXTURE_WIDTH; iX++) {
                 float t = iX / (float)(TEXTURE_WIDTH - 1);
                 while (iCurrColour < numColours - 2 && cols[iCurrColour + 1].dataValue < t)
                     iCurrColour++;
@@ -100,12 +92,11 @@ namespace UnityVolumeRendering
                 tAlpha = Mathf.SmoothStep(0.0f, 1.0f, tAlpha);
 
                 Color pixCol = rightCol.colourValue * tCol + leftCol.colourValue * (1.0f - tCol);
-                
+
                 pixCol.a = rightAlpha.alphaValue * tAlpha + leftAlpha.alphaValue * (1.0f - tAlpha);
                 Debug.Log(iX + "" + pixCol);
 
-                for (int iY = 0; iY < TEXTURE_HEIGHT; iY++)
-                {
+                for (int iY = 0; iY < TEXTURE_HEIGHT; iY++) {
                     Debug.Log(iX + "" + iY + "" + "pixcol = " + pixCol);
                     Debug.Log(TEXTURE_WIDTH);
                     tfCols[iX + iY * TEXTURE_WIDTH] = pixCol;
@@ -120,8 +111,7 @@ namespace UnityVolumeRendering
 
         }
 
-        public void GenerateTexture()
-        {
+        public void GenerateTexture() {
             if (texture == null)
                 CreateTexture();
 
@@ -149,8 +139,7 @@ namespace UnityVolumeRendering
             int iCurrColour = 0;
             int iCurrAlpha = 0;
 
-            for (int iX = 0; iX < TEXTURE_WIDTH; iX++)
-            {
+            for (int iX = 0; iX < TEXTURE_WIDTH; iX++) {
                 float t = iX / (float)(TEXTURE_WIDTH - 1);
                 while (iCurrColour < numColours - 2 && cols[iCurrColour + 1].dataValue < t)
                     iCurrColour++;
@@ -171,8 +160,7 @@ namespace UnityVolumeRendering
                 Color pixCol = rightCol.colourValue * tCol + leftCol.colourValue * (1.0f - tCol);
                 pixCol.a = rightAlpha.alphaValue * tAlpha + leftAlpha.alphaValue * (1.0f - tAlpha);
 
-                for (int iY = 0; iY < TEXTURE_HEIGHT; iY++)
-                {
+                for (int iY = 0; iY < TEXTURE_HEIGHT; iY++) {
                     tfCols[iX + iY * TEXTURE_WIDTH] = pixCol;
                 }
             }
@@ -183,12 +171,11 @@ namespace UnityVolumeRendering
             texture.Apply();
         }
 
-        private void CreateTexture()
-        {
+        private void CreateTexture() {
             TextureFormat texformat = SystemInfo.SupportsTextureFormat(TextureFormat.RGBAHalf) ? TextureFormat.RGBAHalf : TextureFormat.RGBAFloat;
             texture = new Texture2D(TEXTURE_WIDTH, TEXTURE_HEIGHT, texformat, false);
             tfCols = new Color[TEXTURE_WIDTH * TEXTURE_HEIGHT];
-            
+
         }
     }
 }

@@ -8,8 +8,8 @@ namespace UnityVolumeRendering {
 
 
             GameObject meshContainer = GameObject.Instantiate((GameObject)Resources.Load("VolumeContainer"));
-            GameObject gizmo = VolumeContainerGizmoManager.GetGizmo(meshContainer.transform);
-            gizmo.transform.rotation = Quaternion.Euler(0, 35, 0);
+            //GameObject gizmo = VolumeContainerGizmoManager.GetGizmo(meshContainer.transform);
+            //gizmo.transform.rotation = Quaternion.Euler(0, 35, 0);
             meshContainer.name = "VolumeObject_" + dataset.datasetName;
             VolumeRenderedObject volObj = meshContainer.AddComponent<VolumeRenderedObject>();
             meshContainer.transform.localScale = Vector3.one;
