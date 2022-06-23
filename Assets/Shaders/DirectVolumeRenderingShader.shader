@@ -44,7 +44,7 @@
             #include "UnityCG.cginc"
             //#include "UnityCustomRenderTexture.cginc"
       
-            #define CUTOUT_ON CUTOUT_PLANE || CUTOUT_BOX_INCL || CUTOUT_BOX_EXCL
+            #define  CUTOUT_PLANE || CUTOUT_BOX_INCL || CUTOUT_BOX_EXCL
             
             struct vert_in { fixed4 vertex : POSITION; fixed4 normal : NORMAL;  fixed2 uv : TEXCOORD0; };
 
@@ -363,7 +363,7 @@
                     RaymarchInfo raymarchInfo = initRaymarch(ray, _Density);
 
                     // Create a small random offset in order to remove artifacts
-                    // ray.startPos = ray.startPos + (2.0 * ray.direction * raymarchInfo.stepSize) * tex2D(_NoiseTex, fixed2(i.uv.x, i.uv.y)).r;
+                     ray.startPos = ray.startPos + (2.0 * ray.direction * raymarchInfo.stepSize) * tex2D(_NoiseTex, fixed2(i.uv.x, i.uv.y)).r;
 
                     //_SurfaceRenderingColour = fixed4(0,0,0,0);
 
@@ -386,11 +386,11 @@
                             _SurfaceRenderingColour.rgb = calculateLighting(_SurfaceRenderingColour.rgb, normal, -ray.direction, -ray.direction, 0.25);
                       
                             // 1.732f 
-                            //#if OPACITY_BASED_ON_DEPTH
+                            #if OPACITY_BASED_ON_DEPTH
                                 _SurfaceRenderingColour.a = (1 - currPos.y - density) * _Opacity;
-                            //#else
-                                //_SurfaceRenderingColour.a *= _Opacity;
-                            //#endif
+                            #else
+                                _SurfaceRenderingColour.a *= _Opacity;
+                            #endif
                             break;
                         }
                     }

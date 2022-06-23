@@ -6,9 +6,15 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class UIWindow : MonoBehaviour {
 
+    public enum ScreenAnchor { Left, Top, Center, Bottom, Right }
     [SerializeField] private Button closeButton, minimizeButton;
     [SerializeField] protected string windowName = "";
     [SerializeField] protected bool isClosedOnStart = false;
+    [SerializeField] private bool shouldMinimzeOtherOnExpand = false;
+    [HideInInspector] public bool IsOpen = false;
+    public bool ShouldMinimzeOtherOnExpand => shouldMinimzeOtherOnExpand;
+    [SerializeField] protected ScreenAnchor anchor = ScreenAnchor.Right;
+    public ScreenAnchor Anchor => anchor;
     public CanvasGroup CanvasGroup { get; private set; }
     public string WindowName => windowName;
 

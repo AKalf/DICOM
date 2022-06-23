@@ -10,9 +10,7 @@ public class MinimizedWindowsPanel : MonoBehaviour {
 
     [SerializeField] GameObject minimizedPanel = null, minimizedWindowPrefab = null;
 
-    public List<UIWindow> windows = new List<UIWindow>();
-
-    private Dictionary<GameObject, UIWindow> minimizedWindows = new Dictionary<GameObject, UIWindow>();
+    private Dictionary<UIWindow, GameObject> windows = new Dictionary<UIWindow, GameObject>();
 
     private void Awake() {
         if (instance == null) instance = this;
@@ -20,31 +18,39 @@ public class MinimizedWindowsPanel : MonoBehaviour {
     }
 
     public void MinimizeWindow(UIWindow window) {
-        if (minimizedWindows.ContainsValue(window) == false) {
-            AppManager.Instance.ChangeCameraStatus(true);
-            UIUtilities.ToggleCanvasGroup(window.CanvasGroup, false);
-            window.gameObject.SetActive(false);
+        AppManager.Instance.ChangeCameraStatus(true);
+        if (windows.ContainsKey(window) == false) {
             GameObject newMinPanel = Instantiate(minimizedWindowPrefab, minimizedPanel.transform);
-            newMinPanel.GetComponent<Button>().onClick.AddListener(() => MaximizeWindow(newMinPanel));
+            newMinPanel.GetComponent<Button>().onClick.AddListener(() => MaximizeWindow(window));
             newMinPanel.GetComponentInChildren<Text>().text = window.WindowName;
-            minimizedWindows.Add(newMinPanel, window);
-            window.OnMinimize();
-            AppManager.Instance.ChangeCameraStatus(false);
+            windows.Add(window, newMinPanel);
         }
+        HideWindow(window);
+        AppManager.Instance.ChangeCameraStatus(false);
     }
-
-    private void MaximizeWindow(GameObject minimizedWindow) {
-        if (minimizedWindows.ContainsKey(minimizedWindow)) {
+    private void MaximizeWindow(UIWindow window) {
+        if (windows.ContainsKey(window)) {
             AppManager.Instance.ChangeCameraStatus(true);
-            UIWindow window = minimizedWindows[minimizedWindow];
             UIUtilities.ToggleCanvasGroup(window.CanvasGroup, true);
             window.gameObject.SetActive(true);
-            minimizedWindows.Remove(minimizedWindow);
-            Destroy(minimizedWindow);
+            windows[window].SetActive(false);
             window.OnMaximize();
+            if (window.ShouldMinimzeOtherOnExpand) {
+                foreach (UIWindow otherWindow in windows.Keys) {
+                    if (otherWindow.Anchor == window.Anchor && otherWindow.Equals(window) == false) {
+                        HideWindow(otherWindow);
+                    }
+                }
+            }
             AppManager.Instance.ChangeCameraStatus(false);
         }
     }
 
+    private void HideWindow(UIWindow window) {
+        window.gameObject.SetActive(false);
+        windows[window].SetActive(true);
+        UIUtilities.ToggleCanvasGroup(window.CanvasGroup, false);
+        window.OnMinimize();
+    }
 
 }

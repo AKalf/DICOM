@@ -35,6 +35,11 @@ public class LoadingWindow : MonoBehaviour {
                     loadingSegments[i].localPosition = pos;
                 }
                 yield return new WaitForEndOfFrame();
+                yield return new WaitForEndOfFrame();
+                yield return new WaitForEndOfFrame();
+                yield return new WaitForEndOfFrame();
+                yield return new WaitForEndOfFrame();
+                yield return new WaitForEndOfFrame();
             }
         }
 
