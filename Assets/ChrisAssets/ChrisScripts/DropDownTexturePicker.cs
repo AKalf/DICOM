@@ -23,7 +23,7 @@ public class DropDownTexturePicker : MonoBehaviour {
     void Start() {
         //Loads the transfer function presets
         foreach (FileInfo t_function in t_functions) {
-            if (t_function.Name.Contains("tf") && !t_function.Name.Contains("meta")) {
+            if (t_function.Name.Contains(".tf") && !t_function.Name.Contains("meta")) {
                 Dropdown.OptionData option_data = new Dropdown.OptionData();
                 filepaths.Add(t_function.FullName);
                 option_data.text = t_function.Name;
@@ -35,14 +35,17 @@ public class DropDownTexturePicker : MonoBehaviour {
         dropdown = this.GetComponent<Dropdown>();
         //Change Dropdown Menu on Start depending on the number of options
         dropdown.AddOptions(options);
-
+        
     }
 
     public void Update_TF() {
         if (volume == null)
         {
-            TF_Utilities.Instance.GetVolume();
+            volume = TF_Utilities.Instance.GetVolume();
+
+            Debug.Log("volume isnt " + volume.name);
         }
+        
         tf = TransferFunctionDatabase.LoadTransferFunction(filepaths[dropdown.value]);
         volume.transferFunction = tf;
         volume.UpdateTFTextureOnShader();
