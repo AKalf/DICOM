@@ -6,7 +6,7 @@ using System.Collections;
 namespace UnityVolumeRendering {
     [CreateAssetMenu(fileName = "TF", menuName = "VolumeRendering/Transfer Function", order = 1)]
     [Serializable]
-    public class TransferFunction : ScriptableObject {
+    public class TransferFunction {
         [SerializeField]
         public List<TFColourControlPoint> colourControlPoints = new List<TFColourControlPoint>();
         [SerializeField]
@@ -27,8 +27,8 @@ namespace UnityVolumeRendering {
         }
 
         public Texture2D GetTexture() {
-            if (texture == null)
-                GenerateTexture();
+            //if (texture == null)
+            GenerateTexture();
 
             return texture;
         }
