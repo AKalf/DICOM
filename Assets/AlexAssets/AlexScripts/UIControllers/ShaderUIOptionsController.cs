@@ -16,13 +16,15 @@ public class ShaderUIOptionsController : UIWindow {
     #endregion
 
     [SerializeField] CanvasGroup LightingIntensityCanvasGroup;
-    [SerializeField] Slider DensitySlider, LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
+    [SerializeField] Slider /*DensitySlider,*/ LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
+    [SerializeField] UISystem.Elements.UISystem_Slider DensitySlider;
     [SerializeField] Toggle EnableLightingToggle, EnableRayTermination, EnableBack2FrontRaycasting, EnableOpacityBasedOnDepth;
     [SerializeField]
     InputField
         DensityInputField, LightIntensityInputField, OpacityInputField,
         MinDepthInputField, MaxDepthInputField,
         MinVisibilityInputField, MaxVisibilityInputField;
+    [SerializeField] UISystem.Elements.UISystem_InputField savePresetInputField;
     [SerializeField] UISystem.Elements.UISystem_Button savePreset;
     [SerializeField] Dropdown transferFunctionTypeDropdown, renderModeDropdown;
 
@@ -84,14 +86,14 @@ public class ShaderUIOptionsController : UIWindow {
         EventTrigger trigger = renderModeDropdown.gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry entry = new EventTrigger.Entry();
         entry.eventID = EventTriggerType.PointerClick;
-        entry.callback.AddListener(data => AppManager.Instance.ChangeCameraStatus(true));
+        entry.callback.AddListener(data => AppManager.Instance.Render());
         trigger.triggers.Add(entry);
     }
 
     public void SavePreset() {
         VolumePreset settings = new VolumePreset();
 
-        settings.Name = SelectedVolume.dataset.datasetName;
+        settings.Name = savePresetInputField.text;
         settings.Position = AppManager.Instance.SelectedVolumeTransform.position;
         settings.Rotation = AppManager.Instance.SelectedVolumeTransform.rotation;
         settings.Scale = AppManager.Instance.SelectedVolumeTransform.localScale;
@@ -116,7 +118,6 @@ public class ShaderUIOptionsController : UIWindow {
         PresetsLibrary.Instance.SavePreset(settings);
     }
     public void LoadPreset(VolumePreset preset) {
-        AppManager.Instance.ChangeCameraStatus(true);
         AppManager.Instance.SelectedVolumeTransform.position = preset.Position;
         AppManager.Instance.SelectedVolumeTransform.rotation = preset.Rotation;
         AppManager.Instance.SelectedVolumeTransform.localScale = preset.Scale;
@@ -134,10 +135,9 @@ public class ShaderUIOptionsController : UIWindow {
         renderModeDropdown.value = (int)preset.RenderMode;
         SelectedVolume.transferFunction = preset.TransferFunction;
         SelectedVolume.UpdateTFTextureOnShader();
-        AppManager.Instance.ChangeCameraStatus(false, 2);
+        AppManager.Instance.Render();
     }
     private void SetNewLayerRangeValues(float value, bool isMin) {
-        AppManager.Instance.ChangeCameraStatus(true);
         value = (float)Math.Round(value, 2);
         if (isMin) {
             if (value >= visibilityMinMax.y) {
@@ -157,7 +157,7 @@ public class ShaderUIOptionsController : UIWindow {
         }
         AppManager.Instance.SelectedVolumeMaterial.SetFloat(visibleRangeMinPropertyNameID, visibilityMinMax.x);
         AppManager.Instance.SelectedVolumeMaterial.SetFloat(visibleRangeMaxPropertyNameID, visibilityMinMax.y);
-        AppManager.Instance.ChangeCameraStatus(false);
+        AppManager.Instance.Render();
     }
     private void SetNewLayerRangeValues(string stringValue, bool isMin) {
         float value = 0.0f;

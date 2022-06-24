@@ -61,7 +61,7 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
             EventTrigger.Entry beginDragEntry = new EventTrigger.Entry();
             beginDragEntry.eventID = EventTriggerType.BeginDrag;
             beginDragEntry.callback.AddListener(data => {
-                AppManager.Instance.ChangeCameraStatus(true);
+                AppManager.Instance.Render();
                 initialDragPosition = ((PointerEventData)data).position;
                 Debug.Log(initialDragPosition);
             });
@@ -71,7 +71,7 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
             EventTrigger.Entry dragEntry = new EventTrigger.Entry();
             dragEntry.eventID = EventTriggerType.Drag;
             dragEntry.callback.AddListener(data => {
-                AppManager.Instance.ChangeCameraStatus(true);
+                AppManager.Instance.Render();
                 Vector3 result = Vector3.zero;
                 if (direction == Vector3.up)
                     result = direction * (((PointerEventData)data).position.y - initialDragPosition.y);
@@ -95,7 +95,7 @@ public class VolumeContainerGizmoManager : MonoBehaviour {
             endDragEntry.callback.AddListener(data => {
                 targetAxis
                 .transform.localScale = initialAxisScale;
-                AppManager.Instance.ChangeCameraStatus(false);
+                AppManager.Instance.Render();
             });
             trigger.triggers.Add(endDragEntry);
         }

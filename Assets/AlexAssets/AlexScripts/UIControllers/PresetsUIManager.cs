@@ -17,14 +17,13 @@ public class PresetsUIManager : UIWindow {
     }
     protected override void OnStart() {
         scrollRect.onValueChanged.AddListener(value => {
-            AppManager.Instance.ChangeCameraStatus(true);
-            AppManager.Instance.ChangeCameraStatus(false);
+            AppManager.Instance.Render();
         });
     }
 
 
     public void SpawnThumbnails() {
-        AppManager.Instance.ChangeCameraStatus(true);
+
         foreach (VolumePreset preset in PresetsLibrary.Instance.PresetsCopy) {
             if (spawnedPresets.ContainsKey(preset))
                 continue;
@@ -36,22 +35,20 @@ public class PresetsUIManager : UIWindow {
             presetInstance.GetComponentInChildren<Text>().text = preset.Name;
             Button deleteButton = presetInstance.GetComponentInChildren<Button>();
             deleteButton.onClick.AddListener(() => {
-                AppManager.Instance.ChangeCameraStatus(true);
                 DeleteInstance(preset);
-                AppManager.Instance.ChangeCameraStatus(false);
+                AppManager.Instance.Render();
             });
 
             EventTrigger trigger = presetInstance.GetComponent<EventTrigger>();
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerClick;
             entry.callback.AddListener(data => {
-                AppManager.Instance.ChangeCameraStatus(true);
                 ShaderUIOptionsController.Instance.LoadPreset(preset);
-                AppManager.Instance.ChangeCameraStatus(false);
+                AppManager.Instance.Render();
             });
             trigger.triggers.Add(entry);
         }
-        AppManager.Instance.ChangeCameraStatus(false);
+        AppManager.Instance.Render();
     }
 
     private void DeleteInstance(VolumePreset preset) {

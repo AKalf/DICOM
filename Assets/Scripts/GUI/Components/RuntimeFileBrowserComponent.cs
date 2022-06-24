@@ -56,7 +56,7 @@ namespace UnityVolumeRendering {
 
             private void UpdateWindow(int windowID) {
                 if (!shouldDraw) return;
-                AppManager.Instance.ChangeCameraStatus(true);
+                AppManager.Instance.Render();
                 GUI.DragWindow(new Rect(0, 0, 10000, 20));
 
                 TextAnchor oldAlignment = GUI.skin.label.alignment;

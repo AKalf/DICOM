@@ -38,9 +38,8 @@ public class CutoutControls : MonoBehaviour {
             ToggleOptionsInteractivity(false);
         });
         UIUtilities.SetDropdown(cutOutMode, index => {
-            AppManager.Instance.ChangeCameraStatus(true);
             sectionVolume.cutoutType = (CutoutType)index;
-            AppManager.Instance.ChangeCameraStatus(false);
+            AppManager.Instance.Render();
         });
 
         SetPositionSliders(-3, 7, false);

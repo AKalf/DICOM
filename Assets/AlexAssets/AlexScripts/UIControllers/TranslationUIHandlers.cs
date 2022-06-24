@@ -27,7 +27,7 @@ public class TranslationUIHandlers : UIWindow {
         Vector3 currPos = AppManager.Instance.SelectedVolumeTransform.position;
         UIUtilities.SetPositionSliderControl(ZoomSlider, null, Vector3.forward, vec => {
             AppManager.Instance.SelectedVolumeTransform.position = vec;
-            AppManager.Instance.ChangeCameraStatus(false);
+            AppManager.Instance.Render();
         }, zoomRange.x, zoomRange.y, false);
 
         UIUtilities.SetRotationSliderControl(RotationX, RotationXInputField, Vector3.right, qua => AppManager.Instance.SelectedVolumeTransform.rotation *= qua, false);
@@ -46,7 +46,6 @@ public class TranslationUIHandlers : UIWindow {
         AppManager.Instance.RemoveOnSelectVolumeEventListener(onSelectVolumeEvent);
     }
     public void UpdateRotation() {
-        AppManager.Instance.ChangeCameraStatus(true);
         float newX = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.rotation.eulerAngles.x, 1);
         if (newX > RotationX.maxValue) RotationX.SetValueWithoutNotify(RotationX.maxValue);
         else if (newX < RotationX.minValue) RotationX.SetValueWithoutNotify(RotationX.minValue);
@@ -64,7 +63,7 @@ public class TranslationUIHandlers : UIWindow {
         else if (newZ < RotationZ.minValue) RotationZ.SetValueWithoutNotify(RotationZ.minValue);
         else RotationZ.SetValueWithoutNotify(newZ);
         RotationZInputField.SetTextWithoutNotify(newZ.ToString());
-        AppManager.Instance.ChangeCameraStatus(false);
+        AppManager.Instance.Render();
     }
     public void UpdateZoomSlider(float newSliderValue) {
         if (AppManager.Instance.SelectedVolume == null) return;
