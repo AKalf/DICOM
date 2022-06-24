@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityAction = UnityEngine.Events.UnityAction;
 public class CameraDrawManager : MonoBehaviour {
     private static CameraDrawManager instance = null;
     public static CameraDrawManager Instance => instance;
@@ -9,8 +9,11 @@ public class CameraDrawManager : MonoBehaviour {
     public Camera VolumeCamera => volumeCamera;
     [SerializeField] private RenderTexture targetTexture = null;
 
+    public UnityAction RenderCall = null;
+    public UnityAction StopRendering = null;
     private Coroutine drawCoroutine = null;
     private int drawCalls = 0;
+
     private void Awake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
@@ -18,7 +21,6 @@ public class CameraDrawManager : MonoBehaviour {
     }
 
     public void Draw() {
-
         if (AppManager.Instance.SelectedVolumeTransform == null) return;
         if (drawCalls == 0 && drawCoroutine == null) drawCoroutine = StartCoroutine(DrawCoroutine());
         drawCalls++;
@@ -38,15 +40,12 @@ public class CameraDrawManager : MonoBehaviour {
         return tex;
     }
     private IEnumerator DrawCoroutine() {
-
-        //volumeCamera.enabled = true;
         yield return new WaitForEndOfFrame();
         while (drawCalls > 0) {
             yield return new WaitForEndOfFrame();
             volumeCamera.Render();
             drawCalls--;
         }
-        //volumeCamera.enabled = false;
         drawCoroutine = null;
         yield break;
     }

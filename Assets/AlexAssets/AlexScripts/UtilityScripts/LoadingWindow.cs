@@ -25,7 +25,7 @@ public class LoadingWindow : MonoBehaviour {
 
     private IEnumerator Load() {
         while (true) {
-            AppManager.Instance.ChangeCameraStatus(true);
+            AppManager.Instance.Render();
             for (int i = 0; i < loadingSegments.Length; i++) {
                 loadingSegments[i].position = Vector3.Lerp(loadingSegments[i].position, loadingSegments[i].position - Vector3.right * 10, animationSpeed);
                 float x = loadingSegments[i].position.x + loadingSegments[i].rect.width;
@@ -34,13 +34,8 @@ public class LoadingWindow : MonoBehaviour {
                     pos.x = loadingBarParent.position.x + loadingBarParent.rect.width;
                     loadingSegments[i].localPosition = pos;
                 }
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
             }
+            yield return new WaitForSecondsRealtime(0.1f);
         }
 
     }
@@ -52,12 +47,11 @@ public class LoadingWindow : MonoBehaviour {
         StartCoroutine(loadCoroutine);
     }
     public void StopLoading() {
-        AppManager.Instance.ChangeCameraStatus(true);
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0;
         StopCoroutine(loadCoroutine);
-        AppManager.Instance.ChangeCameraStatus(false);
+        AppManager.Instance.Render();
     }
 
     public void SetLoadingPercnetage(float current, int from) {

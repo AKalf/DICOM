@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: DirectVolumeRenderingMaterial
   m_Shader: {fileID: 4800000, guid: f9df7f8cb5dda3a48a945ab37d6b0d83, type: 3}
-  m_ShaderKeywords: DVR_BACKWARD_ON ETC1_EXTERNAL_ALPHA LIGHTING_ON MODE_SURF OPACITY_BASED_ON_DEPTH
+  m_ShaderKeywords: DVR_BACKWARD_ON ETC1_EXTERNAL_ALPHA MODE_DVR OPACITY_BASED_ON_DEPTH
     _MODE_DVR _MODE_MIP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -77,18 +77,18 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DecreaseOpacityBasedOnDepth: 0
-    - _Density: 4720
+    - _Density: 5000
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _LightIntensity: 1.6
-    - _MaxDepth: 0.69
+    - _LightIntensity: 5
+    - _MaxDepth: 1
     - _MaxVal: 1
     - _Metallic: 0
     - _MinDepth: 0
-    - _MinVal: 0.21
+    - _MinVal: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Opacity: 1

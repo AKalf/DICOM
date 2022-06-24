@@ -36,7 +36,7 @@ public class TF_Utilities : UIWindow {
     private AppManager.OnSelectVolume onSelectVolumeEvent = null;
 
     public override void OnMaximize() {
-        AppManager.Instance.ChangeCameraStatus(true);
+        AppManager.Instance.Render();
     }
     protected override void OnAwake() {
         if (Instance != null && Instance != this) {
@@ -53,8 +53,7 @@ public class TF_Utilities : UIWindow {
         return volumeRenderedObject;
     }
 
-    public void SetVolume(VolumeRenderedObject selectedVolume)
-    {
+    public void SetVolume(VolumeRenderedObject selectedVolume) {
         volumeRenderedObject = selectedVolume;
     }
 
@@ -89,38 +88,31 @@ public class TF_Utilities : UIWindow {
         new_alphapoint.GetComponentInChildren<EditHUPoint>().point_index = volumeRenderedObject.transferFunction.alphaControlPoints.Count;
         new_alphapoint.transform.GetChild(0).GetComponent<Slider>().value = alpha_point.alphaValue;
 
-        if (!allow_changing_values)
-        {
+        if (!allow_changing_values) {
             allow_changing_values = true;
         }
 
     }
 
-    public void SaveFunction(InputField newTFname)
-    {
-        if (volumeRenderedObject != null)
-        {
+    public void SaveFunction(InputField newTFname) {
+        if (volumeRenderedObject != null) {
             volumeRenderedObject.SaveTF(newTFname);
         }
-        
+
     }
 
-    public void CreateFunction()
-    {
-        if (volumeRenderedObject != null)
-        {
-            foreach (Transform colorpoint in colorPointsContent.transform)
-            {
+    public void CreateFunction() {
+        if (volumeRenderedObject != null) {
+            foreach (Transform colorpoint in colorPointsContent.transform) {
                 Destroy(colorpoint.gameObject);
             }
-            foreach (Transform alphapoint in alphaPointsContent.transform)
-            {
+            foreach (Transform alphapoint in alphaPointsContent.transform) {
                 Destroy(alphapoint.gameObject);
             }
 
             volumeRenderedObject.NewTF();
         }
-      
+
     }
 
     public void ClearIndex() {

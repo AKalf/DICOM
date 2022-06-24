@@ -36,10 +36,8 @@ public class AppManager : MonoBehaviour {
         if (selectedVolume != null) SelectVolume(selectedVolume);
     }
 
-    public void ChangeCameraStatus(bool status, int delay = 0) {
-        //if (status) mainCamera.enabled = true;
-        //else StartCoroutine(DisableCameraWithDelay(delay));
-        if (!status) CameraDrawManager.Instance.Draw();
+    public void Render() {
+        CameraDrawManager.Instance.Draw();
     }
     public void ForceEnableCamera() {
         mainCamera.enabled = true;
@@ -93,7 +91,7 @@ public class AppManager : MonoBehaviour {
     public IEnumerator OnOpenDICOMDatasetResult(RuntimeFileBrowser.DialogResult result) {
         if (!result.cancelled) {
             LoadingWindow.Instance.StartLoading();
-            ChangeCameraStatus(true);
+            Render();
             // We'll only allow one dataset at a time in the runtime GUI (for simplicity)
             DespawnAllDatasets();
 
@@ -130,7 +128,7 @@ public class AppManager : MonoBehaviour {
             }
             LoadingWindow.Instance.StopLoading();
             Destroy(FindObjectOfType<RuntimeFileBrowser.RuntimeFileBrowserComponent>().gameObject);
-            ChangeCameraStatus(false);
+            Render();
         }
         else {
             LoadingWindow.Instance.StopLoading();
