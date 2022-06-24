@@ -9,12 +9,10 @@ using System.Collections;
 namespace UISystem.Elements {
     [RequireComponent(typeof(EventTrigger))]
     public class UISystem_Button : Button {
-        private CanvasGroup toolTipBox = null;
-        private new ButtonClickedEvent onClick = new ButtonClickedEvent();
         // Start is called before the first frame update
         protected override void Start() {
             base.Start();
-            UISystemUtilities.ToolBoxSetUp(this, toolTipBox, transform, AddListener);
+            UISystemUtilities.ToolBoxSetUp(this, transform, AddListener);
         }
         public void AddListener(UnityAction uAction) {
             base.onClick.AddListener(uAction);

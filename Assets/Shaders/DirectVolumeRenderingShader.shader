@@ -10,8 +10,8 @@
         _MinVal("Min val", Range(0.0, 1.0)) = 0.0
         _MaxVal("Max val", Range(0.0, 1.0)) = 1.0
         _Density("Density", Range(256, 5000)) = 512
-        _LightIntensity("Light Intensity", Range(0.0, 5)) = 0.2
-        _Opacity("Opactiy", Range(0.00, 1.00)) = 1.00
+        _LightIntensity("Light Intensity", Range(0.0, 20)) = 0.2
+        _Opacity("Opactiy", Range(0.00, 15.00)) = 1.00
         _MaxDepth("Max Depth", Range(0.0, 1.5)) = 1
         _MinDepth("Min Depth", Range(-1.0, 1.0)) = 0
     }
@@ -275,11 +275,7 @@
                     #elif defined(LIGHTING_ON)
                         src.rgb = calculateLighting(src.rgb, normalize(gradient), lightDir, -ray.direction, 0.3f);
                     #endif
-                     #if OPACITY_BASED_ON_DEPTH
-                        col.a = (1 - currPos.y ) * _Opacity;
-                    #else    
-                        col.a *= _Opacity ; // - ALEX
-                    #endif  
+                    
                     #ifdef DVR_BACKWARD_ON
                         const fixed OneMinusAlpha = (1 - src.a);
                         col.rgb = src.a * src.rgb + OneMinusAlpha * col.rgb;
@@ -295,8 +291,12 @@
                             tDepth = t;
                         }
                     #endif
-
-                     // Early ray termination
+                    #if OPACITY_BASED_ON_DEPTH
+                        col.a = (1 - currPos.y) * _Opacity;
+                    #else    
+                        col.a *= _Opacity; // - ALEX
+                    #endif  
+                    // Early ray termination
                     #if !defined(DVR_BACKWARD_ON) && defined(RAY_TERMINATE_ON)
                         if (col.a > OPACITY_THRESHOLD) {
                             break;

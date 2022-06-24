@@ -6,13 +6,10 @@ using UnityEngine.EventSystems;
 namespace UISystem.Elements {
     [RequireComponent(typeof(EventTrigger))]
     public class UISystem_InputField : UnityEngine.UI.InputField {
-        private CanvasGroup toolTipBox = null;
-        private new OnChangeEvent onValueChanged = new OnChangeEvent();
-        private new SubmitEvent onEndEdit = new SubmitEvent();
         // Start is called before the first frame update
         protected override void Start() {
             base.Start();
-            UISystemUtilities.ToolBoxSetUp(this, toolTipBox, transform, uAction => {
+            UISystemUtilities.ToolBoxSetUp(this, transform, uAction => {
                 base.onValueChanged.AddListener(s => uAction());
                 base.onEndEdit.AddListener(s => uAction());
             });

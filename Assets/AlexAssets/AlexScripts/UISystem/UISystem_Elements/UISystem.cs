@@ -7,10 +7,10 @@ namespace UISystem {
     public static class UISystemUtilities {
 
         private static readonly Func<CanvasGroup, bool, IEnumerator> onHover = new Func<CanvasGroup, bool, IEnumerator>((group, show) => {
-            return UIUtilities.ToggleCanvasGroup(group, show, 0.05f);
+            return UIUtilities.ToggleCanvasGroup(group, show, 0.15f);
         });
-        public static void ToolBoxSetUp(MonoBehaviour thisMono, CanvasGroup toolTipBox, Transform thisTransform, Action<UnityEngine.Events.UnityAction> addListenerAction) {
-            if (toolTipBox == null) toolTipBox = thisTransform.GetChild(1).GetComponent<CanvasGroup>();
+        public static void ToolBoxSetUp(MonoBehaviour thisMono, Transform thisTransform, Action<UnityEngine.Events.UnityAction> addListenerAction) {
+            CanvasGroup toolTipBox = thisTransform.GetChild(1).GetComponent<CanvasGroup>();
             addListenerAction(AppManager.Instance.Render);
             EventTrigger eventTrigger = thisTransform.GetComponent<EventTrigger>();
             EventTrigger.Entry onHoverEnter = new EventTrigger.Entry();
