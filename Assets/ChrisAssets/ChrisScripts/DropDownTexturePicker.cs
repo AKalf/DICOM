@@ -42,8 +42,6 @@ public class DropDownTexturePicker : MonoBehaviour {
         if (volume == null)
         {
             volume = TF_Utilities.Instance.GetVolume();
-
-            Debug.Log("volume isnt " + volume.name);
         }
         
         tf = TransferFunctionDatabase.LoadTransferFunction(filepaths[dropdown.value]);

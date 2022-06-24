@@ -101,18 +101,27 @@ public class TF_Utilities : UIWindow {
 
     }
 
-    public void CreateFunction() {
-        if (volumeRenderedObject != null) {
-            foreach (Transform colorpoint in colorPointsContent.transform) {
-                Destroy(colorpoint.gameObject);
-            }
-            foreach (Transform alphapoint in alphaPointsContent.transform) {
-                Destroy(alphapoint.gameObject);
-            }
+    public void CreateFunction()
+    {
+        if (volumeRenderedObject != null)
+        {
+            ClearTF();
 
             volumeRenderedObject.NewTF();
         }
 
+    }
+
+    public void ClearTF()
+    {
+        foreach (Transform colorpoint in colorPointsContent.transform)
+        {
+            Destroy(colorpoint.gameObject);
+        }
+        foreach (Transform alphapoint in alphaPointsContent.transform)
+        {
+            Destroy(alphapoint.gameObject);
+        }
     }
 
     public void ClearIndex() {
