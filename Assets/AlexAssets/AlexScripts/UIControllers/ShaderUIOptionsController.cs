@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityVolumeRendering;
-
+using UISystem.Elements;
 
 public class ShaderUIOptionsController : UIWindow {
 
@@ -16,16 +16,16 @@ public class ShaderUIOptionsController : UIWindow {
     #endregion
 
     [SerializeField] CanvasGroup LightingIntensityCanvasGroup;
-    [SerializeField] Slider /*DensitySlider,*/ LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
-    [SerializeField] UISystem.Elements.UISystem_Slider DensitySlider;
-    [SerializeField] Toggle EnableLightingToggle, EnableRayTermination, EnableBack2FrontRaycasting, EnableOpacityBasedOnDepth;
+    [SerializeField] UISystem_Slider DensitySlider;
+    [SerializeField] Slider LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
+
+    [SerializeField] UISystem_Toggle EnableLightingToggle, EnableRayTermination, EnableBack2FrontRaycasting, EnableOpacityBasedOnDepth;
     [SerializeField]
     InputField
         DensityInputField, LightIntensityInputField, OpacityInputField,
-        MinDepthInputField, MaxDepthInputField,
         MinVisibilityInputField, MaxVisibilityInputField;
-    [SerializeField] UISystem.Elements.UISystem_InputField savePresetInputField;
-    [SerializeField] UISystem.Elements.UISystem_Button savePreset;
+    [SerializeField] UISystem_InputField MinDepthInputField, MaxDepthInputField, PresetNameInputField;
+    [SerializeField] UISystem_Button savePreset;
     [SerializeField] Dropdown transferFunctionTypeDropdown, renderModeDropdown;
 
     private VolumeRenderedObject SelectedVolume => AppManager.Instance.SelectedVolume;
@@ -92,8 +92,7 @@ public class ShaderUIOptionsController : UIWindow {
 
     public void SavePreset() {
         VolumePreset settings = new VolumePreset();
-
-        settings.Name = savePresetInputField.text;
+        settings.Name = PresetNameInputField.text;
         settings.Position = AppManager.Instance.SelectedVolumeTransform.position;
         settings.Rotation = AppManager.Instance.SelectedVolumeTransform.rotation;
         settings.Scale = AppManager.Instance.SelectedVolumeTransform.localScale;

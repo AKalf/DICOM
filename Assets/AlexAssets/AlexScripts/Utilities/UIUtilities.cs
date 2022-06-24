@@ -103,14 +103,13 @@ public static class UIUtilities {
         }
     }
     public static System.Collections.IEnumerator ToggleCanvasGroup(CanvasGroup group, bool open, float speed) {
-        Debug.Log("Started");
         if (open) {
             group.interactable = true;
             group.blocksRaycasts = true;
             while (group.alpha < 1) {
                 group.alpha += speed;
                 AppManager.Instance.Render();
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.05f);
             }
             group.alpha = 1;
         }
@@ -120,12 +119,11 @@ public static class UIUtilities {
             while (group.alpha > 0) {
                 group.alpha -= speed;
                 AppManager.Instance.Render();
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.05f);
             }
             group.alpha = 0;
         }
         yield return new WaitForEndOfFrame();
-        Debug.Log("Finished");
         AppManager.Instance.Render();
     }
 
