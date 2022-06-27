@@ -240,6 +240,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider_text: {fileID: 130698295360646524}
+  isSlider: 0
+  increase: 0
   point_index: 0
 --- !u!1 &1052392660785953274
 GameObject:
@@ -384,4 +386,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider_text: {fileID: 130698295360646524}
+  isSlider: 0
+  increase: 0
   point_index: 0

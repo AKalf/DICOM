@@ -7,7 +7,7 @@ using System;
 
 
 
-public class TF_Utilities : UIWindow {
+public class TF_Utilities : MonoBehaviour {
     public static TF_Utilities Instance;
 
 
@@ -35,10 +35,8 @@ public class TF_Utilities : UIWindow {
 
     private AppManager.OnSelectVolume onSelectVolumeEvent = null;
 
-    public override void OnMaximize() {
-        AppManager.Instance.Render();
-    }
-    protected override void OnAwake() {
+
+    private void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(this);
         }
@@ -101,10 +99,8 @@ public class TF_Utilities : UIWindow {
 
     }
 
-    public void CreateFunction()
-    {
-        if (volumeRenderedObject != null)
-        {
+    public void CreateFunction() {
+        if (volumeRenderedObject != null) {
             ClearTF();
 
             volumeRenderedObject.NewTF();
@@ -112,14 +108,11 @@ public class TF_Utilities : UIWindow {
 
     }
 
-    public void ClearTF()
-    {
-        foreach (Transform colorpoint in colorPointsContent.transform)
-        {
+    public void ClearTF() {
+        foreach (Transform colorpoint in colorPointsContent.transform) {
             Destroy(colorpoint.gameObject);
         }
-        foreach (Transform alphapoint in alphaPointsContent.transform)
-        {
+        foreach (Transform alphapoint in alphaPointsContent.transform) {
             Destroy(alphapoint.gameObject);
         }
     }
@@ -136,7 +129,7 @@ public class TF_Utilities : UIWindow {
         int current_index = 0;
 
 
-        if (volumeRenderedObject.transferFunction.colourControlPoints.Count != 0) {
+        if (volumeRenderedObject != null && volumeRenderedObject.transferFunction.colourControlPoints.Count != 0) {
             foreach (TFColourControlPoint point in volumeRenderedObject.transferFunction.colourControlPoints) {
 
                 GameObject new_colorpoint = Instantiate(colorPointUIField, colorPointsContent.transform, false);

@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TranslationUIHandlers : UIWindow {
+public class TranslationUIHandlers : MonoBehaviour {
 
     private static TranslationUIHandlers instance = null;
     public static TranslationUIHandlers Instance => instance;
 
-    [SerializeField] Slider ZoomSlider, RotationX, RotationY, RotationZ;
-    [SerializeField] InputField RotationXInputField, RotationYInputField, RotationZInputField;
+    [SerializeField] UISystem.Elements.UISystem_Slider PositionX, PositionY, PositionZ, RotationX, RotationY, RotationZ;
+    [SerializeField] InputField PositionXInputField, PositionYInputField, PositionZInputField, RotationXInputField, RotationYInputField, RotationZInputField;
     [SerializeField] Button resetRotationButton;
     [SerializeField] Vector2 zoomRange = new Vector2(-3, 3);
 
     private AppManager.OnSelectVolume onSelectVolumeEvent = null;
 
-    protected override void OnAwake() {
+    private void Awake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
         onSelectVolumeEvent = Initialise;
@@ -25,7 +25,15 @@ public class TranslationUIHandlers : UIWindow {
 
     public void Initialise(UnityVolumeRendering.VolumeRenderedObject volume) {
         Vector3 currPos = AppManager.Instance.SelectedVolumeTransform.position;
-        UIUtilities.SetPositionSliderControl(ZoomSlider, null, Vector3.forward, vec => {
+        UIUtilities.SetPositionSliderControl(PositionX, PositionXInputField, Vector3.right, vec => {
+            AppManager.Instance.SelectedVolumeTransform.position = vec;
+            AppManager.Instance.Render();
+        }, zoomRange.x, zoomRange.y, false);
+        UIUtilities.SetPositionSliderControl(PositionY, PositionYInputField, Vector3.up, vec => {
+            AppManager.Instance.SelectedVolumeTransform.position = vec;
+            AppManager.Instance.Render();
+        }, zoomRange.x, zoomRange.y, false);
+        UIUtilities.SetPositionSliderControl(PositionZ, PositionZInputField, Vector3.forward, vec => {
             AppManager.Instance.SelectedVolumeTransform.position = vec;
             AppManager.Instance.Render();
         }, zoomRange.x, zoomRange.y, false);
@@ -65,10 +73,30 @@ public class TranslationUIHandlers : UIWindow {
         RotationZInputField.SetTextWithoutNotify(newZ.ToString());
         AppManager.Instance.Render();
     }
+    public void UpdatePosition() {
+        float newX = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.position.x, 1);
+        if (newX > PositionX.maxValue) PositionX.SetValueWithoutNotify(PositionX.maxValue);
+        else if (newX < PositionX.minValue) PositionX.SetValueWithoutNotify(PositionX.minValue);
+        else PositionX.SetValueWithoutNotify(newX);
+        PositionXInputField.SetTextWithoutNotify(newX.ToString());
+
+        float newY = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.position.y, 1);
+        if (newY > PositionY.maxValue) PositionY.SetValueWithoutNotify(PositionY.maxValue);
+        else if (newY < PositionY.minValue) PositionY.SetValueWithoutNotify(PositionY.minValue);
+        else PositionY.SetValueWithoutNotify(newY);
+        PositionYInputField.SetTextWithoutNotify(newY.ToString());
+
+        float newZ = (float)Math.Round(AppManager.Instance.SelectedVolumeTransform.position.z, 1);
+        if (newZ > PositionZ.maxValue) PositionZ.SetValueWithoutNotify(PositionZ.maxValue);
+        else if (newZ < PositionZ.minValue) PositionZ.SetValueWithoutNotify(PositionZ.minValue);
+        else PositionZ.SetValueWithoutNotify(newZ);
+        PositionZInputField.SetTextWithoutNotify(newZ.ToString());
+        AppManager.Instance.Render();
+    }
     public void UpdateZoomSlider(float newSliderValue) {
         if (AppManager.Instance.SelectedVolume == null) return;
-        float newValue = ZoomSlider.value + newSliderValue;
+        float newValue = PositionZ.value + newSliderValue;
         if (newValue >= zoomRange.x && newValue <= zoomRange.y)
-            ZoomSlider.value = newValue;
+            PositionZ.value = newValue;
     }
 }

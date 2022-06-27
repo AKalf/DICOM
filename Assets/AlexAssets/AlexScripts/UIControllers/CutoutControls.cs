@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using UnityVolumeRendering;
 
 public class CutoutControls : MonoBehaviour {
-    [SerializeField] private CanvasGroup panelGroup = null;
     [SerializeField] private Button createPlaneCutoutButton, createVolumeCutoutButton, deleteCutout;
     [SerializeField] private Slider posX, posY, posZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ;
     [SerializeField] private InputField posInputFieldX, posInputFieldY, posInputFieldZ, rotInputFieldX, rotInputFieldY, rotInputFieldZ, scaleInputFieldX, scaleInputFieldY, scaleInputFieldZ;

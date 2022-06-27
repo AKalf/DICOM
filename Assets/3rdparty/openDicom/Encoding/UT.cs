@@ -27,41 +27,38 @@ using openDicom.Registry;
 using openDicom.DataStructure;
 
 
-namespace openDicom.Encoding
-{
+namespace openDicom.Encoding {
 
     /// <summary>
     ///     This class represents the specific DICOM VR Unlimited Text (UT).
     /// </summary>
-    public sealed class UnlimitedText: ValueRepresentation
-    {
-        public UnlimitedText(Tag tag): base("UT", tag) {}
-        
-        public override string ToLongString()
-        {
+    public sealed class UnlimitedText : ValueRepresentation {
+        public UnlimitedText(Tag tag) : base("UT", tag) { }
+
+        public override string ToLongString() {
             return "Unlimited Text (UT)";
         }
 
-        protected override Array DecodeImproper(byte[] bytes)
-        {
+        protected override Array DecodeImproper(byte[] bytes) {
             string unlimitedText = TransferSyntax.ToString(bytes);
             unlimitedText = unlimitedText.TrimEnd(null);
             return new string[] { unlimitedText };
         }
-        
-        protected override Array DecodeProper(byte[] bytes)
-        {
+
+        protected override Array DecodeProper(byte[] bytes) {
             string unlimitedText = TransferSyntax.ToString(bytes);
             ValueMultiplicity vm = Tag.GetDictionaryEntry().VM;
-            if (vm.Equals(1) || vm.IsUndefined)
-            {
+            if (vm.Equals(1) || vm.IsUndefined) {
                 // 0xFFFFFFFF is reserved!
+#pragma warning disable CS0652 // Comparison to integral constant is useless; the constant is outside the range of the type
                 if (unlimitedText.Length <= 0xFFFFFFFE)
                     unlimitedText = unlimitedText.TrimEnd(null);
+#pragma warning restore CS0652 // Comparison to integral constant is useless; the constant is outside the range of the type
                 else
                     throw new EncodingException(
                         "A value of max. 2^32 - 2 characters is only allowed.",
                         Tag, Name + "/unlimitedText", unlimitedText);
+
             }
             else
                 throw new EncodingException(
@@ -70,5 +67,5 @@ namespace openDicom.Encoding
             return new string[] { unlimitedText };
         }
     }
-    
+
 }

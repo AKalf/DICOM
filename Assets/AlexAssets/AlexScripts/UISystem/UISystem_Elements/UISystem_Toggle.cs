@@ -7,6 +7,9 @@ namespace UISystem.Elements {
     public class UISystem_Toggle : UnityEngine.UI.Toggle {
         protected override void Start() {
             base.Start();
+#if UNITY_EDITOR
+            if (!Application.isPlaying) return; // pops errors when reloading otherwise
+#endif
             UISystemUtilities.ToolBoxSetUp(this, transform, uAction => base.onValueChanged.AddListener(s => uAction()));
         }
         public void AddListener(UnityAction<bool> uAction) {

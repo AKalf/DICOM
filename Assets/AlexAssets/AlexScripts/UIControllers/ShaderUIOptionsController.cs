@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityVolumeRendering;
 using UISystem.Elements;
 
-public class ShaderUIOptionsController : UIWindow {
+public class ShaderUIOptionsController : MonoBehaviour {
 
     // Varibles
     #region VARIBLES
@@ -17,7 +17,7 @@ public class ShaderUIOptionsController : UIWindow {
 
     [SerializeField] CanvasGroup LightingIntensityCanvasGroup;
     [SerializeField] UISystem_Slider DensitySlider;
-    [SerializeField] Slider LightingIntensitySlider, OpacitySlider, VisibleRangeMin, VisibleRangeMax;
+    [SerializeField] Slider OpacitySlider;
 
     [SerializeField] UISystem_Toggle EnableLightingToggle, EnableRayTermination, EnableBack2FrontRaycasting, EnableOpacityBasedOnDepth;
     [SerializeField]
@@ -26,6 +26,7 @@ public class ShaderUIOptionsController : UIWindow {
         MinVisibilityInputField, MaxVisibilityInputField;
     [SerializeField] UISystem_InputField MinDepthInputField, MaxDepthInputField, PresetNameInputField;
     [SerializeField] UISystem_Button savePreset;
+    [SerializeField] UISystem_Slider VisibleRangeMin, VisibleRangeMax, LightingIntensitySlider;
     [SerializeField] Dropdown transferFunctionTypeDropdown, renderModeDropdown;
 
     private VolumeRenderedObject SelectedVolume => AppManager.Instance.SelectedVolume;
@@ -42,14 +43,14 @@ public class ShaderUIOptionsController : UIWindow {
     private TFRenderMode tfRenderMode = TFRenderMode.TF1D;
     private bool hasInitialised = false;
     #endregion
-    protected override void OnAwake() {
+    private void Awake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
         onSelectVolumeEvent = newVolume => SetUpUIControlls(AppManager.Instance.SelectedVolumeMaterial);
         AppManager.Instance.AddOnSelectVolumeEventListener(onSelectVolumeEvent);
 
     }
-    protected override void OnStart() {
+    private void Start() {
         savePreset.onClick.AddListener(SavePreset);
         // Set render modes dropdown
         UIUtilities.SetDropdown(renderModeDropdown, index => {
@@ -120,7 +121,7 @@ public class ShaderUIOptionsController : UIWindow {
         AppManager.Instance.SelectedVolumeTransform.position = preset.Position;
         AppManager.Instance.SelectedVolumeTransform.rotation = preset.Rotation;
         AppManager.Instance.SelectedVolumeTransform.localScale = preset.Scale;
-        EnableLightingToggle.isOn = preset.IsLighted;
+
         EnableRayTermination.isOn = preset.AreRaysTerminated;
         EnableBack2FrontRaycasting.isOn = preset.IsBack2FrontRaycasted;
         EnableRayTermination.isOn = preset.IsOpacityBasedOnDepth;
@@ -132,8 +133,16 @@ public class ShaderUIOptionsController : UIWindow {
         MinDepthInputField.text = preset.MinimumDepth.ToString();
         MaxDepthInputField.text = preset.MaximumDepth.ToString();
         renderModeDropdown.value = (int)preset.RenderMode;
-        SelectedVolume.transferFunction = preset.TransferFunction;
-        SelectedVolume.UpdateTFTextureOnShader();
+        try {
+            SelectedVolume.transferFunction = preset.TransferFunction;
+            SelectedVolume.UpdateTFTextureOnShader();
+        }
+        catch (Exception e) {
+#if UNITY_EDITOR
+            Debug.LogError(e.Message);
+#endif
+        }
+        EnableLightingToggle.isOn = preset.IsLighted;
         AppManager.Instance.Render();
     }
     private void SetNewLayerRangeValues(float value, bool isMin) {

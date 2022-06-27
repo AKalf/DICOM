@@ -78,9 +78,6 @@ public class SlicingControlls : UIWindow {
         ToggleOptionsInteractivity(false);
     }
 
-
-
-
     private void SetSlicingPlaneColor(int index) {
         Transform trans = totalPlanes[index].transform;
         Color color = index == 1 ? Color.red : index == 2 ? Color.blue : Color.green;

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class PresetsUIManager : UIWindow {
+public class PresetsUIManager : MonoBehaviour {
     private static PresetsUIManager instance = null;
     public static PresetsUIManager Instance => instance;
     [SerializeField] Transform parentPanel = null;
@@ -11,11 +11,11 @@ public class PresetsUIManager : UIWindow {
     [SerializeField] ScrollRect scrollRect = null;
     private Dictionary<VolumePreset, GameObject> spawnedPresets = new Dictionary<VolumePreset, GameObject>();
 
-    protected override void OnAwake() {
+    private void Awake() {
         if (instance == null) instance = this;
         else if (instance != this) Destroy(this);
     }
-    protected override void OnStart() {
+    private void Start() {
         scrollRect.onValueChanged.AddListener(value => {
             AppManager.Instance.Render();
         });

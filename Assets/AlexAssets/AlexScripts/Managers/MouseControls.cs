@@ -11,12 +11,19 @@ public class MouseControls : MonoBehaviour {
     void Update() {
         if (AppManager.Instance.SelectedVolume == null) return;
 
-        if (Input.GetMouseButton(1)) {
+        if (Input.GetMouseButtonDown(0) && Input.GetKeyDown(KeyCode.LeftControl) || Input.GetMouseButton(1)) {
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");
             if (mouseX != 0 || mouseY != 0) {
-                AppManager.Instance.SelectedVolumeTransform.rotation *= Quaternion.Euler(mouseY, mouseX, 0);
-                TranslationUIHandlers.Instance.UpdateRotation();
+                if (Input.GetMouseButton(1)) {
+                    AppManager.Instance.SelectedVolumeTransform.rotation *= Quaternion.Euler(mouseY, mouseX, 0);
+                    TranslationUIHandlers.Instance.UpdateRotation();
+                }
+                else {
+                    AppManager.Instance.SelectedVolumeTransform.position += new Vector3(mouseY, mouseX, 0);
+                    TranslationUIHandlers.Instance.UpdatePosition();
+
+                }
             }
         }
 

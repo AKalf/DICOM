@@ -40,13 +40,16 @@ public class CameraDrawManager : MonoBehaviour {
         return tex;
     }
     private IEnumerator DrawCoroutine() {
+        volumeCamera.enabled = true;
         yield return new WaitForEndOfFrame();
         while (drawCalls > 0) {
             yield return new WaitForEndOfFrame();
+            Debug.Log("Rendering");
             volumeCamera.Render();
             drawCalls--;
         }
         drawCoroutine = null;
+        volumeCamera.enabled = false;
         yield break;
     }
 }

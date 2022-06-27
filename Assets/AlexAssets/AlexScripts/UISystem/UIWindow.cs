@@ -3,40 +3,61 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(CanvasGroup))]
 public class UIWindow : MonoBehaviour {
 
-    public enum ScreenAnchor { Left, Top, Center, Bottom, Right }
-    [SerializeField] private Button closeButton, minimizeButton;
+    [SerializeField] CanvasGroup windowToOpen = null;
+    [SerializeField] Toggle windowToggle = null;
+    [SerializeField] List<UIWindow> windowsToCloseWhenOpening = new List<UIWindow>();
+    [SerializeField] List<UIWindow> windowsToCloseWhenClosing = new List<UIWindow>();
     [SerializeField] protected string windowName = "";
     [SerializeField] protected bool isClosedOnStart = false;
-    [SerializeField] private bool shouldMinimzeOtherOnExpand = false;
-    [HideInInspector] public bool IsOpen = false;
-    public bool ShouldMinimzeOtherOnExpand => shouldMinimzeOtherOnExpand;
-    [SerializeField] protected ScreenAnchor anchor = ScreenAnchor.Right;
-    public ScreenAnchor Anchor => anchor;
-    public CanvasGroup CanvasGroup { get; private set; }
+    private bool isOpen = false;
+    public bool IsOpen {
+        get => isOpen;
+        set {
+            isOpen = value;
+            ToggleWindow(isOpen);
+        }
+    }
+
+    public CanvasGroup CanvasGroup { get => windowToOpen; private set => windowToOpen = value; }
     public string WindowName => windowName;
 
     private void Awake() {
+        if (windowToggle != null) windowToggle.onValueChanged.AddListener(value => IsOpen = value);
+        else Debug.LogWarning("You have assigne a toggle-to-open-window");
         OnAwake();
     }
     // Start is called before the first frame update
     private void Start() {
-        this.CanvasGroup = GetComponent<CanvasGroup>();
-        if (closeButton != null) closeButton.onClick.AddListener(Close);
-        if (minimizeButton != null) minimizeButton.onClick.AddListener(() => MinimizedWindowsPanel.Instance.MinimizeWindow(this));
-        if (isClosedOnStart) minimizeButton.onClick.Invoke();
         OnStart();
-
     }
     protected virtual void OnAwake() { }
     protected virtual void OnStart() {
 
     }
-    public virtual void OnMinimize() { }
-    public virtual void OnMaximize() { }
-    private void Close() {
-        Destroy(this.gameObject);
+    private void ToggleWindow(bool show) {
+        if (show) _OnMaximize();
+        else _OnMinimize();
     }
+
+    private void _OnMinimize() {
+        UIUtilities.ToggleCanvasGroup(windowToOpen, false);
+        foreach (UIWindow otherWindow in windowsToCloseWhenClosing)
+            otherWindow.IsOpen = false;
+        OnMinimize();
+    }
+    private void _OnMaximize() {
+        UIUtilities.ToggleCanvasGroup(windowToOpen, true);
+        foreach (UIWindow otherWindow in windowsToCloseWhenOpening)
+            otherWindow.IsOpen = false;
+        OnMaximize();
+    }
+    /// <summary>Extend functionality </summary>
+    public virtual void OnMinimize() { }
+    /// <summary>Extend functionality </summary>
+    public virtual void OnMaximize() {
+
+    }
+
 }

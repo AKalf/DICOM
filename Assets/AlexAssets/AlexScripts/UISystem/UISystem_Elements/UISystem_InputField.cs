@@ -9,6 +9,9 @@ namespace UISystem.Elements {
         // Start is called before the first frame update
         protected override void Start() {
             base.Start();
+#if UNITY_EDITOR
+            if (!Application.isPlaying) return; // pops errors when reloading otherwise
+#endif
             UISystemUtilities.ToolBoxSetUp(this, transform, uAction => {
                 base.onValueChanged.AddListener(s => uAction());
                 base.onEndEdit.AddListener(s => uAction());
